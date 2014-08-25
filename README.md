@@ -29,4 +29,4 @@ echo rng.random()
 # Possible output: 9.9708586245117903e-01
 ```
 
-[Documentation](https://raw.githubusercontent.com/BlaXpirit/nimrod-random/master/doc/random.html)
+[Documentation](https://rawgit.com/BlaXpirit/nimrod-random/master/doc/random.html)
