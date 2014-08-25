@@ -1,0 +1,10 @@
+*
+!.gitignore
+
+!README.md
+!LICENSE
+!*.babel
+!src
+!src/*.nim
+!doc
+!doc/*.html
