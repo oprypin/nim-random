@@ -43,8 +43,7 @@ proc random_int*(self: var TRandomGenerator; max: Positive): Natural =
 
 method random*(self: var TRandomGenerator): float64 =
     ## Returns a uniformly distributed random number ``0 <= n < 1``
-    const BPF = 53 # Bits per float
-    const MAX_PREC = 1 shl BPF
+    const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 different values
     return float64(self.random_int(MAX_PREC))/MAX_PREC
 
 proc random_int*(self: var TRandomGenerator; min, max: int): int =
@@ -85,9 +84,9 @@ type TMersenneTwister* = object of TRandomGenerator
     ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
     state: TMTState
 
-proc new_MersenneTwister*(): TMersenneTwister =
+proc init_MersenneTwister*(): TMersenneTwister =
     ## Initializes and returns a new ``TMersenneTwister``
-    result.state = new_MTState()
+    result.state = init_MTState()
 
 proc seed*(self: var TMersenneTwister; seed: int) =
     ## Seeds (randomizes) using 32 bits of an integer
@@ -141,7 +140,7 @@ type TSystemRandom* = object of TRandomGenerator
     ## Random number generator based on bytes provided by
     ## the operating system's cryptographic source (see ``urandom``)
 
-proc new_SystemRandom*(): TSystemRandom =
+proc init_SystemRandom*(): TSystemRandom =
     ## Returns a new ``TSystemRandom``
 
 iterator sys_random_bytes(self: var TSystemRandom): uint8 {.closure.} =
@@ -157,7 +156,7 @@ method random_byte*(self: var TSystemRandom): uint8 =
 
 
 
-var mersenne_twister_inst* = new_MersenneTwister()
+var mersenne_twister_inst* = init_MersenneTwister()
     ## A global instance of MT used by the alias functions
 mersenne_twister_inst.seed()
 # Why won't this work if ``mersenne_twister_inst`` is not public?

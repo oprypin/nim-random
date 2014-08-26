@@ -264,7 +264,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
   <a class="reference" href="#8" id="58">Vars</a>
   <ul class="simple">
       <li><a class="reference" href="#mersenne_twister_inst"
-    title="mersenne_twister_inst* = new_MersenneTwister()"><wbr />mersenne_<wbr />twister_<wbr />inst</a></li>
+    title="mersenne_twister_inst* = init_MersenneTwister()"><wbr />mersenne_<wbr />twister_<wbr />inst</a></li>
 
   </ul>
 </li>
@@ -289,16 +289,18 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="random_choice*[T](self: var TRandomGenerator; arr: openarray[T]): T"><wbr />random_<wbr />choice</a></li>
   <li><a class="reference" href="#shuffle,TRandomGenerator,openarray[T]"
     title="shuffle*[T](self: var TRandomGenerator; arr: var openarray[T])"><wbr />shuffle</a></li>
-  <li><a class="reference" href="#new_MersenneTwister,"
-    title="new_MersenneTwister*(): TMersenneTwister"><wbr />new_<wbr />Mersenne<wbr />Twister</a></li>
+  <li><a class="reference" href="#init_MersenneTwister,"
+    title="init_MersenneTwister*(): TMersenneTwister"><wbr />init_<wbr />Mersenne<wbr />Twister</a></li>
   <li><a class="reference" href="#seed,TMersenneTwister,int"
     title="seed*(self: var TMersenneTwister; seed: int)"><wbr />seed</a></li>
   <li><a class="reference" href="#seed,TMersenneTwister,openarray[uint8]"
     title="seed*(self: var TMersenneTwister; seed: openarray[uint8])"><wbr />seed</a></li>
   <li><a class="reference" href="#seed,TMersenneTwister"
     title="seed*(self: var TMersenneTwister)"><wbr />seed</a></li>
-  <li><a class="reference" href="#new_SystemRandom,"
-    title="new_SystemRandom*(): TSystemRandom"><wbr />new_<wbr />System<wbr />Random</a></li>
+  <li><a class="reference" href="#init_SystemRandom,"
+    title="init_SystemRandom*(): TSystemRandom"><wbr />init_<wbr />System<wbr />Random</a></li>
+  <li><a class="reference" href="#random_byte,"
+    title="random_byte*(): uint8"><wbr />random_<wbr />byte</a></li>
   <li><a class="reference" href="#random,"
     title="random*(): float64"><wbr />random</a></li>
   <li><a class="reference" href="#random,float"
@@ -309,8 +311,6 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="random_int*(max: Positive): Natural"><wbr />random_<wbr />int</a></li>
   <li><a class="reference" href="#random_int,int,int"
     title="random_int*(min, max: int): int"><wbr />random_<wbr />int</a></li>
-  <li><a class="reference" href="#random_byte,"
-    title="random_byte*(): uint8"><wbr />random_<wbr />byte</a></li>
   <li><a class="reference" href="#random_int,TSlice[int]"
     title="random_int*(slice: TSlice[int]): int"><wbr />random_<wbr />int</a></li>
   <li><a class="reference" href="#random_bool,"
@@ -346,7 +346,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <div class="section" id="6">
 <h1><a class="toc-backref" href="#56">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="math.html">math</a>, <a class="reference external" href="unsigned.html">unsigned</a>, <a class="reference external" href="times.html">times</a>, <a class="reference external" href="algorithm.html">algorithm</a>, <a class="reference external" href="mt19937ar.html">mt19937ar</a>, <a class="reference external" href="windows_urandom.html">windows_urandom</a>, <a class="reference external" href="posix_urandom.html">posix_urandom</a>
+<a class="reference external" href="math.html">math</a>, <a class="reference external" href="unsigned.html">unsigned</a>, <a class="reference external" href="times.html">times</a>, <a class="reference external" href="mt19937ar.html">mt19937ar</a>, <a class="reference external" href="windows_urandom.html">windows_urandom</a>, <a class="reference external" href="posix_urandom.html">posix_urandom</a>
 </dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#57">Types</a></h1>
@@ -375,7 +375,7 @@ Random number generator based on bytes provided by the operating system's crypto
 <div class="section" id="8">
 <h1><a class="toc-backref" href="#58">Vars</a></h1>
 <dl class="item">
-<dt id="mersenne_twister_inst"><a name="mersenne_twister_inst"></a><pre><span class="Identifier">mersenne_twister_inst</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Identifier">new_MersenneTwister</span><span class="Other">(</span><span class="Other">)</span></pre></dt>
+<dt id="mersenne_twister_inst"><a name="mersenne_twister_inst"></a><pre><span class="Identifier">mersenne_twister_inst</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Identifier">init_MersenneTwister</span><span class="Other">(</span><span class="Other">)</span></pre></dt>
 <dd>
 A global instance of MT used by the alias functions
 
@@ -431,7 +431,7 @@ Selects a random element from an array (all of them have an equal chance) and re
 Randomly shuffles elements of an array
 
 </dd>
-<dt id="new_MersenneTwister"><a name="new_MersenneTwister,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">new_MersenneTwister</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TMersenneTwister</span></pre></dt>
+<dt id="init_MersenneTwister"><a name="init_MersenneTwister,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_MersenneTwister</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TMersenneTwister</span></pre></dt>
 <dd>
 Initializes and returns a new <tt class="docutils literal"><span class="pre">TMersenneTwister</span></tt>
 
@@ -451,57 +451,57 @@ Seeds (randomizes) using an array of bytes
 Seeds (randomizes) using an array of bytes provided by <tt class="docutils literal"><span class="pre">urandom</span></tt>, or, in case of failure, using the current time (with resolution of 1/256 sec)
 
 </dd>
-<dt id="new_SystemRandom"><a name="new_SystemRandom,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">new_SystemRandom</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TSystemRandom</span></pre></dt>
+<dt id="init_SystemRandom"><a name="init_SystemRandom,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_SystemRandom</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TSystemRandom</span></pre></dt>
 <dd>
 Returns a new <tt class="docutils literal"><span class="pre">TSystemRandom</span></tt>
 
 </dd>
-<dt id="random"><a name="random,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span></pre></dt>
+<dt id="random_byte"><a name="random_byte,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_byte</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random"><a name="random,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span></pre></dt>
+<dt id="random"><a name="random,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random"><a name="random,float,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span></pre></dt>
+<dt id="random"><a name="random,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_int"><a name="random_int,Positive"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Natural</span></pre></dt>
+<dt id="random"><a name="random,float,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_int"><a name="random_int,int,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+<dt id="random_int"><a name="random_int,Positive"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_byte"><a name="random_byte,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_byte</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span></pre></dt>
+<dt id="random_int"><a name="random_int,int,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_int"><a name="random_int,TSlice[int]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">slice</span><span class="Other">:</span> <span class="Identifier">TSlice</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+<dt id="random_int"><a name="random_int,TSlice[int]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_int</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">slice</span><span class="Other">:</span> <span class="Identifier">TSlice</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_bool"><a name="random_bool,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_bool</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<dt id="random_bool"><a name="random_bool,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_bool</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="random_choice"><a name="random_choice,openarray[T]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_choice</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Identifier">openarray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dt id="random_choice"><a name="random_choice,openarray[T]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_choice</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Identifier">openarray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
 </dd>
-<dt id="shuffle"><a name="shuffle,openarray[T]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">shuffle</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openarray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
+<dt id="shuffle"><a name="shuffle,openarray[T]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">shuffle</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openarray</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
 <dd>
 Alias to MT
 
@@ -541,7 +541,7 @@ Returns a uniformly distributed random number <tt class="docutils literal"><span
 
 </div>
 
-<small>Generated: 2014-08-26 10:58:47 UTC</small>
+<small>Generated: 2014-08-26 15:09:55 UTC</small>
 </div>
 </body>
 </html>
