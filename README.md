@@ -1,28 +1,35 @@
 ```nimrod
 import random
 
-var a = @[1,2,3,4,5]
+var a = @[1,2,3,4,5,6,7,8,9,10]
 
 echo a[random_int(a.len)]
-# Possible output: 3
+# Possible output: 9
 
 echo a.random_choice()
-# Possible output: 2
+# Possible output: 3
 
 a.shuffle()
 echo a
-# Possible output: @[4, 5, 2, 1, 3]
+# Possible output: @[4, 8, 2, 10, 9, 3, 1, 5, 6, 7]
+
+import algorithm
+a.sort(cmp[int])
 
 if random_bool():
     echo "heads"
 else:
     echo "tails"
-# Possible output: tails
+# Possible output: heads
 
-var rng = new_MersenneTwister()
+var rng = init_MersenneTwister()
 rng.seed(1337)
 echo rng.random_int(13..37)
 # Reproducible output: 31
+
+import sequtils
+echo to_seq(rng.random_sample(a, 3))
+# Reproducible output: @[5, 6, 8]
 
 rng.seed()
 echo rng.random()

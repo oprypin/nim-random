@@ -5,6 +5,7 @@
 import math
 import unsigned
 import times
+import intsets
 
 import mt19937ar
 
@@ -77,6 +78,41 @@ proc shuffle*[T](self: var TRandomGenerator; arr: var openarray[T]) =
     for i in 0..arr.high:
         let j = self.random_int(i, arr.len)
         swap arr[j], arr[i]
+
+iterator missing_items[T](s: var T; a, b: int): int =
+    ## missing_items([2, 4], 1, 5) -> [1, 3, 5]
+    var cur = a
+    for el in items(s):
+        while cur<el:
+            yield cur
+            inc cur
+        inc cur
+    for x in cur..b:
+        yield x
+
+iterator random_sample*[T](self: var TRandomGenerator; arr: openarray[T], n: Natural): T =
+    ## Simple random sample.
+    ## Yields ``n`` items randomly picked from ``arr``, in the relative order they were in it.
+    ## Each item has an equal chance to be picked and can be picked only once.
+    ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
+    ## Raises ``EInvalidValue`` if there are less than ``n`` items in ``arr``.
+    if n>arr.len:
+        raise new_exception(EInvalidValue, "Sample can't be larger than population")
+    let direct = arr.len <= (n div 2)+10
+    # "direct" means we will be filling the set with items to include
+    # "not direct" means filling it with items to exclude
+    var remaining = if direct: n else: arr.len-n
+    var iset: TIntSet = init_IntSet()
+    while remaining>0:
+        let x = self.random_int(arr.len)
+        if not contains_or_incl(iset, x):
+            dec(remaining)
+    if direct:
+        for i in items(iset):
+            yield arr[i]
+    else:
+        for i in missing_items(iset, 0, n-1):
+            yield arr[i]
 
 
 type TMersenneTwister* = object of TRandomGenerator
@@ -191,3 +227,7 @@ proc random_choice*[T](arr: openarray[T]): T {.inline.} =
 proc shuffle*[T](arr: var openarray[T]) {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.shuffle(arr)
+iterator random_sample*[T](arr: openarray[T], n: Natural): T {.inline.} =
+    ## Alias to MT
+    for x in mersenne_twister_inst.random_sample(arr, n):
+        yield x
