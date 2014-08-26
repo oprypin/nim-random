@@ -67,8 +67,8 @@ proc random*(self: var TRandomGenerator; max: float): float =
     ## Returns a uniformly distributed random number ``0 <= n < max``
     max*self.random()
 
-proc random_choice*[T](self: var TRandomGenerator; arr: openarray[T]): T {.inline.} =
-    ## Selects a random element from an array (all of them have an equal chance) and returns it
+proc random_choice*[T](self: var TRandomGenerator; arr: T): auto {.inline.} =
+    ## Selects a random element (all of them have an equal chance) from a 0-indexed random access container and returns it
     arr[self.random_int(arr.len)]
 
 proc shuffle*[T](self: var TRandomGenerator; arr: var openarray[T]) =
@@ -83,30 +83,31 @@ iterator missing_items[T](s: var T; a, b: int): int =
     ## missing_items([2, 4], 1, 5) -> [1, 3, 5]
     var cur = a
     for el in items(s):
-        while cur<el:
+        while cur < el:
             yield cur
             inc cur
         inc cur
     for x in cur..b:
         yield x
 
-iterator random_sample*[T](self: var TRandomGenerator; arr: openarray[T], n: Natural): T =
+iterator random_sample*[T](self: var TRandomGenerator; arr: T, n: Natural): auto =
     ## Simple random sample.
-    ## Yields ``n`` items randomly picked from ``arr``, in the relative order they were in it.
+    ## Yields ``n`` items randomly picked from a 0-indexed random access container ``arr``,
+    ## in the relative order they were in it.
     ## Each item has an equal chance to be picked and can be picked only once.
     ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
     ## Raises ``EInvalidValue`` if there are less than ``n`` items in ``arr``.
-    if n>arr.len:
+    if n > arr.len:
         raise new_exception(EInvalidValue, "Sample can't be larger than population")
     let direct = arr.len <= (n div 2)+10
     # "direct" means we will be filling the set with items to include
     # "not direct" means filling it with items to exclude
     var remaining = if direct: n else: arr.len-n
     var iset: TIntSet = init_IntSet()
-    while remaining>0:
+    while remaining > 0:
         let x = self.random_int(arr.len)
         if not contains_or_incl(iset, x):
-            dec(remaining)
+            dec remaining
     if direct:
         for i in items(iset):
             yield arr[i]
@@ -221,13 +222,13 @@ proc random_int*(slice: TSlice[int]): int {.inline.} =
 proc random_bool*(): bool {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.random_bool()
-proc random_choice*[T](arr: openarray[T]): T {.inline.} =
+proc random_choice*[T](arr: T): auto {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.random_choice(arr)
 proc shuffle*[T](arr: var openarray[T]) {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.shuffle(arr)
-iterator random_sample*[T](arr: openarray[T], n: Natural): T {.inline.} =
+iterator random_sample*[T](arr: T, n: Natural): auto {.inline.} =
     ## Alias to MT
     for x in mersenne_twister_inst.random_sample(arr, n):
         yield x
