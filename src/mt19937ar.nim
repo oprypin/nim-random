@@ -64,16 +64,20 @@ const
 
 type
     TMTState* = object
+        ## state of Mersenne Twister
         mt: array[N, uint32]
         mti: int
+    
 
 proc new_MTState*(): TMTState =
+    ## initializes and returns a new ``TMTState``
     result.mti = N+1
 
-# self.mti == N+1 means self.mt[N] is not initialized
-# initializes self.mt[N] with a seed
 proc init_genrand*(self: var TMTState; s: uint32) =
-    self.mt[0] = s and 0xFFFFFFFF'u32
+    ## initializes ``mt[N]`` with a seed
+
+    # ``mti == N+1`` means ``mt[N]`` is not initialized
+    self.mt[0] = s #and 0xFFFFFFFF'u32 # not needed because we use ``uint32``
     self.mti = 1
     while self.mti < N:
         self.mt[self.mti] = (1812433253'u32 * (self.mt[self.mti-1] xor (self.mt[self.mti-1] shr 30)) + uint32(self.mti))
@@ -81,16 +85,18 @@ proc init_genrand*(self: var TMTState; s: uint32) =
         # In the previous versions, MSBs of the seed affect
         # only MSBs of the array self.mt[].
         # 2002/01/09 modified by Makoto Matsumoto
-        self.mt[self.mti] = self.mt[self.mti] and 0xFFFFFFFF'u32
-        # for  > 32 bit machines
+        
+        #self.mt[self.mti] = self.mt[self.mti] and 0xFFFFFFFF'u32
+        # for > 32 bit machines # not needed because we use ``uint32``
         
         inc(self.mti)
 
-# initialize by an array with array-length
-# init_key is the array for initializing keys
-# key_length is its length
-# slight change for C++, 2004/2/26
 proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
+    ## initialize by an array with array-length.
+    ## ``init_key`` is the array for initializing keys.
+    
+    # slight change for C++, 2004/2/26
+    
     let key_length = init_key.len
     self.init_genrand(19650218'u32)
     var
@@ -98,7 +104,7 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
         j = init_key.low
     for k in countdown(if N > key_length: N else: key_length, 1):
         self.mt[i] = (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32)) + init_key[j] + uint32(j) # non linear
-        self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines
+        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because we use ``uint32``
         inc(i)
         inc(j)
         if i >= N:
@@ -108,17 +114,17 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
             j = init_key.low
     for k in countdown(N-1, 1):
         self.mt[i] = (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1566083941'u32)) - uint32(i) # non linear
-        self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines
+        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because we use ``uint32``
         inc(i)
         if i >= N:
             self.mt[0] = self.mt[N-1]
             i = 1
     self.mt[0] = 0x80000000'u32  # MSB is 1; assuring non-zero initial array
-    
-# generates a random number on [0,0xffffffff]-interval
+
 proc genrand_int32*(self: var TMTState): uint32 =
+    ## generates a random number on [0,0xffffffff]-interval
     var y: uint32
-    var mag01: array[2, uint32] = [0x0'u32, MATRIX_A]
+    let mag01 = [0'u32, MATRIX_A]
     # mag01[x] = x*MATRIX_A  for x=0,1
     
     if self.mti >= N:
@@ -152,30 +158,30 @@ proc genrand_int32*(self: var TMTState): uint32 =
     
     return y
 
-# generates a random number on [0,0x7fffffff]-interval
 proc genrand_int31*(self: var TMTState): int32 =
+    ## generates a random number on [0,0x7fffffff]-interval
     return int32(self.genrand_int32() shr 1)
 
-# generates a random number on [0,1]-real-interval
 proc genrand_real1*(self: var TMTState): float64 =
+    ## generates a random number on [0,1]-real-interval
     return float64(self.genrand_int32())*(1.0/4294967295.0)
     # divided by 2^32-1
 
-# generates a random number on [0,1)-real-interval
 proc genrand_real2*(self: var TMTState): float64 =
+    ## generates a random number on [0,1)-real-interval
     return float64(self.genrand_int32())*(1.0/4294967296.0)
     # divided by 2^32
 
-# generates a random number on (0,1)-real-interval
 proc genrand_real3*(self: var TMTState): float64 =
+    ## generates a random number on (0,1)-real-interval
     return (float64(self.genrand_int32())+0.5)*(1.0/4294967296.0)
     # divided by 2^32
 
-# generates a random number on [0,1) with 53-bit resolution
 proc genrand_res53*(self: var TMTState): float64 =
+    ## generates a random number on [0,1) with 53-bit resolution
     let
-        a: uint32 = self.genrand_int32() shr 5
-        b: uint32 = self.genrand_int32() shr 6
+        a = self.genrand_int32() shr 5
+        b = self.genrand_int32() shr 6
     return (float64(a)*67108864.0+float64(b))*(1.0/9007199254740992.0)
 # These real versions are due to Isaku Wada, 2002/01/09 added
 
@@ -183,7 +189,7 @@ proc genrand_res53*(self: var TMTState): float64 =
 when is_main_module:
     proc printf(fmt: cstring) {.importc: "printf", varargs, header: "<stdio.h>".}
 
-    var state: TMTState = new_MTState()
+    var state = new_MTState()
     
     state.init_by_array(@[0x00000123'u32, 0x00000234'u32, 0x00000345'u32, 0x00000456'u32])
     printf("1000 outputs of genrand_int32()\n")
