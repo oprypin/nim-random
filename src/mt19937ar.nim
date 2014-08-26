@@ -69,7 +69,7 @@ type
         mti: int
     
 
-proc new_MTState*(): TMTState =
+proc init_MTState*(): TMTState =
     ## initializes and returns a new ``TMTState``
     result.mti = N+1
 
@@ -107,7 +107,6 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
         self.mt[i] =
             self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32) +
             init_key[j] + uint32(j) # non linear
-        
         #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because it's ``uint32``
         inc(i)
         inc(j)
@@ -195,7 +194,7 @@ proc genrand_res53*(self: var TMTState): float64 =
 when is_main_module:
     proc printf(fmt: cstring) {.importc: "printf", varargs, header: "<stdio.h>".}
 
-    var state = new_MTState()
+    var state = init_MTState()
     
     state.init_by_array(@[0x00000123'u32, 0x00000234'u32, 0x00000345'u32, 0x00000456'u32])
     printf("1000 outputs of genrand_int32()\n")
