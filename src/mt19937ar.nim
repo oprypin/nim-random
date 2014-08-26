@@ -77,17 +77,18 @@ proc init_genrand*(self: var TMTState; s: uint32) =
     ## initializes ``mt[N]`` with a seed
 
     # ``mti == N+1`` means ``mt[N]`` is not initialized
-    self.mt[0] = s #and 0xFFFFFFFF'u32 # not needed because we use ``uint32``
+    self.mt[0] = s #and 0xFFFFFFFF'u32 # not needed because it's ``uint32``
     self.mti = 1
     while self.mti < N:
-        self.mt[self.mti] = (1812433253'u32 * (self.mt[self.mti-1] xor (self.mt[self.mti-1] shr 30)) + uint32(self.mti))
+        self.mt[self.mti] =
+            1812433253'u32 * (self.mt[self.mti-1] xor (self.mt[self.mti-1] shr 30)) + uint32(self.mti)
         # See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier.
         # In the previous versions, MSBs of the seed affect
-        # only MSBs of the array self.mt[].
+        # only MSBs of the array mt[].
         # 2002/01/09 modified by Makoto Matsumoto
         
         #self.mt[self.mti] = self.mt[self.mti] and 0xFFFFFFFF'u32
-        # for > 32 bit machines # not needed because we use ``uint32``
+        # for > 32 bit machines # not needed because it's ``uint32``
         
         inc(self.mti)
 
@@ -103,8 +104,11 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
         i = 1
         j = init_key.low
     for k in countdown(if N > key_length: N else: key_length, 1):
-        self.mt[i] = (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32)) + init_key[j] + uint32(j) # non linear
-        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because we use ``uint32``
+        self.mt[i] =
+            self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32) +
+            init_key[j] + uint32(j) # non linear
+        
+        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because it's ``uint32``
         inc(i)
         inc(j)
         if i >= N:
@@ -113,8 +117,10 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
         if j > init_key.high:
             j = init_key.low
     for k in countdown(N-1, 1):
-        self.mt[i] = (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1566083941'u32)) - uint32(i) # non linear
-        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because we use ``uint32``
+        self.mt[i] =
+            self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1566083941'u32) -
+            uint32(i) # non linear
+        #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because it's ``uint32``
         inc(i)
         if i >= N:
             self.mt[0] = self.mt[N-1]

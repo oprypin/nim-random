@@ -4,7 +4,8 @@
 
 import winlean
 
-type HCRYPTPROV = PULONG
+type ULONG_PTR = int
+type HCRYPTPROV = ULONG_PTR
 var PROV_RSA_FULL {.importc, header: "<windows.h>".}: DWORD
 var CRYPT_VERIFYCONTEXT {.importc, header: "<windows.h>".}: DWORD
 
@@ -29,24 +30,29 @@ proc CryptGenRandom(
     hProv: HCRYPTPROV,
     dwLen: DWORD,
     pbBuffer: pointer
-): WINBOOL {.stdcall, dynlib: "Advapi32.dll", importc: "CryptGenRandom".}
+): WinBool {.stdcall, dynlib: "Advapi32.dll", importc: "CryptGenRandom".}
 
-var crypt_prov: HCRYPTPROV = nil
+
+var crypt_prov: HCRYPTPROV = 0
 
 proc urandom_init() {.raises: [EOS].} =
-    var success = CryptAcquireContext(cast[ptr HCRYPTPROV](addr crypt_prov), nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)
+    let success = CryptAcquireContext(
+        cast[ptr HCRYPTPROV](addr crypt_prov),
+        nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT
+    )
     if success == 0:
-        raise newException(EOS, "Call to CryptAcquireContext failed")
+        raise new_exception(EOS, "Call to CryptAcquireContext failed")
 
 proc urandom*(size: Natural): seq[uint8] {.raises: [EOS].} =
     ## Returns ``size`` bytes obtained by calling ``CryptGenRandom``.
-    ## Initialization is done before the first call with ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
+    ## Initialization is done before the first call with
+    ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
     ## Raises ``EOS`` on failure.
     new_seq(result, size)
     
-    if crypt_prov == nil:
+    if crypt_prov == 0:
         urandom_init()
     
-    var success = CryptGenRandom(crypt_prov, DWORD(size), addr result[0])
+    let success = CryptGenRandom(crypt_prov, DWORD(size), addr result[0])
     if success == 0:
-        raise newException(EOS, "Call to CryptGenRandom failed")
+        raise new_exception(EOS, "Call to CryptGenRandom failed")

@@ -9,11 +9,11 @@ proc urandom*(size: Natural): seq[uint8] {.raises: [EOS, EOutOfMemory].} =
     
     var file: TFile
     if not file.open("/dev/urandom"):
-        raise newException(EOS, "/dev/urandom is not available")
+        raise new_exception(EOS, "/dev/urandom is not available")
     
     var index = 0
     while index < size:
         let bytes_read = file.read_buffer(addr result[index], size-index)
         if bytes_read <= 0:
-            raise newException(EOS, "Can't read enough bytes from /dev/urandom")
+            raise new_exception(EOS, "Can't read enough bytes from /dev/urandom")
         index += bytes_read

@@ -5,7 +5,6 @@
 import math
 import unsigned
 import times
-import algorithm
 
 import mt19937ar
 
@@ -18,7 +17,7 @@ when not defined(windows):
 proc urandom*(size: Natural): seq[uint8] {.raises: [EOS, EOutOfMemory], inline.} =
     ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
     ## the operating system's cryptographic source (see ``posix_urandom``, ``windows_urandom``)
-    return os_urandom.urandom(size)
+    os_urandom.urandom(size)
 
 
 
@@ -44,33 +43,33 @@ proc random_int*(self: var TRandomGenerator; max: Positive): Natural =
 
 method random*(self: var TRandomGenerator): float64 =
     ## Returns a uniformly distributed random number ``0 <= n < 1``
-    const BPF = 53  # Bits per float
+    const BPF = 53 # Bits per float
     const MAX_PREC = 1 shl BPF
     return float64(self.random_int(MAX_PREC))/MAX_PREC
 
 proc random_int*(self: var TRandomGenerator; min, max: int): int =
     ## Returns a uniformly distributed random integer ``min <= n < max``
-    return min+self.random_int(max-min)
+    min+self.random_int(max-min)
 
 proc random_int*(self: var TRandomGenerator; slice: TSlice[int]): int {.inline.} =
     ## Returns a uniformly distributed random integer ``slice.a <= n <= slice.b``
-    return self.random_int(slice.a, slice.b+1)
+    self.random_int(slice.a, slice.b+1)
 
 proc random_bool*(self: var TRandomGenerator): bool {.inline.} =
     ## Returns a random boolean
-    return bool(self.random_int(2))
+    bool(self.random_int(2))
 
 proc random*(self: var TRandomGenerator; min, max: float): float =
     ## Returns a uniformly distributed random number ``min <= n < max``
-    return min+(max-min)*self.random()
+    min+(max-min)*self.random()
 
 proc random*(self: var TRandomGenerator; max: float): float =
     ## Returns a uniformly distributed random number ``0 <= n < max``
-    return max*self.random()
+    max*self.random()
 
 proc random_choice*[T](self: var TRandomGenerator; arr: openarray[T]): T {.inline.} =
     ## Selects a random element from an array (all of them have an equal chance) and returns it
-    return arr[self.random_int(arr.len)]
+    arr[self.random_int(arr.len)]
 
 proc shuffle*[T](self: var TRandomGenerator; arr: var openarray[T]) =
     ## Randomly shuffles elements of an array
@@ -135,7 +134,7 @@ method random_byte*(self: var TMersenneTwister): uint8 =
     return it(self)
 
 method random*(self: var TMersenneTwister): float64 =
-    return self.state.genrand_res53()
+    self.state.genrand_res53()
 
 
 type TSystemRandom* = object of TRandomGenerator
@@ -163,33 +162,33 @@ var mersenne_twister_inst* = new_MersenneTwister()
 mersenne_twister_inst.seed()
 # Why won't this work if ``mersenne_twister_inst`` is not public?
 
-proc random*(): float64 =
+proc random_byte*(): uint8 {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random()
-proc random*(max: float): float =
+    mersenne_twister_inst.random_byte()
+proc random*(): float64 {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random(max)
-proc random*(min, max: float): float =
+    mersenne_twister_inst.random()
+proc random*(max: float): float {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random(min, max)
-proc random_int*(max: Positive): Natural =
+    mersenne_twister_inst.random(max)
+proc random*(min, max: float): float {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_int(max)
-proc random_int*(min, max: int): int =
+    mersenne_twister_inst.random(min, max)
+proc random_int*(max: Positive): Natural {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_int(min, max)
-proc random_byte*(): uint8 =
+    mersenne_twister_inst.random_int(max)
+proc random_int*(min, max: int): int {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_byte()
-proc random_int*(slice: TSlice): int =
+    mersenne_twister_inst.random_int(min, max)
+proc random_int*(slice: TSlice[int]): int {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_int(slice)
-proc random_bool*(): bool =
+    mersenne_twister_inst.random_int(slice)
+proc random_bool*(): bool {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_bool()
-proc random_choice*[T](arr: openarray[T]): T =
+    mersenne_twister_inst.random_bool()
+proc random_choice*[T](arr: openarray[T]): T {.inline.} =
     ## Alias to MT
-    return mersenne_twister_inst.random_choice(arr)
-proc shuffle*[T](arr: var openarray[T]) =
+    mersenne_twister_inst.random_choice(arr)
+proc shuffle*[T](arr: var openarray[T]) {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.shuffle(arr)
