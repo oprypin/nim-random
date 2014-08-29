@@ -254,9 +254,11 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="TRandomGenerator* = object of TObject"><wbr />TRandom<wbr />Generator</a></li>
   <li><a class="reference" href="#TMersenneTwister"
     title="TMersenneTwister* = object of TRandomGenerator
-  state: TMTState"><wbr />TMersenne<wbr />Twister</a></li>
+  state: TMTState
+  bytes_it: iterator (self: var TMersenneTwister): uint8"><wbr />TMersenne<wbr />Twister</a></li>
   <li><a class="reference" href="#TSystemRandom"
-    title="TSystemRandom* = object of TRandomGenerator"><wbr />TSystem<wbr />Random</a></li>
+    title="TSystemRandom* = object of TRandomGenerator
+  bytes_it: iterator (self: var TSystemRandom): uint8"><wbr />TSystem<wbr />Random</a></li>
 
   </ul>
 </li>
@@ -369,13 +371,15 @@ Base class for random number generators
 </dd>
 <dt id="TMersenneTwister"><a name="TMersenneTwister"></a><pre><span class="Identifier">TMersenneTwister</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <span class="Identifier">TRandomGenerator</span>
   <span class="Identifier">state</span><span class="Other">:</span> <span class="Identifier">TMTState</span>
+  <span class="Identifier">bytes_it</span><span class="Other">:</span> <span class="Keyword">iterator</span> <span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TMersenneTwister</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span> <span class="Other">{.</span><span class="Identifier">closure</span><span class="Other">.}</span>
 </pre></dt>
 <dd>
 Mersenne Twister (MT19937). Based on <a class="reference external" href="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html">http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html</a>
 
 </dd>
 <dt id="TSystemRandom"><a name="TSystemRandom"></a><pre><span class="Identifier">TSystemRandom</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <span class="Identifier">TRandomGenerator</span>
-  </pre></dt>
+  <span class="Identifier">bytes_it</span><span class="Other">:</span> <span class="Keyword">iterator</span> <span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TSystemRandom</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span> <span class="Other">{.</span><span class="Identifier">closure</span><span class="Other">.}</span>
+</pre></dt>
 <dd>
 Random number generator based on bytes provided by the operating system's cryptographic source (see <tt class="docutils literal"><span class="pre">urandom</span></tt>)
 
@@ -387,7 +391,7 @@ Random number generator based on bytes provided by the operating system's crypto
 <dl class="item">
 <dt id="mersenne_twister_inst"><a name="mersenne_twister_inst"></a><pre><span class="Identifier">mersenne_twister_inst</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Identifier">init_MersenneTwister</span><span class="Other">(</span><span class="Other">)</span></pre></dt>
 <dd>
-A global instance of MT used by the alias functions
+A global instance of MT used by the alias functions. <tt class="docutils literal"><span class="pre">seed()</span></tt> is called on it when the module is imported
 
 </dd>
 
@@ -462,7 +466,7 @@ Seeds (randomizes) using an array of bytes provided by <tt class="docutils liter
 </dd>
 <dt id="init_SystemRandom"><a name="init_SystemRandom,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_SystemRandom</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TSystemRandom</span></pre></dt>
 <dd>
-Returns a new <tt class="docutils literal"><span class="pre">TSystemRandom</span></tt>
+Initializes and returns a new <tt class="docutils literal"><span class="pre">TSystemRandom</span></tt>
 
 </dd>
 <dt id="random_byte"><a name="random_byte,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random_byte</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
@@ -565,7 +569,7 @@ Alias to MT
 
 </div>
 
-<small>Generated: 2014-08-26 21:18:38 UTC</small>
+<small>Generated: 2014-08-30 01:01:23 UTC</small>
 </div>
 </body>
 </html>

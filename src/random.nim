@@ -120,10 +120,26 @@ type TMersenneTwister* = object of TRandomGenerator
     ## Mersenne Twister (MT19937).
     ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
     state: TMTState
+    bytes_it: iterator (self: var TMersenneTwister): uint8 {.closure.}
+
+iterator mt_random_bytes(self: var TMersenneTwister): uint8 {.closure.} =
+    while true:
+        let n: uint32 = self.state.genrand_int32()
+        yield uint8(n)
+        yield uint8(n shr 8)
+        yield uint8(n shr 16)
+        yield uint8(n shr 24)
+
+method random_byte*(self: var TMersenneTwister): uint8 =
+    self.bytes_it(self)
+
+method random*(self: var TMersenneTwister): float64 =
+    self.state.genrand_res53()
 
 proc init_MersenneTwister*(): TMersenneTwister =
     ## Initializes and returns a new ``TMersenneTwister``
     result.state = init_MTState()
+    result.bytes_it = mt_random_bytes
 
 proc seed*(self: var TMersenneTwister; seed: int) =
     ## Seeds (randomizes) using 32 bits of an integer
@@ -155,30 +171,14 @@ proc seed*(self: var TMersenneTwister) =
     try:
         self.seed(urandom(2500))
     except EOS:
-        self.seed(int(epoch_time()*256)) # use fractional seconds
+        self.seed(int(epoch_time()*256))
 
-iterator mt_random_bytes(self: var TMersenneTwister): uint8 {.closure.} =
-    while true:
-        let n: uint32 = self.state.genrand_int32()
-        yield uint8(n)
-        yield uint8(n shr 8)
-        yield uint8(n shr 16)
-        yield uint8(n shr 24)
-
-method random_byte*(self: var TMersenneTwister): uint8 =
-    let it = mt_random_bytes
-    return it(self)
-
-method random*(self: var TMersenneTwister): float64 =
-    self.state.genrand_res53()
 
 
 type TSystemRandom* = object of TRandomGenerator
     ## Random number generator based on bytes provided by
     ## the operating system's cryptographic source (see ``urandom``)
-
-proc init_SystemRandom*(): TSystemRandom =
-    ## Returns a new ``TSystemRandom``
+    bytes_it: iterator (self: var TSystemRandom): uint8 {.closure.}
 
 iterator sys_random_bytes(self: var TSystemRandom): uint8 {.closure.} =
     # Get bytes in chunks so we don't need to ask the OS for them
@@ -188,13 +188,18 @@ iterator sys_random_bytes(self: var TSystemRandom): uint8 {.closure.} =
             yield b
 
 method random_byte*(self: var TSystemRandom): uint8 =
-    let it = sys_random_bytes
-    return it(self)
+    self.bytes_it(self)
+
+proc init_SystemRandom*(): TSystemRandom =
+    ## Initializes and returns a new ``TSystemRandom``
+    result.bytes_it = sys_random_bytes
+
 
 
 
 var mersenne_twister_inst* = init_MersenneTwister()
-    ## A global instance of MT used by the alias functions
+    ## A global instance of MT used by the alias functions.
+    ## ``seed()`` is called on it when the module is imported
 mersenne_twister_inst.seed()
 # Why won't this work if ``mersenne_twister_inst`` is not public?
 

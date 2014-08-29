@@ -29,7 +29,7 @@ echo rng.random_int(13..37)
 
 import sequtils
 echo to_seq(rng.random_sample(a, 3))
-# Reproducible output: @[5, 6, 8]
+# Reproducible output: @[1, 2, 5]
 
 rng.seed()
 echo rng.random()
