@@ -148,20 +148,16 @@ proc seed*(self: var TMersenneTwister; seed: int) =
 proc seed*(self: var TMersenneTwister; seed: openarray[uint8]) =
     ## Seeds (randomizes) using an array of bytes
     
-    # Cast array of uint8 to array of uint32:
+    # Turn an array of uint8 into an array of uint32:
     
     var bytes = @seed
     let n = int(ceil(bytes.len/4)) # n bytes is ceil(n/4) 32bit numbers
     bytes.set_len(n*4) # add the missing bytes - should be zeros
     
-    # forceful cast makes it think that it takes 4 times more memory than it really does
-    let words_bad = cast[seq[uint32]](bytes)
-    # don't use this seq directly
-    
     var words = new_seq[uint32](n)
-    words.set_len(n)
     for i in 0..n-1:
-        words[i] = words_bad[i]
+        let i4 = i*4
+        words[i] = bytes[i4] + bytes[i4+1] shl 8 + bytes[i4+2] shl 16 + bytes[i4+3] shl 32
     
     self.state.init_by_array(words)
 
