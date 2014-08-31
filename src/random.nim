@@ -154,7 +154,7 @@ proc seed*(self: var TMersenneTwister; seed: openarray[uint8]) =
     var words = new_seq[uint32](n)
     for i in 0..n-1:
         let i4 = i*4
-        words[i] = bytes[i4] + bytes[i4+1] shl 8 + bytes[i4+2] shl 16 + bytes[i4+3] shl 32
+        words[i] = bytes[i4] or bytes[i4+1] shl 8 or bytes[i4+2] shl 16 or bytes[i4+3] shl 24
     
     self.state.init_by_array(words)
 
