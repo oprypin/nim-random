@@ -96,7 +96,7 @@ iterator random_sample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
     ## Raises ``EInvalidValue`` if there are less than ``n`` items in ``arr``.
     if n > arr.len:
         raise new_exception(EInvalidValue, "Sample can't be larger than population")
-    let direct = arr.len <= (n div 2)+10
+    let direct = (n <= (arr.len div 2)+10)
     # "direct" means we will be filling the set with items to include
     # "not direct" means filling it with items to exclude
     var remaining = if direct: n else: arr.len-n
