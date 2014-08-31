@@ -31,10 +31,10 @@ method random_byte*(self: var TRandomGenerator): uint8 =
 
 proc random_int*(self: var TRandomGenerator; max: Positive): Natural =
     ## Returns a uniformly distributed random integer ``0 <= n < max``
+    let needed_bits = int(ceil(log2(float(max))))
+    let needed_bytes = (needed_bits+7) div 8 # ceil(needed_bits/8)
     while true:
         result = 0
-        let needed_bits = int(ceil(log2(float(max))))
-        let needed_bytes = int(ceil(needed_bits/8))
         for i in 1..needed_bytes:
             result = result shl 8
             result += int(self.random_byte())
