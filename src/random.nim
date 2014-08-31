@@ -22,14 +22,11 @@ proc urandom*(size: Natural): seq[uint8] {.raises: [EOS, EOutOfMemory], inline.}
 
 
 
-type TRandomGenerator* = object of TObject
-    ## Base class for random number generators
-
-method random_byte*(self: var TRandomGenerator): uint8 =
+proc random_byte*[RNG](self: var RNG): uint8 =
     ## Returns a uniformly distributed random integer ``0 <= n < 256``
-    assert false, "Abstract method; not implemented"
+    assert false, "\"Abstract\"; not implemented"
 
-proc random_int*(self: var TRandomGenerator; max: Positive): Natural =
+proc random_int*[RNG](self: var RNG; max: Positive): Natural =
     ## Returns a uniformly distributed random integer ``0 <= n < max``
     let needed_bits = int(ceil(log2(float(max))))
     let needed_bytes = (needed_bits+7) div 8 # ceil(needed_bits/8)
@@ -42,36 +39,36 @@ proc random_int*(self: var TRandomGenerator; max: Positive): Natural =
         if result < max:
             break
 
-method random*(self: var TRandomGenerator): float64 =
+proc random*[RNG](self: var RNG): float64 =
     ## Returns a uniformly distributed random number ``0 <= n < 1``
     const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 different values
     return float64(self.random_int(MAX_PREC))/MAX_PREC
 
-proc random_int*(self: var TRandomGenerator; min, max: int): int =
+proc random_int*[RNG](self: var RNG; min, max: int): int =
     ## Returns a uniformly distributed random integer ``min <= n < max``
     min+self.random_int(max-min)
 
-proc random_int*(self: var TRandomGenerator; slice: TSlice[int]): int {.inline.} =
+proc random_int*[RNG](self: var RNG; slice: TSlice[int]): int {.inline.} =
     ## Returns a uniformly distributed random integer ``slice.a <= n <= slice.b``
     self.random_int(slice.a, slice.b+1)
 
-proc random_bool*(self: var TRandomGenerator): bool {.inline.} =
+proc random_bool*[RNG](self: var RNG): bool {.inline.} =
     ## Returns a random boolean
     bool(self.random_int(2))
 
-proc random*(self: var TRandomGenerator; min, max: float): float =
+proc random*[RNG](self: var RNG; min, max: float): float =
     ## Returns a uniformly distributed random number ``min <= n < max``
     min+(max-min)*self.random()
 
-proc random*(self: var TRandomGenerator; max: float): float =
+proc random*[RNG](self: var RNG; max: float): float =
     ## Returns a uniformly distributed random number ``0 <= n < max``
     max*self.random()
 
-proc random_choice*[T](self: var TRandomGenerator; arr: T): auto {.inline.} =
+proc random_choice*[RNG, T](self: var RNG; arr: T): auto {.inline.} =
     ## Selects a random element (all of them have an equal chance) from a 0-indexed random access container and returns it
     arr[self.random_int(arr.len)]
 
-proc shuffle*[T](self: var TRandomGenerator; arr: var openarray[T]) =
+proc shuffle*[RNG, T](self: var RNG; arr: var openarray[T]) =
     ## Randomly shuffles elements of an array
     
     # Fisher-Yates shuffle
@@ -90,7 +87,7 @@ iterator missing_items[T](s: var T; a, b: int): int =
     for x in cur..b:
         yield x
 
-iterator random_sample*[T](self: var TRandomGenerator; arr: T, n: Natural): auto =
+iterator random_sample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
     ## Simple random sample.
     ## Yields ``n`` items randomly picked from a 0-indexed random access container ``arr``,
     ## in the relative order they were in it.
@@ -116,7 +113,7 @@ iterator random_sample*[T](self: var TRandomGenerator; arr: T, n: Natural): auto
             yield arr[i]
 
 
-type TMersenneTwister* = object of TRandomGenerator
+type TMersenneTwister* = object
     ## Mersenne Twister (MT19937).
     ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
     state: TMTState
@@ -130,10 +127,10 @@ iterator mt_random_bytes(self: var TMersenneTwister): uint8 {.closure.} =
         yield uint8(n shr 16)
         yield uint8(n shr 24)
 
-method random_byte*(self: var TMersenneTwister): uint8 =
+proc random_byte*(self: var TMersenneTwister): uint8 =
     self.bytes_it(self)
 
-method random*(self: var TMersenneTwister): float64 =
+proc random*(self: var TMersenneTwister): float64 =
     self.state.genrand_res53()
 
 proc init_MersenneTwister*(): TMersenneTwister =
@@ -171,7 +168,7 @@ proc seed*(self: var TMersenneTwister) =
 
 
 
-type TSystemRandom* = object of TRandomGenerator
+type TSystemRandom* = object
     ## Random number generator based on bytes provided by
     ## the operating system's cryptographic source (see ``urandom``)
     bytes_it: iterator (self: var TSystemRandom): uint8 {.closure.}
@@ -183,7 +180,7 @@ iterator sys_random_bytes(self: var TSystemRandom): uint8 {.closure.} =
         for b in urandom(128):
             yield b
 
-method random_byte*(self: var TSystemRandom): uint8 =
+proc random_byte*(self: var TSystemRandom): uint8 =
     self.bytes_it(self)
 
 proc init_SystemRandom*(): TSystemRandom =
@@ -197,7 +194,6 @@ var mersenne_twister_inst* = init_MersenneTwister()
     ## A global instance of MT used by the alias functions.
     ## ``seed()`` is called on it when the module is imported
 mersenne_twister_inst.seed()
-# Why won't this work if ``mersenne_twister_inst`` is not public?
 
 proc random_byte*(): uint8 {.inline.} =
     ## Alias to MT
