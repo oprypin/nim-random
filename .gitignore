@@ -6,5 +6,3 @@
 !*.babel
 !src
 !src/*.nim
-!doc
-!doc/*.html
