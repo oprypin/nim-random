@@ -11,7 +11,7 @@ import mt19937ar
 
 when defined(windows):
     import windows_urandom as os_urandom
-when not defined(windows):
+else:
     import posix_urandom as os_urandom
 
 
@@ -123,9 +123,9 @@ iterator mt_random_bytes(self: var TMersenneTwister): uint8 {.closure.} =
     while true:
         let n: uint32 = self.state.genrand_int32()
         yield uint8(n)
-        yield uint8(n shr 8)
-        yield uint8(n shr 16)
-        yield uint8(n shr 24)
+        yield uint8(n shr 8'u32)
+        yield uint8(n shr 16'u32)
+        yield uint8(n shr 24'u32)
 
 proc random_byte*(self: var TMersenneTwister): uint8 =
     self.bytes_it(self)
@@ -154,7 +154,8 @@ proc seed*(self: var TMersenneTwister; seed: openarray[uint8]) =
     var words = new_seq[uint32](n)
     for i in 0..n-1:
         let i4 = i*4
-        words[i] = bytes[i4] or bytes[i4+1] shl 8 or bytes[i4+2] shl 16 or bytes[i4+3] shl 24
+        words[i] = uint32(bytes[i4]) or uint32(bytes[i4+1]) shl 8'u32 or
+            uint32(bytes[i4+2]) shl 16'u32 or uint32(bytes[i4+3]) shl 24'u32
     
     self.state.init_by_array(words)
 
