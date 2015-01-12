@@ -1,9 +1,9 @@
 [Package]
 name: "random"
-version: "0.2.4"
+version: "0.3.0"
 author: "Oleh Prypin"
 description: "Pseudo-random number generation library inspired by Python"
 license: "MIT"
 srcDir: "src"
 [Deps]
-requires: "nimrod > 0.9.2"
+requires: "nim >= 0.10.3"

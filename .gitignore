@@ -3,6 +3,6 @@
 
 !README.md
 !LICENSE
-!*.babel
+!*.nimble
 !src
 !src/*.nim
