@@ -3,17 +3,17 @@
 
 
 proc urandom*(size: Natural): seq[uint8] {.raises: [OSError].} =
-    ## Reads and returns ``size`` bytes from the file ``/dev/urandom``.
-    ## Raises ``OSError`` on failure.
-    new_seq(result, size)
+  ## Reads and returns ``size`` bytes from the file ``/dev/urandom``.
+  ## Raises ``OSError`` on failure.
+  newSeq(result, size)
     
-    var file: File
-    if not file.open("/dev/urandom"):
-        raise new_exception(OSError, "/dev/urandom is not available")
+  var file: File
+  if not file.open("/dev/urandom"):
+    raise newException(OSError, "/dev/urandom is not available")
     
-    var index = 0
-    while index < size:
-        let bytes_read = file.read_buffer(addr result[index], size-index)
-        if bytes_read <= 0:
-            raise new_exception(OSError, "Can't read enough bytes from /dev/urandom")
-        index += bytes_read
+  var index = 0
+  while index < size:
+    let bytesRead = file.readBuffer(addr result[index], size-index)
+    if bytesRead <= 0:
+      raise newException(OSError, "Can't read enough bytes from /dev/urandom")
+    index += bytesRead
