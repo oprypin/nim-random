@@ -52,8 +52,7 @@ proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
   while true:
     result = 0
     for i in 1..neededBytes:
-      result = result shl 8
-      result += int(self.randomByte())
+      result = result shl 8 or int(self.randomByte())
     result = result shr (neededBytes*8-neededBits)
     if result < max:
       break
@@ -132,13 +131,14 @@ iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
       yield arr[i]
 
 
-type TMersenneTwister* = object
+
+type MersenneTwister* = object
   ## Mersenne Twister (MT19937).
   ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
-  state: TMTState
-  bytesIt: iterator (self: var TMersenneTwister): uint8 {.closure.}
+  state: MTState
+  bytesIt: iterator (self: var MersenneTwister): uint8 {.closure.}
 
-iterator mtRandomBytes(self: var TMersenneTwister): uint8 {.closure.} =
+iterator mtRandomBytes(self: var MersenneTwister): uint8 {.closure.} =
   while true:
     let n: uint32 = self.state.genrandInt32()
     yield uint8(n)
@@ -146,22 +146,22 @@ iterator mtRandomBytes(self: var TMersenneTwister): uint8 {.closure.} =
     yield uint8(n shr 16'u32)
     yield uint8(n shr 24'u32)
 
-proc randomByte*(self: var TMersenneTwister): uint8 =
+proc randomByte*(self: var MersenneTwister): uint8 =
   self.bytesIt(self)
 
-proc random*(self: var TMersenneTwister): float64 =
+proc random*(self: var MersenneTwister): float64 =
   self.state.genrandRes53()
 
-proc initMersenneTwister*(): TMersenneTwister =
-  ## Initializes and returns a new ``TMersenneTwister``
+proc initMersenneTwister*(): MersenneTwister =
+  ## Initializes and returns a new ``MersenneTwister``
   result.state = initMTState()
   result.bytesIt = mtRandomBytes
 
-proc seed*(self: var TMersenneTwister; seed: int) =
+proc seed*(self: var MersenneTwister; seed: int) =
   ## Seeds (randomizes) using 32 bits of an integer
   self.state.initGenrand(cast[uint32](seed))
 
-proc seed*(self: var TMersenneTwister; seed: openarray[uint8]) =
+proc seed*(self: var MersenneTwister; seed: openarray[uint8]) =
   ## Seeds (randomizes) using an array of bytes
   
   # Turn an array of uint8 into an array of uint32:
@@ -178,7 +178,7 @@ proc seed*(self: var TMersenneTwister; seed: openarray[uint8]) =
   
   self.state.initByArray(words)
 
-proc seed*(self: var TMersenneTwister) =
+proc seed*(self: var MersenneTwister) =
   ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
   ## in case of failure, using the current time (with resolution of 1/256 sec)
   try:
@@ -188,23 +188,23 @@ proc seed*(self: var TMersenneTwister) =
 
 
 
-type TSystemRandom* = object
+type SystemRandom* = object
   ## Random number generator based on bytes provided by
   ## the operating system's cryptographic source (see ``urandom``)
-  bytesIt: iterator (self: var TSystemRandom): uint8 {.closure.}
+  bytesIt: iterator (self: var SystemRandom): uint8 {.closure.}
 
-iterator sysRandomBytes(self: var TSystemRandom): uint8 {.closure.} =
+iterator sysRandomBytes(self: var SystemRandom): uint8 {.closure.} =
   # Get bytes in chunks so we don't need to ask the OS for them
   # multiple times per generated random number...
   while true:
     for b in urandom(128):
       yield b
 
-proc randomByte*(self: var TSystemRandom): uint8 =
+proc randomByte*(self: var SystemRandom): uint8 =
   self.bytesIt(self)
 
-proc initSystemRandom*(): TSystemRandom =
-  ## Initializes and returns a new ``TSystemRandom``
+proc initSystemRandom*(): SystemRandom =
+  ## Initializes and returns a new ``SystemRandom``
   result.bytesIt = sysRandomBytes
 
 
@@ -249,3 +249,6 @@ iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
   ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
+
+
+{.deprecated: [TMersenneTwister: MersenneTwister, TSystemRandom: SystemRandom].}

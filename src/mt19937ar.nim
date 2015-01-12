@@ -1,7 +1,7 @@
 # Code in this module is based on:
 # http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
 # 
-# It was ported to Nimrod in 2014 by Oleh Prypin <blaxpirit@gmail.com>
+# It was ported to Nim in 2014 by Oleh Prypin <blaxpirit@gmail.com>
 # 
 # The following are the verbatim comments from the original code:
 
@@ -63,17 +63,17 @@ const
     LOWER_MASK = 0x7FFFFFFF'u32
 
 type
-    TMTState* = object
+    MTState* = object
         ## state of Mersenne Twister
         mt: array[N, uint32]
         mti: int
     
 
-proc init_MTState*(): TMTState =
-    ## initializes and returns a new ``TMTState``
+proc init_MTState*(): MTState =
+    ## initializes and returns a new ``MTState``
     result.mti = N+1
 
-proc init_genrand*(self: var TMTState; s: uint32) =
+proc init_genrand*(self: var MTState; s: uint32) =
     ## initializes ``mt[N]`` with a seed
 
     # ``mti == N+1`` means ``mt[N]`` is not initialized
@@ -92,7 +92,7 @@ proc init_genrand*(self: var TMTState; s: uint32) =
         
         inc(self.mti)
 
-proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
+proc init_by_array*(self: var MTState; init_key: openarray[uint32]) =
     ## initialize by an array with array-length.
     ## ``init_key`` is the array for initializing keys.
     
@@ -126,7 +126,7 @@ proc init_by_array*(self: var TMTState; init_key: openarray[uint32]) =
             i = 1
     self.mt[0] = 0x80000000'u32  # MSB is 1; assuring non-zero initial array
 
-proc genrand_int32*(self: var TMTState): uint32 =
+proc genrand_int32*(self: var MTState): uint32 =
     ## generates a random number on [0,0xffffffff]-interval
     var y: uint32
     let mag01 = [0'u32, MATRIX_A]
@@ -163,26 +163,26 @@ proc genrand_int32*(self: var TMTState): uint32 =
     
     return y
 
-proc genrand_int31*(self: var TMTState): int32 =
+proc genrand_int31*(self: var MTState): int32 =
     ## generates a random number on [0,0x7fffffff]-interval
     return int32(self.genrand_int32() shr 1)
 
-proc genrand_real1*(self: var TMTState): float64 =
+proc genrand_real1*(self: var MTState): float64 =
     ## generates a random number on [0,1]-real-interval
     return float64(self.genrand_int32())*(1.0/4294967295.0)
     # divided by 2^32-1
 
-proc genrand_real2*(self: var TMTState): float64 =
+proc genrand_real2*(self: var MTState): float64 =
     ## generates a random number on [0,1)-real-interval
     return float64(self.genrand_int32())*(1.0/4294967296.0)
     # divided by 2^32
 
-proc genrand_real3*(self: var TMTState): float64 =
+proc genrand_real3*(self: var MTState): float64 =
     ## generates a random number on (0,1)-real-interval
     return (float64(self.genrand_int32())+0.5)*(1.0/4294967296.0)
     # divided by 2^32
 
-proc genrand_res53*(self: var TMTState): float64 =
+proc genrand_res53*(self: var MTState): float64 =
     ## generates a random number on [0,1) with 53-bit resolution
     let
         a = self.genrand_int32() shr 5
@@ -205,3 +205,6 @@ when is_main_module:
     for i in 0..999:
         printf("%10.8f ", state.genrand_real2())
         if i mod 5 == 4: printf("\n")
+
+
+{.deprecated: [TMTState: MTState].}
