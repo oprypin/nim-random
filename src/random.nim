@@ -15,7 +15,7 @@ when not defined(windows):
     import posix_urandom as os_urandom
 
 
-proc urandom*(size: Natural): seq[uint8] {.raises: [EOS, EOutOfMemory], inline.} =
+proc urandom*(size: Natural): seq[uint8] {.raises: [OSError], inline.} =
     ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
     ## the operating system's cryptographic source (see ``posix_urandom``, ``windows_urandom``)
     os_urandom.urandom(size)
@@ -48,7 +48,7 @@ proc random_int*[RNG](self: var RNG; min, max: int): int =
     ## Returns a uniformly distributed random integer ``min <= n < max``
     min+self.random_int(max-min)
 
-proc random_int*[RNG](self: var RNG; slice: TSlice[int]): int {.inline.} =
+proc random_int*[RNG](self: var RNG; slice: Slice[int]): int {.inline.} =
     ## Returns a uniformly distributed random integer ``slice.a <= n <= slice.b``
     self.random_int(slice.a, slice.b+1)
 
@@ -93,14 +93,14 @@ iterator random_sample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
     ## in the relative order they were in it.
     ## Each item has an equal chance to be picked and can be picked only once.
     ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
-    ## Raises ``EInvalidValue`` if there are less than ``n`` items in ``arr``.
+    ## Raises ``ValueError`` if there are less than ``n`` items in ``arr``.
     if n > arr.len:
-        raise new_exception(EInvalidValue, "Sample can't be larger than population")
+        raise new_exception(ValueError, "Sample can't be larger than population")
     let direct = (n <= (arr.len div 2)+10)
     # "direct" means we will be filling the set with items to include
     # "not direct" means filling it with items to exclude
     var remaining = if direct: n else: arr.len-n
-    var iset: TIntSet = init_IntSet()
+    var iset: IntSet = init_IntSet()
     while remaining > 0:
         let x = self.random_int(arr.len)
         if not contains_or_incl(iset, x):
@@ -163,7 +163,7 @@ proc seed*(self: var TMersenneTwister) =
     ## in case of failure, using the current time (with resolution of 1/256 sec)
     try:
         self.seed(urandom(2500))
-    except EOS:
+    except OSError:
         self.seed(int(epoch_time()*256))
 
 
@@ -213,7 +213,7 @@ proc random_int*(max: Positive): Natural {.inline.} =
 proc random_int*(min, max: int): int {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.random_int(min, max)
-proc random_int*(slice: TSlice[int]): int {.inline.} =
+proc random_int*(slice: Slice[int]): int {.inline.} =
     ## Alias to MT
     mersenne_twister_inst.random_int(slice)
 proc random_bool*(): bool {.inline.} =

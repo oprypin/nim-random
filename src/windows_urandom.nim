@@ -35,19 +35,19 @@ proc CryptGenRandom(
 
 var crypt_prov: HCRYPTPROV = 0
 
-proc urandom_init() {.raises: [EOS].} =
+proc urandom_init() {.raises: [OSError].} =
     let success = CryptAcquireContext(
         cast[ptr HCRYPTPROV](addr crypt_prov),
         nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT
     )
     if success == 0:
-        raise new_exception(EOS, "Call to CryptAcquireContext failed")
+        raise new_exception(OSError, "Call to CryptAcquireContext failed")
 
-proc urandom*(size: Natural): seq[uint8] {.raises: [EOS].} =
+proc urandom*(size: Natural): seq[uint8] {.raises: [OSError].} =
     ## Returns ``size`` bytes obtained by calling ``CryptGenRandom``.
     ## Initialization is done before the first call with
     ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
-    ## Raises ``EOS`` on failure.
+    ## Raises ``OSError`` on failure.
     new_seq(result, size)
     
     if crypt_prov == 0:
@@ -55,4 +55,4 @@ proc urandom*(size: Natural): seq[uint8] {.raises: [EOS].} =
     
     let success = CryptGenRandom(crypt_prov, DWORD(size), addr result[0])
     if success == 0:
-        raise new_exception(EOS, "Call to CryptGenRandom failed")
+        raise new_exception(OSError, "Call to CryptGenRandom failed")
