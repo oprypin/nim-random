@@ -1,6 +1,6 @@
 # Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
 # 
-# This file is part of nim-csfml.
+# This file is part of nim-random.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
