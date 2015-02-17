@@ -26,34 +26,26 @@ import common, private/mt19937ar, urandom
 export common
 
 
-type MersenneTwister* = object
+type MersenneTwister* = MTState
   ## Mersenne Twister (MT19937).
   ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
-  state: MTState
-  bytesIt: iterator (self: var MersenneTwister): uint8 {.closure.}
 
-iterator mtRandomBytes(self: var MersenneTwister): uint8 {.closure.} =
-  while true:
-    let n: uint32 = self.state.genrandInt32()
-    yield uint8(n)
-    yield uint8(n shr 8'u32)
-    yield uint8(n shr 16'u32)
-    yield uint8(n shr 24'u32)
+proc randomUint32*(self: var MersenneTwister): uint32 {.inline.} =
+  self.genrandInt32()
 
-proc randomByte*(self: var MersenneTwister): uint8 =
-  self.bytesIt(self)
-
-proc random*(self: var MersenneTwister): float64 =
-  self.state.genrandRes53()
+proc random*(self: var MersenneTwister): float64 {.inline.} =
+  self.genrandRes53()
 
 proc initMersenneTwister*(): MersenneTwister =
   ## Initializes and returns a new ``MersenneTwister``
-  result.state = initMTState()
-  result.bytesIt = mtRandomBytes
+  initMTState()
 
-proc seed*(self: var MersenneTwister; seed: int) =
+proc seed*(self: var MersenneTwister; seed: uint32) {.inline.} =
   ## Seeds (randomizes) using 32 bits of an integer
-  self.state.initGenrand(cast[uint32](seed))
+  self.initGenrand(seed)
+
+proc seed*(self: var MersenneTwister; seed: openarray[uint32]) {.inline.} =
+  self.initByArray(seed)
 
 proc seed*(self: var MersenneTwister; seed: openarray[uint8]) =
   ## Seeds (randomizes) using an array of bytes
@@ -70,7 +62,7 @@ proc seed*(self: var MersenneTwister; seed: openarray[uint8]) =
     words[i] = uint32(bytes[i4]) or uint32(bytes[i4+1]) shl 8'u32 or
       uint32(bytes[i4+2]) shl 16'u32 or uint32(bytes[i4+3]) shl 24'u32
   
-  self.state.initByArray(words)
+  self.initByArray(words)
 
 proc seed*(self: var MersenneTwister) =
   ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
@@ -78,7 +70,7 @@ proc seed*(self: var MersenneTwister) =
   try:
     self.seed(urandom(2500))
   except OSError:
-    self.seed(int(epochTime()*256))
+    self.seed(cast[uint32](epochTime()))
 
 
 {.deprecated: [TMersenneTwister: MersenneTwister].}

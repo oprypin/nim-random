@@ -52,14 +52,13 @@ when defined(windows):
 
   proc urandomInit() {.raises: [OSError].} =
     let success = CryptAcquireContext(
-      cast[ptr HCRYPTPROV](addr cryptProv),
-      nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT
+      addr cryptProv, nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT
     )
     if success == 0:
       raise newException(OSError, "Call to CryptAcquireContext failed")
 
 
-proc urandom*(size: Natural): seq[uint8] {.raises: [OSError], inline.} =
+proc urandom*(size: Natural): seq[uint8] {.raises: [OSError].} =
   ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
   ## the operating system's cryptographic source (see ``posix_urandom``, ``windows_urandom``)
   ##
@@ -84,7 +83,7 @@ proc urandom*(size: Natural): seq[uint8] {.raises: [OSError], inline.} =
     var file: File
     if not file.open("/dev/urandom"):
       raise newException(OSError, "/dev/urandom is not available")
-      
+    
     var index = 0
     while index < size:
       let bytesRead = file.readBuffer(addr result[index], size-index)
@@ -105,7 +104,7 @@ iterator sysRandomBytes(self: var SystemRandom): uint8 {.closure.} =
     for b in urandom(128):
       yield b
 
-proc randomByte*(self: var SystemRandom): uint8 =
+proc randomByte*(self: var SystemRandom): uint8 {.inline.} =
   self.bytesIt(self)
 
 proc initSystemRandom*(): SystemRandom =

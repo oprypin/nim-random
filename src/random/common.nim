@@ -21,24 +21,49 @@
 # SOFTWARE.
 
 
-import math, intsets
+import math, intsets, unsigned
 
 
-proc randomByte*[RNG](self: var RNG): uint8 =
-  ## Returns a uniformly distributed random integer ``0 <= n < 256``
-  assert false, "\"Abstract\"; not implemented"
+proc randomUint64[RNG](self: var RNG): uint64 =
+  self.randomUint32() or (self.randomUint32() shl 32)
 
 proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
-  let neededBits = int(ceil(log2(float(max))))
-  let neededBytes = (neededBits+7) div 8 # ceil(neededBits/8)
-  while true:
-    result = 0
-    for i in 1..neededBytes:
-      result = result shl 8 or int(self.randomByte())
-    result = result shr (neededBytes*8-neededBits)
-    if result < max:
-      break
+  var mask = uint(max)
+  # The mask will be the closest power of 2 minus one
+  # It has the same number of bits as `max`, but consists only of 1-bits
+  for i in 0..5: # 1, 2, 4, 8, 16, 32
+    mask = mask or (mask shr uint(1 shl i))
+  when compiles(self.randomUint64()):
+    if sizeof(int) == 4 or max <= Positive(uint32.high):
+      while true:
+        result = uint(
+          when compiles(self.randomUint32()):
+            self.randomUint32()
+          else:
+            self.randomUint64()
+        ) and mask
+        if result < max: break
+    else:
+      while true:
+        result = uint(self.randomUint64()) and mask
+        if result < max: break
+  else:
+    var neededBytes = 0
+    var remaining: int = max
+    while remaining > 0:
+      neededBytes += 1
+      remaining = remaining shr 8
+    while true:
+      var res: uint = 0
+      for i in 1..neededBytes:
+        res = res shl 8 or self.randomByte()
+      result = res and mask
+      if result < max: break
+
+proc randomByte*[RNG](self: var RNG): uint8 =
+  ## Returns a uniformly distributed random integer ``0 <= n < 256``
+  self.randomInt(256)
 
 proc random*[RNG](self: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
@@ -61,20 +86,21 @@ proc random*[RNG](self: var RNG; min, max: float): float =
   ## Returns a uniformly distributed random number ``min <= n < max``
   min+(max-min)*self.random()
 
-proc random*[RNG](self: var RNG; max: float): float =
+proc random*[RNG](self: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= n < max``
   max*self.random()
 
 proc randomChoice*[RNG, T](self: var RNG; arr: T): auto {.inline.} =
-  ## Selects a random element (all of them have an equal chance) from a 0-indexed random access container and returns it
-  arr[self.randomInt(arr.len)]
+  ## Selects a random element (all of them have an equal chance)
+  ## from a random access container and returns it
+  arr[self.randomInt(arr.low..arr.high)]
 
-proc shuffle*[RNG, T](self: var RNG; arr: var openarray[T]) =
-  ## Randomly shuffles elements of an array
+proc shuffle*[RNG, T](self: var RNG; arr: var T) =
+  ## Randomly shuffles elements of a random access container
   
   # Fisher-Yates shuffle
-  for i in 0..arr.high:
-    let j = self.randomInt(i, arr.len)
+  for i in arr.low..arr.high:
+    let j = self.randomInt(i..arr.high)
     swap arr[j], arr[i]
 
 iterator missingItems[T](s: var T; a, b: int): int =
@@ -90,7 +116,7 @@ iterator missingItems[T](s: var T; a, b: int): int =
 
 iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
   ## Simple random sample.
-  ## Yields ``n`` items randomly picked from a 0-indexed random access container ``arr``,
+  ## Yields ``n`` items randomly picked from a random access container ``arr``,
   ## in the relative order they were in it.
   ## Each item has an equal chance to be picked and can be picked only once.
   ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
@@ -103,12 +129,12 @@ iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
   var remaining = if direct: n else: arr.len-n
   var iset: IntSet = initIntSet()
   while remaining > 0:
-    let x = self.randomInt(arr.len)
+    let x = self.randomInt(arr.low..arr.high)
     if not containsOrIncl(iset, x):
       dec remaining
   if direct:
-    for i in items(iset):
+    for i in iset:
       yield arr[i]
   else:
-    for i in missingItems(iset, 0, n-1):
+    for i in iset.missingItems(0, n-1):
       yield arr[i]
