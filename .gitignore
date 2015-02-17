@@ -5,4 +5,7 @@
 !LICENSE
 !*.nimble
 !src
-!src/*.nim
+!src/random/
+!src/random/*.nim
+!src/random/private/
+!src/random/private/*.nim
