@@ -35,7 +35,7 @@ proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
   for i in 0..5: # 1, 2, 4, 8, 16, 32
     mask = mask or (mask shr uint(1 shl i))
   when compiles(self.randomUint64()):
-    if sizeof(int) == 4 or max <= Positive(uint32.high):
+    if sizeof(int) == 4 or uint32(max) <= uint32.high:
       while true:
         result = uint(
           when compiles(self.randomUint32()):
@@ -63,7 +63,7 @@ proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
 
 proc randomByte*[RNG](self: var RNG): uint8 =
   ## Returns a uniformly distributed random integer ``0 <= n < 256``
-  self.randomInt(256)
+  uint8(self.randomInt(256))
 
 proc random*[RNG](self: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
@@ -133,7 +133,7 @@ iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
     if not containsOrIncl(iset, x):
       dec remaining
   if direct:
-    for i in iset:
+    for i in iset.items():
       yield arr[i]
   else:
     for i in iset.missingItems(0, n-1):
