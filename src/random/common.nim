@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import math, intsets, unsigned
+import intsets, unsigned
 
 
 proc randomUint64[RNG](self: var RNG): uint64 =
@@ -97,7 +97,6 @@ proc randomChoice*[RNG, T](self: var RNG; arr: T): auto {.inline.} =
 
 proc shuffle*[RNG, T](self: var RNG; arr: var T) =
   ## Randomly shuffles elements of a random access container
-  
   # Fisher-Yates shuffle
   for i in arr.low..arr.high:
     let j = self.randomInt(i..arr.high)

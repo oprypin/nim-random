@@ -21,8 +21,9 @@
 # SOFTWARE.
 
 
-import unsigned, math
-import common, private/mt19937ar, urandom
+import unsigned
+import common, private/seeding
+import private/mt19937ar, urandom
 export common
 
 
@@ -40,29 +41,14 @@ proc initMersenneTwister*(): MersenneTwister =
   ## Initializes and returns a new ``MersenneTwister``
   initMTState()
 
-proc seed*(self: var MersenneTwister; seed: uint32) {.inline.} =
-  ## Seeds (randomizes) using 32 bits of an integer
-  self.initGenrand(seed)
-
 proc seed*(self: var MersenneTwister; seed: openarray[uint32]) {.inline.} =
   self.initByArray(seed)
 
-proc seed*(self: var MersenneTwister; seed: openarray[uint8]) =
-  ## Seeds (randomizes) using an array of bytes
-  
-  # Turn an array of uint8 into an array of uint32:
-  
-  var bytes = @seed
-  let n = int(ceil(bytes.len/4)) # n bytes is ceil(n/4) 32bit numbers
-  bytes.setLen(n*4) # add the missing bytes - should be zeros
-  
-  var words = newSeq[uint32](n)
-  for i in 0..n-1:
-    let i4 = i*4
-    words[i] = uint32(bytes[i4]) or uint32(bytes[i4+1]) shl 8'u32 or
-      uint32(bytes[i4+2]) shl 16'u32 or uint32(bytes[i4+3]) shl 24'u32
-  
-  self.initByArray(words)
+makeBytesSeeding("var MersenneTwister", "uint32")
+
+proc seed*(self: var MersenneTwister; seed: uint32) {.inline.} =
+  ## Seeds (randomizes) using 32 bits of an integer
+  self.initGenrand(seed)
 
 
 {.deprecated: [TMersenneTwister: MersenneTwister].}

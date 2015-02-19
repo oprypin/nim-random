@@ -21,8 +21,9 @@
 # SOFTWARE.
 
 
-import unsigned, math, times
-import common, private/xorshift128plus, private/xorshift1024star
+import unsigned
+import common, private/seeding
+import private/xorshift128plus, private/xorshift1024star
 from private/murmurhash3 import nil
 from private/xorshift64star import nil
 export common
@@ -39,14 +40,17 @@ proc randomUint64*(self: var Xorshift128Plus): uint64 {.inline.} =
   xorshift128plus.next(self)
 
 proc checkSeed(self: var Xorshift128Plus) {.inline.} =
-  let r = self[0] or self[1]
-  assert(r != 0, "The state must be seeded so that it is not everywhere zero.")
+  if (self[0] or self[1]) == 0:
+    raise newException(ValueError,
+      "The state must be seeded so that it is not everywhere zero.")
 
 proc seed*(self: var Xorshift128Plus, seed: array[2, uint64]) {.inline.} =
   ## Seeds (randomizes) using 2 uint64.
   ## The state must be seeded so that it is not everywhere zero.
   self = (seed[0], seed[1])
   self.checkSeed()
+
+makeBytesSeeding("var Xorshift128Plus", "uint64", "2")
 
 proc seed*(self: var Xorshift128Plus, seed: uint64) {.inline.} =
   ## Seeds (randomizes) using an uint64.
@@ -57,7 +61,6 @@ proc seed*(self: var Xorshift128Plus, seed: uint64) {.inline.} =
   let b = murmurhash3.next(a)
   self = (a, b)
   self.checkSeed()
-
 
 
 type Xorshift1024Star* = Xorshift1024StarState
@@ -74,13 +77,17 @@ proc checkSeed(self: var Xorshift1024Star) {.inline.} =
   var r: uint64
   for x in self.s:
     r = r or x
-  assert(r != 0, "The state must be seeded so that it is not everywhere zero.")
+  if r == 0:
+    raise newException(ValueError,
+      "The state must be seeded so that it is not everywhere zero.")
 
 proc seed*(self: var Xorshift1024Star, seed: array[16, uint64]) {.inline.} =
   ## Seeds (randomizes) using 16 uint64.
   ## The state must be seeded so that it is not everywhere zero.
   self = (seed, 0)
   self.checkSeed()
+
+makeBytesSeeding("var Xorshift1024Star", "uint64", "16")
 
 proc seed*(self: var Xorshift1024Star, seed: uint64) {.inline.} =
   ## Seeds (randomizes) using an uint64.
