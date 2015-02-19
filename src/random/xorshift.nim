@@ -22,7 +22,9 @@
 
 
 import unsigned, math, times
-import common, private/xorshift128plus
+import common, private/xorshift128plus, private/xorshift1024star
+from private/murmurhash3 import nil
+from private/xorshift64star import nil
 export common
 
 
@@ -34,8 +36,59 @@ proc initXorshift128Plus*(): Xorshift128Plus =
   ## Initializes and returns a new ``Xorshift128Plus``
 
 proc randomUint64*(self: var Xorshift128Plus): uint64 {.inline.} =
-  self.next()
+  xorshift128plus.next(self)
 
-proc seed*(self: var Xorshift128Plus, arr: array[2, uint64]) {.inline.} =
-  self[0] = arr[0]
-  self[1] = arr[1]
+proc checkSeed(self: var Xorshift128Plus) {.inline.} =
+  let r = self[0] or self[1]
+  assert(r != 0, "The state must be seeded so that it is not everywhere zero.")
+
+proc seed*(self: var Xorshift128Plus, seed: array[2, uint64]) {.inline.} =
+  ## Seeds (randomizes) using 2 uint64.
+  ## The state must be seeded so that it is not everywhere zero.
+  self = (seed[0], seed[1])
+  self.checkSeed()
+
+proc seed*(self: var Xorshift128Plus, seed: uint64) {.inline.} =
+  ## Seeds (randomizes) using an uint64.
+  ## The state must be seeded so that it is not everywhere zero.
+  # "If you have a 64-bit seed, we suggest to pass it twice
+  # through MurmurHash3's avalanching function."
+  let a = murmurhash3.next(seed)
+  let b = murmurhash3.next(a)
+  self = (a, b)
+  self.checkSeed()
+
+
+
+type Xorshift1024Star* = Xorshift1024StarState
+  ## xorshift1024*
+  ## based on http://xorshift.di.unimi.it/
+
+proc initXorshift1024Star*(): Xorshift1024Star =
+  ## Initializes and returns a new ``Xorshift1024Star``
+
+proc randomUint64*(self: var Xorshift1024Star): uint64 {.inline.} =
+  xorshift1024star.next(self)
+
+proc checkSeed(self: var Xorshift1024Star) {.inline.} =
+  var r: uint64
+  for x in self.s:
+    r = r or x
+  assert(r != 0, "The state must be seeded so that it is not everywhere zero.")
+
+proc seed*(self: var Xorshift1024Star, seed: array[16, uint64]) {.inline.} =
+  ## Seeds (randomizes) using 16 uint64.
+  ## The state must be seeded so that it is not everywhere zero.
+  self = (seed, 0)
+  self.checkSeed()
+
+proc seed*(self: var Xorshift1024Star, seed: uint64) {.inline.} =
+  ## Seeds (randomizes) using an uint64.
+  ## The state must be seeded so that it is not everywhere zero.
+  # "If you have a 64-bit seed, we suggest to seed a
+  # xorshift64* generator and use its output to fill s."
+  var r: array[16, uint64]
+  var rng = seed
+  for x in r.mitems:
+    x = xorshift64star.next(rng)
+  self.seed(r)

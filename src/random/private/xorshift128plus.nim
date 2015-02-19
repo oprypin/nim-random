@@ -31,12 +31,12 @@ avalanching function.
 import unsigned
 
 
-type Xorshift128PlusState* = array[2, uint64]
+type Xorshift128PlusState* = tuple[x, y: uint64]
 
 proc next*(s: var Xorshift128PlusState): uint64 =
   var s1 = s[0]
   let s0 = s[1]
   s[0] = s0
   s1 = s1 xor (s1 shl 23'u64) # a
-  s[1] = (s1 xor s0 xor (s1 shr 17) xor (s0 shr 26)) # b, c
+  s[1] = s1 xor s0 xor (s1 shr 17) xor (s0 shr 26) # b, c
   return s[1] + s0
