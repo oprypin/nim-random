@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import unsigned, math, times
+import unsigned, math
 import common, private/mt19937ar, urandom
 export common
 
@@ -63,14 +63,6 @@ proc seed*(self: var MersenneTwister; seed: openarray[uint8]) =
       uint32(bytes[i4+2]) shl 16'u32 or uint32(bytes[i4+3]) shl 24'u32
   
   self.initByArray(words)
-
-proc seed*(self: var MersenneTwister) =
-  ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
-  ## in case of failure, using the current time (with resolution of 1/256 sec)
-  try:
-    self.seed(urandom(2500))
-  except OSError:
-    self.seed(cast[uint32](epochTime()))
 
 
 {.deprecated: [TMersenneTwister: MersenneTwister].}

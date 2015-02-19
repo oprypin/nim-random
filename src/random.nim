@@ -21,14 +21,16 @@
 # SOFTWARE.
 
 
+import times
 import random.mersenne, random.urandom
 export mersenne, urandom
 
 
 var mersenneTwisterInst* = initMersenneTwister()
-  ## A global instance of MT used by the alias functions.
-  ## ``seed()`` is called on it when the module is imported.
-mersenneTwisterInst.seed()
+  ## A global instance of Mersenne twister used by the alias functions.
+  ##
+  ## When the module is imported, it is seeded using an array of bytes provided
+  ## by ``urandom``, or, in case of failure, using the current time.
 
 proc randomByte*(): uint8 {.inline.} =
   ## Alias to MT
@@ -64,3 +66,17 @@ iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
   ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
+
+
+proc m_seed(self: var MersenneTwister) =
+  try:
+    self.seed(urandom(2500))
+  except OSError:
+    self.seed(uint32(uint(epochTime())))
+
+proc seed*(self: var MersenneTwister) {.deprecated, inline.} =
+  ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
+  ## in case of failure, using the current time (with resolution of 1/256 sec)
+  self.m_seed()
+
+mersenneTwisterInst.m_seed()
