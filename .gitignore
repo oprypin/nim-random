@@ -1,12 +1,13 @@
 *
 !.gitignore
 
-!README.md
-!LICENSE
+!*.nim
+!*nim.cfg
 !*.nimble
-!src/
-!src/*.nim
-!src/random/
-!src/random/*.nim
-!src/random/private/
-!src/random/private/*.nim
+!*.md
+!README
+!LICENSE
+!/src/
+!/src/random/
+!/src/random/private/
+!/test/
