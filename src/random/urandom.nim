@@ -50,27 +50,14 @@ when defined(windows):
 
   var cryptProv: HCRYPTPROV = 0
 
-  proc urandomInit() {.raises: [OSError].} =
+  proc urandomInit() =
     let success = CryptAcquireContext(
       addr cryptProv, nil, nil, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT
     )
     if success == 0:
       raise newException(OSError, "Call to CryptAcquireContext failed")
 
-
-proc urandom*(size: Natural): seq[uint8] {.raises: [OSError].} =
-  ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
-  ## the operating system's cryptographic source (see ``posix_urandom``, ``windows_urandom``)
-  ##
-  ## POSIX: Reads and returns ``size`` bytes from the file ``/dev/urandom``.
-  ##
-  ## Windows: Returns ``size`` bytes obtained by calling ``CryptGenRandom``.
-  ## Initialization is done before the first call with
-  ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
-  ##
-  ## Raises ``OSError`` on failure.
-  newSeq(result, size)
-
+template urandomImpl(): stmt {.immediate.} =
   when defined(windows):
     if cryptProv == 0:
       urandomInit()
@@ -90,6 +77,25 @@ proc urandom*(size: Natural): seq[uint8] {.raises: [OSError].} =
       if bytesRead <= 0:
         raise newException(OSError, "Can't read enough bytes from /dev/urandom")
       index += bytesRead
+
+proc urandom*(size: Natural): seq[uint8] =
+  ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
+  ## the operating system's cryptographic source
+  ##
+  ## POSIX: Reads and returns ``size`` bytes from the file ``/dev/urandom``.
+  ##
+  ## Windows: Returns ``size`` bytes obtained by calling ``CryptGenRandom``.
+  ## Initialization is done before the first call with
+  ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
+  ##
+  ## Raises ``OSError`` on failure.
+  newSeq(result, size)
+  urandomImpl()
+
+proc urandom*(size: (static[Natural]){lit}): array[size, uint8] =
+  ## Returns an ``array`` of random integers ``0 <= n < 256`` provided by
+  ## the operating system's cryptographic source.
+  urandomImpl()
 
 
 type SystemRandom* = object
