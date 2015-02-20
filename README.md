@@ -25,14 +25,14 @@ else:
 var rng = initMersenneTwister()
 rng.seed(1337)
 echo rng.randomInt(13..37)
-# Reproducible output: 31
+# Reproducible output: 36
 
 echo toSeq(rng.randomSample(a, 3))
-# Reproducible output: @[1, 2, 5]
+# Reproducible output: @[8, 9, 10]
 
-rng.seed()
+rng.seed(urandom(2500))
 echo rng.random()
-# Possible output: 9.9708586245117903e-01
+# Possible output: 0.6097267717528587
 ```
 
 [Documentation](http://blaxpirit.github.io/nim-random/random.html)
