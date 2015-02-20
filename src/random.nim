@@ -21,6 +21,11 @@
 # SOFTWARE.
 
 
+## This module is just a convenience import. It exports `random.mersenne` and
+## `random.urandom` and defines a global instance of Mersenne twister with
+## alias procedures that use this instance.
+
+
 import times
 import random.mersenne, random.urandom
 export mersenne, urandom
@@ -31,6 +36,11 @@ var mersenneTwisterInst* = initMersenneTwister()
   ##
   ## When the module is imported, it is seeded using an array of bytes provided
   ## by ``urandom``, or, in case of failure, using the current time.
+  ##
+  ## Due to this silent fallback and the fact that any other code can use this
+  ## global instance (and there is no thread safety), it is not recommended to
+  ## use it (through the functions in this module or otherwise) if you have any
+  ## concerns for security.
 
 proc randomByte*(): uint8 {.inline.} =
   ## Alias to MT
@@ -59,7 +69,7 @@ proc randomBool*(): bool {.inline.} =
 proc randomChoice*[T](arr: T): auto {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomChoice(arr)
-proc shuffle*[T](arr: var openarray[T]) {.inline.} =
+proc shuffle*[T](arr: var openArray[T]) {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.shuffle(arr)
 iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
@@ -68,15 +78,17 @@ iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
     yield x
 
 
-proc m_seed(self: var MersenneTwister) =
+proc seedImpl(self: var MersenneTwister) {.inline.} =
   try:
     self.seed(urandom(2500))
   except OSError:
-    self.seed(uint32(uint(epochTime())))
+    self.seed(uint32(uint(epochTime()*256)))
 
-proc seed*(self: var MersenneTwister) {.deprecated, inline.} =
+proc seed*(self: var MersenneTwister) {.deprecated.} =
   ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
-  ## in case of failure, using the current time (with resolution of 1/256 sec)
-  self.m_seed()
+  ## in case of failure, using the current time (with resolution of 1/256 sec).
+  ## 
+  ## *Deprecated*: Seed with ``urandom(2500)`` explicitly instead.
+  self.seedImpl()
 
-mersenneTwisterInst.m_seed()
+mersenneTwisterInst.seedImpl()

@@ -67,7 +67,7 @@ proc randomByte*[RNG](self: var RNG): uint8 =
 
 proc random*[RNG](self: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
-  const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 different values
+  const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 values
   return float64(self.randomInt(MAX_PREC))/MAX_PREC
 
 proc randomInt*[RNG](self: var RNG; min, max: int): int =
@@ -115,11 +115,13 @@ iterator missingItems[T](s: var T; a, b: int): int =
 
 iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
   ## Simple random sample.
-  ## Yields ``n`` items randomly picked from a random access container ``arr``,
-  ## in the relative order they were in it.
-  ## Each item has an equal chance to be picked and can be picked only once.
-  ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
-  ## Raises ``ValueError`` if there are less than ``n`` items in ``arr``.
+  ## 
+  ## Yields `n` items randomly picked from a random access container `arr`,
+  ## in the relative order they were in it. Each item has an equal chance to be
+  ## picked and can be picked only once. Repeating items are allowed in `arr`,
+  ## and they will not be treated in any special way.
+  ## 
+  ## Raises ``ValueError`` if there are less than `n` items in `arr`.
   if n > arr.len:
     raise newException(ValueError, "Sample can't be larger than population")
   let direct = (n <= (arr.len div 2)+10)

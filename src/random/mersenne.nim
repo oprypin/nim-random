@@ -28,8 +28,8 @@ export common
 
 
 type MersenneTwister* = MTState
-  ## Mersenne Twister (MT19937).
-  ## Based on http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
+  ## Mersenne Twister (MT19937). Based on
+  ## http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
 
 proc randomUint32*(self: var MersenneTwister): uint32 {.inline.} =
   self.genrandInt32()
@@ -41,13 +41,14 @@ proc initMersenneTwister*(): MersenneTwister =
   ## Initializes and returns a new ``MersenneTwister``
   initMTState()
 
-proc seed*(self: var MersenneTwister; seed: openarray[uint32]) {.inline.} =
+proc seed*(self: var MersenneTwister; seed: openArray[uint32]) {.inline.} =
+  ## Seeds (randomizes) using an array of ``uint32``
   self.initByArray(seed)
 
 makeBytesSeeding("var MersenneTwister", "uint32")
 
 proc seed*(self: var MersenneTwister; seed: uint32) {.inline.} =
-  ## Seeds (randomizes) using 32 bits of an integer
+  ## Seeds (randomizes) using an ``uint32``
   self.initGenrand(seed)
 
 

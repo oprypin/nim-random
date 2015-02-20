@@ -25,7 +25,7 @@ import macros, strutils
 
 macro makeBytesSeeding*(rng, typ): stmt =
   let s = """
-    proc seed*(self: $rng; bytes: openarray[uint8]) =
+    proc seed*(self: $rng; bytes: openArray[uint8]) =
       ## Seeds (randomizes) using an array of bytes
       const size = sizeof($typ)
       
@@ -38,7 +38,6 @@ macro makeBytesSeeding*(rng, typ): stmt =
       for i in 0 .. <n:
         for j in 0 .. <size:
           words[i] = words[i] or ($typ(bytes[i*size+j]) shl $typ(8*j))
-      echo uint(words[0])
       self.seed(words)
   """.replace("$rng", $rng).replace("$typ", $typ)
   parseStmt s
@@ -54,7 +53,6 @@ macro makeBytesSeeding*(rng, typ, count): stmt =
       for i in 0 .. <$count:
         for j in 0 .. <size:
           words[i] = words[i] or ($typ(bytes[i*size+j]) shl $typ(8*j))
-      echo uint(words[0])
       self.seed(words)
   """.replace("$rng", $rng).replace("$typ", $typ).replace("$count", $count)
   parseStmt s

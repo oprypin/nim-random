@@ -92,9 +92,9 @@ proc init_genrand*(self: var MTState; s: uint32) =
         
         inc(self.mti)
 
-proc init_by_array*(self: var MTState; init_key: openarray[uint32]) =
+proc init_by_array*(self: var MTState; init_key: openArray[uint32]) =
     ## initialize by an array with array-length.
-    ## ``init_key`` is the array for initializing keys.
+    ## `init_key` is the array for initializing keys.
     
     # slight change for C++, 2004/2/26
     

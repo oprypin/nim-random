@@ -45,7 +45,7 @@ proc checkSeed(self: var Xorshift128Plus) {.inline.} =
       "The state must be seeded so that it is not everywhere zero.")
 
 proc seed*(self: var Xorshift128Plus, seed: array[2, uint64]) {.inline.} =
-  ## Seeds (randomizes) using 2 uint64.
+  ## Seeds (randomizes) using 2 ``uint64``.
   ## The state must be seeded so that it is not everywhere zero.
   self = (seed[0], seed[1])
   self.checkSeed()
@@ -53,7 +53,7 @@ proc seed*(self: var Xorshift128Plus, seed: array[2, uint64]) {.inline.} =
 makeBytesSeeding("var Xorshift128Plus", "uint64", "2")
 
 proc seed*(self: var Xorshift128Plus, seed: uint64) {.inline.} =
-  ## Seeds (randomizes) using an uint64.
+  ## Seeds (randomizes) using an ``uint64``.
   ## The state must be seeded so that it is not everywhere zero.
   # "If you have a 64-bit seed, we suggest to pass it twice
   # through MurmurHash3's avalanching function."

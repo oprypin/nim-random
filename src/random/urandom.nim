@@ -33,20 +33,24 @@ when defined(windows):
   var PROV_RSA_FULL {.importc, header: "<windows.h>".}: DWORD
   var CRYPT_VERIFYCONTEXT {.importc, header: "<windows.h>".}: DWORD
 
+  {.push, stdcall, dynlib: "Advapi32.dll".}
+  
   when useWinUnicode:
     proc CryptAcquireContext(
-      phProv: ptr HCRYPTPROV, pszContainer: WideCString, pszProvider: WideCString,
-      dwProvType: DWORD, dwFlags: DWORD
-    ): WinBool {.stdcall, dynlib: "Advapi32.dll", importc: "CryptAcquireContextW".}
+      phProv: ptr HCRYPTPROV, pszContainer: WideCString,
+      pszProvider: WideCString, dwProvType: DWORD, dwFlags: DWORD
+    ): WinBool {.importc: "CryptAcquireContextW".}
   else:
     proc CryptAcquireContext(
       phProv: ptr HCRYPTPROV, pszContainer: cstring, pszProvider: cstring,
       dwProvType: DWORD, dwFlags: DWORD
-    ): WinBool {.stdcall, dynlib: "Advapi32.dll", importc: "CryptAcquireContextA".}
+    ): WinBool {.importc: "CryptAcquireContextA".}
 
   proc CryptGenRandom(
     hProv: HCRYPTPROV, dwLen: DWORD, pbBuffer: pointer
-  ): WinBool {.stdcall, dynlib: "Advapi32.dll", importc: "CryptGenRandom".}
+  ): WinBool {.importc: "CryptGenRandom".}
+  
+  {.pop.}
 
   var cryptProv: HCRYPTPROV = 0
 
@@ -82,9 +86,9 @@ proc urandom*(size: Natural): seq[uint8] =
   ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
   ## the operating system's cryptographic source
   ##
-  ## POSIX: Reads and returns ``size`` bytes from the file ``/dev/urandom``.
+  ## POSIX: Reads and returns `size` bytes from the file ``/dev/urandom``.
   ##
-  ## Windows: Returns ``size`` bytes obtained by calling ``CryptGenRandom``.
+  ## Windows: Returns `size` bytes obtained by calling ``CryptGenRandom``.
   ## Initialization is done before the first call with
   ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
   ##
