@@ -62,11 +62,10 @@ const
     UPPER_MASK = 0x80000000'u32
     LOWER_MASK = 0x7FFFFFFF'u32
 
-type
-    MTState* = object
-        ## state of Mersenne Twister
-        mt: array[N, uint32]
-        mti: int
+type MTState* = object
+    ## state of Mersenne Twister
+    mt*: array[N, uint32]
+    mti*: int
     
 
 proc init_MTState*(): MTState =

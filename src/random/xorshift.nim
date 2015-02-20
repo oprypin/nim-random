@@ -23,9 +23,8 @@
 
 import unsigned
 import common, private/seeding
-import private/xorshift128plus, private/xorshift1024star
+import private/xorshift128plus, private/xorshift1024star, private/xorshift64star
 from private/murmurhash3 import nil
-from private/xorshift64star import nil
 export common
 
 
@@ -40,14 +39,14 @@ proc randomUint64*(self: var Xorshift128Plus): uint64 {.inline.} =
   xorshift128plus.next(self)
 
 proc checkSeed(self: var Xorshift128Plus) {.inline.} =
-  if (self[0] or self[1]) == 0:
+  if (self.s[0] or self.s[1]) == 0:
     raise newException(ValueError,
       "The state must be seeded so that it is not everywhere zero.")
 
 proc seed*(self: var Xorshift128Plus, seed: array[2, uint64]) {.inline.} =
   ## Seeds (randomizes) using 2 ``uint64``.
   ## The state must be seeded so that it is not everywhere zero.
-  self = (seed[0], seed[1])
+  self.s = seed
   self.checkSeed()
 
 makeBytesSeeding("var Xorshift128Plus", "uint64", "2")
@@ -59,7 +58,7 @@ proc seed*(self: var Xorshift128Plus, seed: uint64) {.inline.} =
   # through MurmurHash3's avalanching function."
   let a = murmurhash3.next(seed)
   let b = murmurhash3.next(a)
-  self = (a, b)
+  self.s = [a, b]
   self.checkSeed()
 
 
@@ -84,7 +83,8 @@ proc checkSeed(self: var Xorshift1024Star) {.inline.} =
 proc seed*(self: var Xorshift1024Star, seed: array[16, uint64]) {.inline.} =
   ## Seeds (randomizes) using 16 uint64.
   ## The state must be seeded so that it is not everywhere zero.
-  self = (seed, 0)
+  self.s = seed
+  self.p = 0
   self.checkSeed()
 
 makeBytesSeeding("var Xorshift1024Star", "uint64", "16")
@@ -95,7 +95,7 @@ proc seed*(self: var Xorshift1024Star, seed: uint64) {.inline.} =
   # "If you have a 64-bit seed, we suggest to seed a
   # xorshift64* generator and use its output to fill s."
   var r: array[16, uint64]
-  var rng = seed
+  var rng = Xorshift64StarState(x: seed)
   for x in r.mitems:
     x = xorshift64star.next(rng)
   self.seed(r)

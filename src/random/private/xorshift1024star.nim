@@ -29,17 +29,16 @@ output to fill s.
 import unsigned
 
 
-type Xorshift1024StarState* = tuple[
-  s: array[16, uint64],
-  p: int
-]
+type Xorshift1024StarState* = object
+  s*: array[16, uint64]
+  p*: int
 
-proc next*(x: var Xorshift1024StarState): uint64 =
-  var s0 = x.s[x.p]
-  x.p = (x.p + 1) and 15
-  var s1 = x.s[x.p]
+proc next*(s: var Xorshift1024StarState): uint64 =
+  var s0 = s.s[s.p]
+  s.p = (s.p + 1) and 15
+  var s1 = s.s[s.p]
   s1 = s1 xor (s1 shl 31) # a
   s1 = s1 xor (s1 shr 11) # b
   s0 = s0 xor (s0 shr 30) # c
-  x.s[x.p] = s0 xor s1
-  return x.s[x.p] * 1181783497276652981'u64
+  s.s[s.p] = s0 xor s1
+  return s.s[s.p] * 1181783497276652981'u64
