@@ -37,19 +37,31 @@ proc randomUint32*(self: var MersenneTwister): uint32 {.inline.} =
 proc random*(self: var MersenneTwister): float64 {.inline.} =
   self.genrandRes53()
 
-proc initMersenneTwister*(): MersenneTwister =
-  ## Initializes and returns a new ``MersenneTwister``
+proc initMersenneTwister*(seed: openArray[uint32]): MersenneTwister =
+  ## Seeds a new ``MersenneTwister`` with an array of ``uint32``
+  result = initMTState()
+  result.initByArray(seed)
+
+makeBytesSeeding(MersenneTwister, uint32)
+
+proc initMersenneTwister*(seed: uint32): MersenneTwister =
+  ## Seeds a new ``MersenneTwister`` with an ``uint32``
+  result = initMTState()
+  result.initGenrand(seed)
+
+
+proc seed*(self: var MersenneTwister, s: openArray[uint8]) {.deprecated.} =
+  ## *Deprecated*: Use ``initMersenneTwister`` instead.
+  self = initMersenneTwister(s)
+
+proc seed*(self: var MersenneTwister, s: int) {.deprecated.} =
+  ## *Deprecated*: Use ``initMersenneTwister`` instead.
+  self = initMersenneTwister(uint32(s))
+
+proc initMersenneTwister*(): MersenneTwister {.deprecated.} =
+  ## Initializes and returns a new MersenneTwister 
+  ## 
+  ## *Deprecated*: Initialize with a seed instead.
   initMTState()
-
-proc seed*(self: var MersenneTwister; seed: openArray[uint32]) {.inline.} =
-  ## Seeds (randomizes) using an array of ``uint32``
-  self.initByArray(seed)
-
-makeBytesSeeding("var MersenneTwister", "uint32")
-
-proc seed*(self: var MersenneTwister; seed: uint32) {.inline.} =
-  ## Seeds (randomizes) using an ``uint32``
-  self.initGenrand(seed)
-
 
 {.deprecated: [TMersenneTwister: MersenneTwister].}

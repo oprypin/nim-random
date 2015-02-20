@@ -31,7 +31,7 @@ import random.mersenne, random.urandom
 export mersenne, urandom
 
 
-var mersenneTwisterInst* = initMersenneTwister()
+var mersenneTwisterInst*: MersenneTwister
   ## A global instance of Mersenne twister used by the alias functions.
   ##
   ## When the module is imported, it is seeded using an array of bytes provided
@@ -41,6 +41,15 @@ var mersenneTwisterInst* = initMersenneTwister()
   ## global instance (and there is no thread safety), it is not recommended to
   ## use it (through the functions in this module or otherwise) if you have any
   ## concerns for security.
+
+proc seedImpl(self: var MersenneTwister) {.inline.} =
+  try:
+    self = initMersenneTwister(urandom(2500))
+  except OSError:
+    self = initMersenneTwister(uint32(uint(epochTime()*256)))
+
+mersenneTwisterInst.seedImpl()
+
 
 proc randomByte*(): uint8 {.inline.} =
   ## Alias to MT
@@ -78,17 +87,9 @@ iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
     yield x
 
 
-proc seedImpl(self: var MersenneTwister) {.inline.} =
-  try:
-    self.seed(urandom(2500))
-  except OSError:
-    self.seed(uint32(uint(epochTime()*256)))
-
 proc seed*(self: var MersenneTwister) {.deprecated.} =
   ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
   ## in case of failure, using the current time (with resolution of 1/256 sec).
   ## 
   ## *Deprecated*: Seed with ``urandom(2500)`` explicitly instead.
   self.seedImpl()
-
-mersenneTwisterInst.seedImpl()

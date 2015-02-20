@@ -25,26 +25,27 @@ import macros, strutils
 
 macro makeBytesSeeding*(rng, typ): stmt =
   let s = """
-    proc seed*(self: $rng; bytes: openArray[uint8]) =
+    proc init$rng*(seed: openArray[uint8]): $rng =
       ## Seeds (randomizes) using an array of bytes
       const size = sizeof($typ)
       
       # Turn an array of uint8 into an array of $typ:
-      var bytes = @bytes
-      let n = ((bytes.len-1) div size)+1 # n bytes is ceil(n/k) k-bit numbers
-      bytes.setLen(n*size) # add the missing bytes - should be zeros
+      var seed = @seed
+      let n = ((seed.len-1) div size)+1 # n bytes is ceil(n/k) k-bit numbers
+      seed.setLen(n*size) # add the missing bytes - should be zeros
       
       var words = newSeq[$typ](n)
       for i in 0 .. <n:
         for j in 0 .. <size:
-          words[i] = words[i] or ($typ(bytes[i*size+j]) shl $typ(8*j))
-      self.seed(words)
+          words[i] = words[i] or ($typ(seed[i*size+j]) shl $typ(8*j))
+      
+      init$rng(words)
   """.replace("$rng", $rng).replace("$typ", $typ)
   parseStmt s
 
 macro makeBytesSeeding*(rng, typ, count): stmt =
   let s = """
-    proc seed*(self: $rng; bytes: array[$count*sizeof($typ), uint8]) =
+    proc init$rng*(seed: array[$count*sizeof($typ), uint8]): $rng =
       ## Seeds (randomizes) using an array of bytes
       const size = sizeof($typ)
       
@@ -52,7 +53,8 @@ macro makeBytesSeeding*(rng, typ, count): stmt =
       var words: array[$count, $typ]
       for i in 0 .. <$count:
         for j in 0 .. <size:
-          words[i] = words[i] or ($typ(bytes[i*size+j]) shl $typ(8*j))
-      self.seed(words)
+          words[i] = words[i] or ($typ(seed[i*size+j]) shl $typ(8*j))
+      
+      init$rng(words)
   """.replace("$rng", $rng).replace("$typ", $typ).replace("$count", $count)
   parseStmt s
