@@ -63,6 +63,9 @@ proc random*(max: float): float {.inline.} =
 proc random*(min, max: float): float {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.random(min, max)
+proc randomInt*(max: uint): uint {.inline.} =
+  ## Alias to MT
+  mersenneTwisterInst.randomInt(max)
 proc randomInt*(max: Positive): Natural {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomInt(max)
@@ -78,7 +81,7 @@ proc randomBool*(): bool {.inline.} =
 proc randomChoice*[T](arr: T): auto {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomChoice(arr)
-proc shuffle*[T](arr: var openArray[T]) {.inline.} =
+proc shuffle*[T](arr: var T) {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.shuffle(arr)
 iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =

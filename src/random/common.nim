@@ -27,7 +27,7 @@ import intsets, unsigned
 proc randomUint64[RNG](self: var RNG): uint64 =
   self.randomUint32() or (self.randomUint32() shl 32)
 
-proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
+proc randomInt*[RNG](self: var RNG; max: uint): uint =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   var mask = uint(max)
   # The mask will be the closest power of 2 minus one
@@ -60,6 +60,10 @@ proc randomInt*[RNG](self: var RNG; max: Positive): Natural =
         res = res shl 8 or self.randomByte()
       result = res and mask
       if result < max: break
+
+proc randomInt*[RNG](self: var RNG; max: Positive): Natural {.inline.} =
+  ## Returns a uniformly distributed random integer ``0 <= n < max``
+  self.randomInt(uint(max))
 
 proc randomByte*[RNG](self: var RNG): uint8 =
   ## Returns a uniformly distributed random integer ``0 <= n < 256``
