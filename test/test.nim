@@ -1,6 +1,14 @@
 import unittest, unsigned
 
-import random.xorshift
+import random.mersenne, random.xorshift
+
+
+suite "Mersenne Twister":
+  test "implementation":
+    var rng = initMersenneTwister([0x123u32, 0x234, 0x345, 0x456])
+    check([rng.randomUint32(), rng.randomUint32(), rng.randomUint32()] == [
+      1067595299u32, 955945823, 477289528
+    ])
 
 suite "Xorshift128+":
   test "implementation":

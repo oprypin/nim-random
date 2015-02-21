@@ -104,7 +104,7 @@ proc init_by_array*(self: var MTState; init_key: openArray[uint32]) =
         j = init_key.low
     for k in countdown(if N > key_length: N else: key_length, 1):
         self.mt[i] =
-            self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32) +
+            (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1664525'u32)) +
             init_key[j] + uint32(j) # non linear
         #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because it's ``uint32``
         inc(i)
@@ -116,7 +116,7 @@ proc init_by_array*(self: var MTState; init_key: openArray[uint32]) =
             j = init_key.low
     for k in countdown(N-1, 1):
         self.mt[i] =
-            self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1566083941'u32) -
+            (self.mt[i] xor ((self.mt[i-1] xor (self.mt[i-1] shr 30)) * 1566083941'u32)) -
             uint32(i) # non linear
         #self.mt[i] = self.mt[i] and 0xFFFFFFFF'u32 # for WORDSIZE > 32 machines # not needed because it's ``uint32``
         inc(i)
