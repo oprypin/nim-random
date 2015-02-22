@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import unsigned
+import unsigned, intsets
 
 
 iterator missingItems*[T](s: T; a, b: int): int =
