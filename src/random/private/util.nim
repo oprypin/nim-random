@@ -66,17 +66,21 @@ when defined(test):
     echo "Utilities:"
     
     test "missingItems":
-      for c in [
+      for data in [
         (@[1, 3, 5], 1, 5, @[2, 4]),
         (@[2, 3, 4], 1, 5, @[1, 5]),
         (@[], 1, 5, @[1, 2, 3, 4, 5]),
         (@[1, 2, 3, 4, 5], 1, 5, @[]),
       ]:
         # check is bugged
-        assert toSeq(missingItems(c[0], c[1], c[2])) == c[3]
+        let (s, a, b, output) = data
+        assert toSeq(missingItems(s, a, b)) == output
     
     test "byteSize":
-      for c in [(0u, 1), (1u, 1), (2u, 1), (16u, 1), (255u, 1), (256u, 2),
-                (1u shl 24 - 1u, 3), (1u shl 24, 4)]:
-        check byteSize(c[0]) == c[1]
-        check byteSizeFallback(c[0]) == c[1]
+      for data in [
+        (0u, 1), (1u, 1), (2u, 1), (16u, 1), (255u, 1), (256u, 2),
+        (1u shl 24 - 1u, 3), (1u shl 24, 4)
+      ]:
+        let (input, output) = data
+        check byteSize(input) == output
+        check byteSizeFallback(input) == output
