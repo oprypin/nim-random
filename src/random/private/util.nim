@@ -36,7 +36,7 @@ iterator missingItems*[T](s: T; a, b: int): int =
     yield x
 
 
-proc byteSize*(n: uint): int =
+proc byteSizeFallback(n: uint): int =
   ## Returns the smallest number `b` that `256^b <= n`
   var n = n
   while true:
@@ -44,6 +44,20 @@ proc byteSize*(n: uint): int =
     n = n shr 8
     if n == 0:
       break
+
+when defined(gcc):
+  proc gcc_clz(n: culong): cint {.importc: "__builtin_clzl".}
+  
+  proc bitSize(n: uint): int {.inline.} =
+    sizeof(uint)*8 - gcc_clz(n)
+  
+  proc byteSize*(n: uint): int {.inline.} =
+    (bitSize(n)+7) div 8
+
+else:
+  proc byteSize*(n: uint): int {.inline.} =
+    byteSizeFallback(n)
+
 
 when defined(test):
   import unittest, sequtils
@@ -65,3 +79,4 @@ when defined(test):
       for c in [(0u, 1), (1u, 1), (2u, 1), (16u, 1), (255u, 1), (256u, 2),
                 (1u shl 24 - 1u, 3), (1u shl 24, 4)]:
         check byteSize(c[0]) == c[1]
+        check byteSizeFallback(c[0]) == c[1]
