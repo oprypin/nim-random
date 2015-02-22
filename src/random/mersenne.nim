@@ -65,3 +65,16 @@ proc initMersenneTwister*(): MersenneTwister {.deprecated.} =
   initMTState()
 
 {.deprecated: [TMersenneTwister: MersenneTwister].}
+
+
+when defined(test):
+  import unittest
+  
+  suite "Mersenne Twister":
+    echo "Mersenne Twister:"
+    
+    test "implementation":
+      var rng = initMersenneTwister([0x123u32, 0x234, 0x345, 0x456])
+      check([rng.randomUint32(), rng.randomUint32(), rng.randomUint32()] == [
+        1067595299u32, 955945823, 477289528
+      ])

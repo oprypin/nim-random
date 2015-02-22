@@ -22,6 +22,7 @@
 
 
 import intsets, unsigned
+import private/util
 
 
 proc randomUint64[RNG](self: var RNG): uint64 =
@@ -49,11 +50,7 @@ proc randomInt*[RNG](self: var RNG; max: uint): uint =
         result = uint(self.randomUint64()) and mask
         if result < max: break
   else:
-    var neededBytes = 0
-    var remaining: int = max
-    while remaining > 0:
-      neededBytes += 1
-      remaining = remaining shr 8
+    let neededBytes = byteSize(max)
     while true:
       var res: uint = 0
       for i in 1..neededBytes:
@@ -106,16 +103,6 @@ proc shuffle*[RNG, T](self: var RNG; arr: var T) =
     let j = self.randomInt(i..arr.high)
     swap arr[j], arr[i]
 
-iterator missingItems[T](s: var T; a, b: int): int =
-  ## missingItems([2, 4], 1, 5) -> [1, 3, 5]
-  var cur = a
-  for el in items(s):
-    while cur < el:
-      yield cur
-      inc cur
-    inc cur
-  for x in cur..b:
-    yield x
 
 iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
   ## Simple random sample.
