@@ -1,3 +1,7 @@
+[![Build Status](https://circleci.com/gh/BlaXpirit/nim-random.png?style=shield)](https://circleci.com/gh/BlaXpirit/nim-random)
+
+[Documentation](http://blaxpirit.github.io/nim-random/random.html)
+
 ```nim
 import algorithm, sequtils
 import random
@@ -33,5 +37,3 @@ rng = initMersenneTwister(urandom(2500))
 echo rng.random()
 # Possible output: 0.6097267717528587
 ```
-
-[Documentation](http://blaxpirit.github.io/nim-random/random.html)
