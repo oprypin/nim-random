@@ -14,7 +14,7 @@
 <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'>
 
 <!-- CSS -->
-<title>Module windows_urandom</title>
+<title>Module mt19937ar</title>
 <style type="text/css" >
 /*
 Stylesheet for use with Docutils/rst2html.
@@ -1145,7 +1145,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <body>
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">Module windows_urandom</h1>
+    <h1 class="title">Module mt19937ar</h1>
     <div class="row">
   <div class="three columns">
   <ul class="simple simple-toc" id="toc-list">
@@ -1158,18 +1158,34 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#ULONG_PTR"
-    title="ULONG_PTR = int"><wbr />ULONG_<wbr />PTR</a></li>
-  <li><a class="reference" href="#HCRYPTPROV"
-    title="HCRYPTPROV = ULONG_PTR"><wbr />HCRYPTPROV</a></li>
+      <li><a class="reference" href="#MTState"
+    title="MTState = object 
+  mt*: array[N, uint32]
+  mti*: int"><wbr />MTState</a></li>
 
   </ul>
 </li>
 <li>
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#urandom,Natural"
-    title="urandom(size: Natural): seq[uint8]"><wbr />urandom</a></li>
+      <li><a class="reference" href="#init_MTState,"
+    title="init_MTState(): MTState"><wbr />init_<wbr />MTState</a></li>
+  <li><a class="reference" href="#init_genrand,MTState,uint32"
+    title="init_genrand(s: var MTState; seed: uint32)"><wbr />init_<wbr />genrand</a></li>
+  <li><a class="reference" href="#init_by_array,MTState,openArray[uint32]"
+    title="init_by_array(s: var MTState; init_key: openArray[uint32])"><wbr />init_<wbr />by_<wbr />array</a></li>
+  <li><a class="reference" href="#genrand_int32,MTState"
+    title="genrand_int32(s: var MTState): uint32"><wbr />genrand_<wbr />int32</a></li>
+  <li><a class="reference" href="#genrand_int31,MTState"
+    title="genrand_int31(s: var MTState): int32"><wbr />genrand_<wbr />int31</a></li>
+  <li><a class="reference" href="#genrand_real1,MTState"
+    title="genrand_real1(s: var MTState): float64"><wbr />genrand_<wbr />real1</a></li>
+  <li><a class="reference" href="#genrand_real2,MTState"
+    title="genrand_real2(s: var MTState): float64"><wbr />genrand_<wbr />real2</a></li>
+  <li><a class="reference" href="#genrand_real3,MTState"
+    title="genrand_real3(s: var MTState): float64"><wbr />genrand_<wbr />real3</a></li>
+  <li><a class="reference" href="#genrand_res53,MTState"
+    title="genrand_res53(s: var MTState): float64"><wbr />genrand_<wbr />res53</a></li>
 
   </ul>
 </li>
@@ -1182,30 +1198,89 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="winlean.html">winlean</a>
+<a class="reference external" href="http://nim-lang.org/unsigned.html" style="font-style: italic">unsigned</a>
 </dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<dt id="ULONG_PTR"><a name="ULONG_PTR"></a><pre><span class="Identifier">ULONG_PTR</span> <span class="Other">=</span> <span class="Identifier">int</span></pre></dt>
+<dt id="MTState"><a name="MTState"></a><pre><span class="Identifier">MTState</span> <span class="Other">=</span> <span class="Keyword">object</span> 
+  <span class="Identifier">mt</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span>
+  <span class="Identifier">mti</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">int</span>
+</pre></dt>
 <dd>
-
-
-</dd>
-<dt id="HCRYPTPROV"><a name="HCRYPTPROV"></a><pre><span class="Identifier">HCRYPTPROV</span> <span class="Other">=</span> <span class="Identifier">ULONG_PTR</span></pre></dt>
-<dd>
-
-
+state of Mersenne Twister
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L64"
+class="link-seesrc" target="_blank">Source</a>
 </dd>
 
 </dl></div>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
-<dt id="urandom"><a name="urandom,Natural"></a><pre><span class="Keyword">proc</span> <span class="Identifier">urandom</span><span class="Other">(</span><span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint8</span><span class="Other">]</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="init_MTState"><a name="init_MTState,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_MTState</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">MTState</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
-Returns <tt class="docutils literal"><span class="pre">size</span></tt> bytes obtained by calling <tt class="docutils literal"><span class="pre">CryptGenRandom</span></tt>. Initialization is done before the first call with <tt class="docutils literal"><span class="pre">CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)</span></tt>. Raises <tt class="docutils literal"><span class="pre">OSError</span></tt> on failure.
-
+initializes and returns a new <tt class="docutils literal"><span class="pre">MTState</span></tt>
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L70"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="init_genrand"><a name="init_genrand,MTState,uint32"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_genrand</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+initializes <tt class="docutils literal"><span class="pre">mt[N]</span></tt> with a seed
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L74"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="init_by_array"><a name="init_by_array,MTState,openArray[uint32]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">init_by_array</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">;</span> <span class="Identifier">init_key</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> 
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+initialize by an array with array-length. <cite>init_key</cite> is the array for initializing keys.
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L89"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_int32"><a name="genrand_int32,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_int32</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on [0,0xffffffff]-interval
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L121"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_int31"><a name="genrand_int31,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_int31</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int32</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on [0,0x7fffffff]-interval
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L155"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_real1"><a name="genrand_real1,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_real1</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on [0,1]-real-interval
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L159"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_real2"><a name="genrand_real2,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_real2</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on [0,1)-real-interval
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L164"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_real3"><a name="genrand_real3,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_real3</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on (0,1)-real-interval
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L169"
+class="link-seesrc" target="_blank">Source</a>
+</dd>
+<dt id="genrand_res53"><a name="genrand_res53,MTState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">genrand_res53</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MTState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+generates a random number on [0,1) with 53-bit resolution
+&nbsp;&nbsp;<a
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/mt19937ar.nim#L174"
+class="link-seesrc" target="_blank">Source</a>
 </dd>
 
 </dl></div>
@@ -1217,7 +1292,7 @@ Returns <tt class="docutils literal"><span class="pre">size</span></tt> bytes ob
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-01-12 14:50:53 UTC</small>
+        <small>Made with Nim. Generated: 2015-03-01 01:18:56 UTC</small>
       </div>
     </div>
   </div>

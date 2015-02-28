@@ -14,7 +14,7 @@
 <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600' rel='stylesheet' type='text/css'>
 
 <!-- CSS -->
-<title>Module random</title>
+<title>Module xorshift128plus</title>
 <style type="text/css" >
 /*
 Stylesheet for use with Docutils/rst2html.
@@ -1145,7 +1145,7 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 <body>
 <div class="document" id="documentId">
   <div class="container">
-    <h1 class="title">Module random</h1>
+    <h1 class="title">Module xorshift128plus</h1>
     <div class="row">
   <div class="three columns">
   <ul class="simple simple-toc" id="toc-list">
@@ -1156,48 +1156,19 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
   </ul>
 </li>
 <li>
-  <a class="reference reference-toplevel" href="#8" id="58">Vars</a>
+  <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#mersenneTwisterInst"
-    title="mersenneTwisterInst: MersenneTwister"><wbr />mersenne<wbr />Twister<wbr />Inst</a></li>
+      <li><a class="reference" href="#Xorshift128PlusState"
+    title="Xorshift128PlusState = object 
+  s*: array[2, uint64]"><wbr />Xorshift128Plus<wbr />State</a></li>
 
   </ul>
 </li>
 <li>
   <a class="reference reference-toplevel" href="#12" id="62">Procs</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#randomByte,"
-    title="randomByte(): uint8"><wbr />random<wbr />Byte</a></li>
-  <li><a class="reference" href="#random,"
-    title="random(): float64"><wbr />random</a></li>
-  <li><a class="reference" href="#random,float"
-    title="random(max: float): float"><wbr />random</a></li>
-  <li><a class="reference" href="#random,float,float"
-    title="random(min, max: float): float"><wbr />random</a></li>
-  <li><a class="reference" href="#randomInt,uint"
-    title="randomInt(max: uint): uint"><wbr />random<wbr />Int</a></li>
-  <li><a class="reference" href="#randomInt,Positive"
-    title="randomInt(max: Positive): Natural"><wbr />random<wbr />Int</a></li>
-  <li><a class="reference" href="#randomInt,int,int"
-    title="randomInt(min, max: int): int"><wbr />random<wbr />Int</a></li>
-  <li><a class="reference" href="#randomInt,Slice[int]"
-    title="randomInt(slice: Slice[int]): int"><wbr />random<wbr />Int</a></li>
-  <li><a class="reference" href="#randomBool,"
-    title="randomBool(): bool"><wbr />random<wbr />Bool</a></li>
-  <li><a class="reference" href="#randomChoice,T"
-    title="randomChoice[T](arr: T): auto"><wbr />random<wbr />Choice</a></li>
-  <li><a class="reference" href="#shuffle,T"
-    title="shuffle[T](arr: var T)"><wbr />shuffle</a></li>
-  <li><a class="reference" href="#seed,MersenneTwister"
-    title="seed(self: var MersenneTwister)"><wbr />seed</a></li>
-
-  </ul>
-</li>
-<li>
-  <a class="reference reference-toplevel" href="#14" id="64">Iterators</a>
-  <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#randomSample.i,T,Natural"
-    title="randomSample[T](arr: T; n: Natural): auto"><wbr />random<wbr />Sample</a></li>
+      <li><a class="reference" href="#next,Xorshift128PlusState"
+    title="next(s: var Xorshift128PlusState): uint64"><wbr />next</a></li>
 
   </ul>
 </li>
@@ -1206,23 +1177,22 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
 
   </div>
   <div class="nine columns" id="content">
-  <p class="module-desc">This module is just a convenience import. It exports <cite>random.mersenne</cite> and <cite>random.urandom</cite> and defines a global instance of Mersenne twister with alias procedures that use this instance.</p>
+  <p class="module-desc"></p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="http://nim-lang.org/times.html" style="font-style: italic">times</a>, <a class="reference external" href="random/mersenne.html" style="font-size: 130%">random/mersenne</a>, <a class="reference external" href="random/urandom.html" style="font-size: 130%">random/urandom</a>
+<a class="reference external" href="http://nim-lang.org/unsigned.html" style="font-style: italic">unsigned</a>
 </dl></div>
-<div class="section" id="8">
-<h1><a class="toc-backref" href="#8">Vars</a></h1>
+<div class="section" id="7">
+<h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<dt id="mersenneTwisterInst"><a name="mersenneTwisterInst"></a><pre><span class="Identifier">mersenneTwisterInst</span><span class="Other">:</span> <span class="Identifier">MersenneTwister</span></pre></dt>
+<dt id="Xorshift128PlusState"><a name="Xorshift128PlusState"></a><pre><span class="Identifier">Xorshift128PlusState</span> <span class="Other">=</span> <span class="Keyword">object</span> 
+  <span class="Identifier">s</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">2</span><span class="Other">,</span> <span class="Identifier">uint64</span><span class="Other">]</span>
+</pre></dt>
 <dd>
-<p>A global instance of Mersenne twister used by the alias functions.</p>
-<p>When the module is imported, it is seeded using an array of bytes provided by <tt class="docutils literal"><span class="pre">urandom</span></tt>, or, in case of failure, using the current time.</p>
-<p>Due to this silent fallback and the fact that any other code can use this global instance (and there is no thread safety), it is not recommended to use it (through the functions in this module or otherwise) if you have any concerns for security.</p>
 
 &nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L34"
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/xorshift128plus.nim#L34"
 class="link-seesrc" target="_blank">Source</a>
 </dd>
 
@@ -1230,103 +1200,11 @@ class="link-seesrc" target="_blank">Source</a>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#12">Procs</a></h1>
 <dl class="item">
-<dt id="randomByte"><a name="randomByte,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomByte</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint8</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="next"><a name="next,Xorshift128PlusState"></a><pre><span class="Keyword">proc</span> <span class="Identifier">next</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">Xorshift128PlusState</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 
 &nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L54"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="random"><a name="random,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float64</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L57"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="random"><a name="random,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L60"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="random"><a name="random,float,float"></a><pre><span class="Keyword">proc</span> <span class="Identifier">random</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">float</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">float</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L63"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomInt"><a name="randomInt,uint"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomInt</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">uint</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L66"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomInt"><a name="randomInt,Positive"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomInt</span><span class="Other">(</span><span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L69"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomInt"><a name="randomInt,int,int"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomInt</span><span class="Other">(</span><span class="Identifier">min</span><span class="Other">,</span> <span class="Identifier">max</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L72"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomInt"><a name="randomInt,Slice[int]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomInt</span><span class="Other">(</span><span class="Identifier">slice</span><span class="Other">:</span> <span class="Identifier">Slice</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L75"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomBool"><a name="randomBool,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomBool</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L78"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="randomChoice"><a name="randomChoice,T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">randomChoice</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">auto</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
-<dd>
-Alias to MT
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L81"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="shuffle"><a name="shuffle,T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">shuffle</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
-<dd>
-Alias to MT
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L84"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-<dt id="seed"><a name="seed,MersenneTwister"></a><pre><span class="Keyword">proc</span> <span class="Identifier">seed</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">MersenneTwister</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">deprecated</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> 
-                                       <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
-<dd>
-<p>Seeds (randomizes) using an array of bytes provided by <tt class="docutils literal"><span class="pre">urandom</span></tt>, or, in case of failure, using the current time (with resolution of 1/256 sec).</p>
-<p><em>Deprecated</em>: Seed with <tt class="docutils literal"><span class="pre">urandom(2500)</span></tt> explicitly instead.</p>
-
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L93"
-class="link-seesrc" target="_blank">Source</a>
-</dd>
-
-</dl></div>
-<div class="section" id="14">
-<h1><a class="toc-backref" href="#14">Iterators</a></h1>
-<dl class="item">
-<dt id="randomSample"><a name="randomSample.i,T,Natural"></a><pre><span class="Keyword">iterator</span> <span class="Identifier">randomSample</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">arr</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">auto</span> <span class="Other">{.</span><span class="Identifier">inline</span><span class="Other">.}</span></pre></dt>
-<dd>
-Alias to MT
-&nbsp;&nbsp;<a
-href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random.nim#L87"
+href="https://github.com/BlaXpirit/nim-random/blob/v0.4.0/src/random/private/xorshift128plus.nim#L37"
 class="link-seesrc" target="_blank">Source</a>
 </dd>
 
