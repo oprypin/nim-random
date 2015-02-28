@@ -1,6 +1,6 @@
 [![Build Status](https://circleci.com/gh/BlaXpirit/nim-random.png?style=shield)](https://circleci.com/gh/BlaXpirit/nim-random)
 
-[Documentation](http://blaxpirit.github.io/nim-random/random.html)
+[Documentation](http://blaxpirit.github.io/nim-random/)
 
 ```nim
 import algorithm, sequtils

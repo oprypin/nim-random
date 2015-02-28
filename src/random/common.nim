@@ -21,6 +21,9 @@
 # SOFTWARE.
 
 
+## This module is exported by all other modules. It defines common operations
+## that work for all the PRNGs provided by this library.
+
 import intsets, unsigned
 import private/util
 

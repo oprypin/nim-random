@@ -23,7 +23,7 @@
 
 import unsigned
 import common, private/seeding
-import private/mt19937ar, urandom
+import private/mt19937ar
 export common
 
 

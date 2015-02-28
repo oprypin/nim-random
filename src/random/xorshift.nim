@@ -23,8 +23,8 @@
 
 import unsigned
 import common, private/seeding
-import private/xorshift128plus, private/xorshift1024star, private/xorshift64star
-from private/murmurhash3 import nil
+import private/xorshift128plus, private/xorshift1024star
+import private/murmurhash3, private/xorshift64star
 export common
 
 
