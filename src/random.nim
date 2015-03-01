@@ -94,41 +94,41 @@ proc shuffle*[RNG, T](self: var RNG; arr: var openarray[T]) =
     let j = self.randomInt(i, arr.len)
     swap arr[j], arr[i]
 
-iterator missingItems[T](s: var T; a, b: int): int =
-  ## missingItems([2, 4], 1, 5) -> [1, 3, 5]
-  var cur = a
-  for el in items(s):
-    while cur < el:
-      yield cur
-      inc cur
-    inc cur
-  for x in cur..b:
-    yield x
+# iterator missingItems[T](s: var T; a, b: int): int =
+#   ## missingItems([2, 4], 1, 5) -> [1, 3, 5]
+#   var cur = a
+#   for el in items(s):
+#     while cur < el:
+#       yield cur
+#       inc cur
+#     inc cur
+#   for x in cur..b:
+#     yield x
 
-iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
-  ## Simple random sample.
-  ## Yields ``n`` items randomly picked from a 0-indexed random access container ``arr``,
-  ## in the relative order they were in it.
-  ## Each item has an equal chance to be picked and can be picked only once.
-  ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
-  ## Raises ``ValueError`` if there are less than ``n`` items in ``arr``.
-  if n > arr.len:
-    raise newException(ValueError, "Sample can't be larger than population")
-  let direct = (n <= (arr.len div 2)+10)
-  # "direct" means we will be filling the set with items to include
-  # "not direct" means filling it with items to exclude
-  var remaining = if direct: n else: arr.len-n
-  var iset: IntSet = initIntSet()
-  while remaining > 0:
-    let x = self.randomInt(arr.len)
-    if not containsOrIncl(iset, x):
-      dec remaining
-  if direct:
-    for i in items(iset):
-      yield arr[i]
-  else:
-    for i in missingItems(iset, 0, n-1):
-      yield arr[i]
+# iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
+#   ## Simple random sample.
+#   ## Yields ``n`` items randomly picked from a 0-indexed random access container ``arr``,
+#   ## in the relative order they were in it.
+#   ## Each item has an equal chance to be picked and can be picked only once.
+#   ## Repeating items are allowed in ``arr``, and they will not be treated in any special way.
+#   ## Raises ``ValueError`` if there are less than ``n`` items in ``arr``.
+#   if n > arr.len:
+#     raise newException(ValueError, "Sample can't be larger than population")
+#   let direct = (n <= (arr.len div 2)+10)
+#   # "direct" means we will be filling the set with items to include
+#   # "not direct" means filling it with items to exclude
+#   var remaining = if direct: n else: arr.len-n
+#   var iset: IntSet = initIntSet()
+#   while remaining > 0:
+#     let x = self.randomInt(arr.len)
+#     if not containsOrIncl(iset, x):
+#       dec remaining
+#   if direct:
+#     for i in items(iset):
+#       yield arr[i]
+#   else:
+#     for i in missingItems(iset, 0, n-1):
+#       yield arr[i]
 
 
 
@@ -245,10 +245,10 @@ proc randomChoice*[T](arr: T): auto {.inline.} =
 proc shuffle*[T](arr: var openarray[T]) {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.shuffle(arr)
-iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
-  ## Alias to MT
-  for x in mersenneTwisterInst.randomSample(arr, n):
-    yield x
+# iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
+#   ## Alias to MT
+#   for x in mersenneTwisterInst.randomSample(arr, n):
+#     yield x
 
 
 {.deprecated: [TMersenneTwister: MersenneTwister, TSystemRandom: SystemRandom].}

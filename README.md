@@ -1,3 +1,7 @@
+This is an alternative version of this library that disables `randomSample` but works with Nim 0.10.2.
+
+    nimble install random@#old-compiler
+
 ```nim
 import algorithm, sequtils
 import random
@@ -27,7 +31,7 @@ rng.seed(1337)
 echo rng.randomInt(13..37)
 # Reproducible output: 31
 
-echo toSeq(rng.randomSample(a, 3))
+# echo toSeq(rng.randomSample(a, 3))  # DISABLED IN THIS VERSION
 # Reproducible output: @[1, 2, 5]
 
 rng.seed()
@@ -35,4 +39,4 @@ echo rng.random()
 # Possible output: 9.9708586245117903e-01
 ```
 
-[Documentation](http://blaxpirit.github.io/nim-random/random.html)
+[Documentation](http://htmlpreview.github.io/?https://github.com/BlaXpirit/nim-random/blob/f7d814cc52c6ac4b3059757d72fab4d204400088/random.html)
