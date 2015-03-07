@@ -77,8 +77,7 @@ proc randomInt*[RNG](self: var RNG; max: uint): uint =
       result = cast[uint](self.baseRandom()) and mask
       if result < max: break
   else:
-    let neededParts = (byteSize(max)+sizeof(self.baseType)-1) div
-      sizeof(self.baseType)
+    let neededParts = divCeil(byteSize(max), sizeof(self.baseType))
     while true:
       for i in 1..neededParts:
         result = (result shl (sizeof(self.baseType)*8)) or self.baseRandom()
