@@ -51,8 +51,13 @@ proc seedImpl(self: var MersenneTwister) {.inline.} =
 mersenneTwisterInst.seedImpl()
 
 
-proc randomByte*(): uint8 {.inline.} =
+proc randomInt*(T: typedesc): T =
   ## Alias to MT
+  mersenneTwisterInst.randomInt(T)
+proc randomByte*(): uint8 {.inline, deprecated.} =
+  ## Alias to MT
+  ## 
+  ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   mersenneTwisterInst.randomByte()
 proc random*(): float64 {.inline.} =
   ## Alias to MT

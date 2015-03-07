@@ -28,8 +28,42 @@ import intsets, unsigned
 import private/util
 
 
-proc randomUint64[RNG](self: var RNG): uint64 =
-  self.randomUint32() or (self.randomUint32() shl 32)
+template baseType(rng): expr =
+  when compiles(rng.randomUint32()): uint32
+  elif compiles(rng.randomUint64()): uint64
+  elif compiles(rng.randomUint8()): uint8
+  else:
+    assert false
+    uint32
+
+template baseRandom(rng): expr =
+  when compiles(rng.randomUint32()): rng.randomUint32()
+  elif compiles(rng.randomUint64()): rng.randomUint64()
+  elif compiles(rng.randomUint8()): rng.randomUint8()
+  else:
+    assert false
+    0'u32
+
+
+proc randomInt[T: SomeInteger, RNG](self: var RNG): T =
+  when sizeof(T) <= sizeof(self.baseType):
+    cast[T](self.baseRandom())
+  else:
+    let neededParts = sizeof(T) div sizeof(self.baseType)
+    for i in 1..neededParts:
+      result = (result shl T(sizeof(self.baseType)*8)) or
+        cast[T](self.baseRandom())
+
+proc randomInt*[RNG](self: var RNG, T: typedesc): T {.inline.} =
+  ## Returns a uniformly distributed random integer ``T.low <= n <= T.high``
+  randomInt[T](self)
+
+proc randomByte*[RNG](self: var RNG): uint8 {.inline, deprecated.} =
+  ## Returns a uniformly distributed random integer ``0 <= n < 256``
+  ## 
+  ## *Deprecated*: Use ``randomInt(uint8)`` instead.
+  self.randomInt(uint8)
+
 
 proc randomInt*[RNG](self: var RNG; max: uint): uint =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
@@ -38,36 +72,24 @@ proc randomInt*[RNG](self: var RNG; max: uint): uint =
   # It has the same number of bits as `max`, but consists only of 1-bits
   for i in 0..5: # 1, 2, 4, 8, 16, 32
     mask = mask or (mask shr uint(1 shl i))
-  when compiles(self.randomUint64()):
-    if sizeof(int) == 4 or uint32(max) <= uint32.high:
-      while true:
-        result = uint(
-          when compiles(self.randomUint32()):
-            self.randomUint32()
-          else:
-            self.randomUint64()
-        ) and mask
-        if result < max: break
-    else:
-      while true:
-        result = uint(self.randomUint64()) and mask
-        if result < max: break
-  else:
-    let neededBytes = byteSize(max)
+  if max <= self.baseType.high:
     while true:
-      var res: uint = 0
-      for i in 1..neededBytes:
-        res = res shl 8 or self.randomByte()
-      result = res and mask
+      result = cast[uint](self.baseRandom()) and mask
+      if result < max: break
+  else:
+    let neededParts = (byteSize(max)+sizeof(self.baseType)-1) div
+      sizeof(self.baseType)
+    while true:
+      for i in 1..neededParts:
+        result = (result shl (sizeof(self.baseType)*8)) or self.baseRandom()
+      result = result and mask
       if result < max: break
 
 proc randomInt*[RNG](self: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   self.randomInt(uint(max))
 
-proc randomByte*[RNG](self: var RNG): uint8 =
-  ## Returns a uniformly distributed random integer ``0 <= n < 256``
-  uint8(self.randomInt(256))
+
 
 proc random*[RNG](self: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``

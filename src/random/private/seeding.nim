@@ -24,6 +24,7 @@
 import macros, strutils, unsigned
 
 
+
 macro makeBytesSeeding*(rng, typ): stmt =
   let s = """
     proc init$rng*(seed: openArray[uint8]): $rng =

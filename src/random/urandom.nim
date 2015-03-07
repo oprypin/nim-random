@@ -114,7 +114,7 @@ iterator sysRandomBytes(self: var SystemRandom): uint8 {.closure.} =
     for b in urandom(128):
       yield b
 
-proc randomByte*(self: var SystemRandom): uint8 {.inline.} =
+proc randomUint8*(self: var SystemRandom): uint8 {.inline.} =
   self.bytesIt(self)
 
 proc initSystemRandom*(): SystemRandom =
