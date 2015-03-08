@@ -22,7 +22,7 @@
 
 
 import unsigned
-import common, private/seeding
+import common, private/util
 import private/xorshift128plus, private/xorshift1024star
 import private/murmurhash3, private/xorshift64star
 export common
@@ -47,7 +47,12 @@ proc initXorshift128Plus*(seed: array[2, uint64]): Xorshift128Plus =
   result.s = seed
   result.checkSeed()
 
-makeBytesSeeding(Xorshift128Plus, uint64, "2")
+proc initXorshift128Plus*(seed: array[16, uint8]): Xorshift128Plus =
+  ## Seeds a new ``Xorshift128Plus`` with an array of 16 bytes.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
+  let words = bytesToWordsN[uint64, array[2, uint64]](seed)
+  initXorshift128Plus(words)
 
 proc initXorshift128Plus*(seed: uint64): Xorshift128Plus =
   ## Seeds a new ``Xorshift128Plus`` with an ``uint64``.
@@ -84,7 +89,12 @@ proc initXorshift1024Star*(seed: array[16, uint64]): Xorshift1024Star =
   result.p = 0
   result.checkSeed()
 
-makeBytesSeeding(Xorshift1024Star, uint64, "16")
+proc initXorshift1024Star(seed: array[128, uint8]): Xorshift1024Star =
+  ## Seeds a new ``Xorshift1024Star`` with an array of 128 bytes.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
+  let words = bytesToWordsN[uint64, array[16, uint64]](seed)
+  initXorshift1024Star(words)
 
 proc initXorshift1024Star*(seed: uint64): Xorshift1024Star =
   ## Seeds a new ``Xorshift1024Star`` using an ``uint64``.

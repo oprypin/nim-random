@@ -22,7 +22,7 @@
 
 
 import unsigned
-import common, private/seeding
+import common, private/util
 import private/mt19937ar
 export common
 
@@ -42,7 +42,10 @@ proc initMersenneTwister*(seed: openArray[uint32]): MersenneTwister =
   result = initMTState()
   result.initByArray(seed)
 
-makeBytesSeeding(MersenneTwister, uint32)
+proc initMersenneTwister*(seed: openArray[uint8]): MersenneTwister =
+  let words = bytesToWords[uint32](seed)
+  initMersenneTwister(words)
+# Seeds a new ``MersenneTwister`` with an array of bytes
 
 proc initMersenneTwister*(seed: uint32): MersenneTwister =
   ## Seeds a new ``MersenneTwister`` with an ``uint32``

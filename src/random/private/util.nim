@@ -72,6 +72,28 @@ else:
     byteSizeFallback(n)
 
 
+proc bytesToWords*[T](bytes: openArray[uint8]): seq[T] =
+  const size = sizeof(T)
+  # Turn an array of uint8 into an array of T:
+  let n = (bytes.high div size)+1 # n bytes is ceil(n/k) k-bit numbers
+  result = newSeq[T](n)
+  for i in 0 .. <n:
+    for j in 0 .. <size:
+      let index = i*size+j
+      let data: T =
+        if index < bytes.len: bytes[index]
+        else: 0
+      result[i] = result[i] or (data shl T(8*j))
+
+proc bytesToWordsN*[T, R](bytes: openArray[uint8]): R =
+  const size = sizeof(T)
+  # Turn an array of uint8 into an array of T:
+  for i in 0 .. result.high:
+    for j in 0 .. <size:
+      let data: T = bytes[i*size+j]
+      result[i] = result[i] or (data shl T(8*j))
+
+
 when defined(test):
   import unittest, sequtils
 
@@ -97,3 +119,23 @@ when defined(test):
         let (input, output) = data
         check byteSize(input) == output
         check byteSizeFallback(input) == output
+    
+    test "bytesToWords":
+      for data in [
+        (@[0u8, 0, 0, 0, 0, 0, 0, 0], @[0u64]),
+        (@[7u8, 0, 0, 0, 0, 0, 0, 0], @[7u64]),
+        (@[0u8, 0, 0, 0, 0, 0, 0, 255, 3], @[255u64 shl 56, 3]),
+      ]:
+        let (input, output) = data
+        let result = bytesToWords[uint64](input)
+        check result == output
+    
+    test "bytesToWordsN":
+      for data in [
+        ([0u8, 0, 0, 0, 0, 0, 0, 0], [0u32, 0u32]),
+        ([5u8, 0, 0, 8, 0, 2, 6, 0],
+           [5u32+(8u32 shl 24), (2u32 shl 8)+(6u32 shl 16)]),
+      ]:
+        let (input, output) = data
+        let result = bytesToWordsN[uint32, array[2, uint32]](input)
+        check result == output
