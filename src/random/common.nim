@@ -25,7 +25,7 @@
 ## that work for all the PRNGs provided by this library.
 
 import intsets, unsigned
-import private/util
+import private/util, private/random_real
 
 
 type RNG8 = generic var rng
@@ -103,13 +103,13 @@ proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   rng.randomIntImpl(uint(max))
 
-proc randomInt*(rng: var RNG; min, max: int): int =
+proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
   ## Returns a uniformly distributed random integer ``min <= n < max``
-  min+rng.randomInt(max-min)
+  min + rng.randomInt(max - min)
 
 proc randomInt*(rng: var RNG; slice: Slice[int]): int {.inline.} =
   ## Returns a uniformly distributed random integer ``slice.a <= n <= slice.b``
-  rng.randomInt(slice.a, slice.b+1)
+  slice.a + rng.randomInt(slice.b - slice.a + 1)
 
 proc randomBool*(rng: var RNG): bool {.inline.} =
   ## Returns a random boolean
@@ -118,16 +118,21 @@ proc randomBool*(rng: var RNG): bool {.inline.} =
 
 proc random*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
-  const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 values
-  return float64(rng.randomInt(MAX_PREC))/MAX_PREC
+  const maxPrec = 1 shl 53 # float64, excluding mantissa, has 2^53 values
+  float64(rng.randomInt(maxPrec))/maxPrec
 
 proc random*(rng: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= n < max``
   max*rng.random()
 
-proc random*(rng: var RNG; min, max: float): float =
+proc random*(rng: var RNG; min, max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``min <= n < max``
   min+(max-min)*rng.random()
+
+proc randomPrecise*(rng: var RNG): float64 =
+  ## Returns a uniformly distributed random number ``0 <= n < 1``,
+  ## with more resolution (doesn't skip values).
+  random_real.randomReal(rng.randomInt(uint64))
 
 
 proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
