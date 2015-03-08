@@ -167,18 +167,23 @@ iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
     for i in iset.missingItems(0, n-1):
       yield arr[i]
 
-proc randomSample*[T](self: var RNG; iter: iterator(): T; n: Natural): seq[T] =
-  ## Random sampling using reservoir sampling algorithm.
+proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
+  ## Random sample using reservoir sampling algorithm.
   ## 
-  ## It will pick random `n` items from the iterator very efficiently.
+  ## Returns a sequence of `n` items randomly picked from an iterator `iter`,
+  ## in no particular order. Each item has an equal chance to be picked and can
+  ## be picked only once. Repeating items are allowed in `iter`, and they will
+  ## not be treated in any special way.
+  ## 
+  ## Raises ``ValueError`` if there are less than `n` items in `iter`.
   result = newSeq[T](n)
-  var idx = 0
+  for r in result.mitems:
+    if iter.finished:
+      raise newException(ValueError, "Sample can't be larger than population")
+    r = iter()
+  var idx = result.len
   for e in iter():
-    if idx < n:
-      result[idx] = e
-    else:
-      let r = self.randomInt(idx)
-      if r < n:
-        result[r] = e
+    let r = rng.randomInt(idx)
+    if r < n:
+      result[r] = e
     inc idx
-

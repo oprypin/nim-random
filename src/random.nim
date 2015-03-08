@@ -49,7 +49,7 @@ except OSError:
   mersenneTwisterInst = initMersenneTwister(uint32(uint(epochTime()*256)))
 
 
-proc randomInt*(T: typedesc): T =
+proc randomInt*(T: typedesc): T {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomInt(T)
 proc randomByte*(): uint8 {.inline, deprecated.} =
@@ -91,3 +91,6 @@ iterator randomSample*(arr: RAContainer, n: Natural): auto {.inline.} =
   ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
+proc randomSample*[T](iter: iterator(): T; n: Natural): seq[T] {.inline.} =
+  ## Alias to MT
+  mersenneTwisterInst.randomSample(iter, n)
