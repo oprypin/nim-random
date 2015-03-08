@@ -120,6 +120,3 @@ proc randomUint8*(self: var SystemRandom): uint8 {.inline.} =
 proc initSystemRandom*(): SystemRandom =
   ## Initializes and returns a new ``SystemRandom``
   result.bytesIt = sysRandomBytes
-
-
-{.deprecated: [TSystemRandom: SystemRandom].}

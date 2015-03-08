@@ -50,23 +50,6 @@ proc initMersenneTwister*(seed: uint32): MersenneTwister =
   result.initGenrand(seed)
 
 
-proc seed*(self: var MersenneTwister, s: openArray[uint8]) {.deprecated.} =
-  ## *Deprecated*: Use ``initMersenneTwister`` instead.
-  self = initMersenneTwister(s)
-
-proc seed*(self: var MersenneTwister, s: int) {.deprecated.} =
-  ## *Deprecated*: Use ``initMersenneTwister`` instead.
-  self = initMersenneTwister(uint32(s))
-
-proc initMersenneTwister*(): MersenneTwister {.deprecated.} =
-  ## Initializes and returns a new MersenneTwister 
-  ## 
-  ## *Deprecated*: Initialize with a seed instead.
-  initMTState()
-
-{.deprecated: [TMersenneTwister: MersenneTwister].}
-
-
 when defined(test):
   import unittest
   

@@ -43,13 +43,10 @@ var mersenneTwisterInst*: MersenneTwister
   ## use it (through the functions in this module or otherwise) if you have any
   ## concerns for security.
 
-proc seedImpl(self: var MersenneTwister) {.inline.} =
-  try:
-    self = initMersenneTwister(urandom(2500))
-  except OSError:
-    self = initMersenneTwister(uint32(uint(epochTime()*256)))
-
-mersenneTwisterInst.seedImpl()
+try:
+  mersenneTwisterInst = initMersenneTwister(urandom(2500))
+except OSError:
+  mersenneTwisterInst = initMersenneTwister(uint32(uint(epochTime()*256)))
 
 
 proc randomInt*(T: typedesc): T =
@@ -59,7 +56,7 @@ proc randomByte*(): uint8 {.inline, deprecated.} =
   ## Alias to MT
   ## 
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
-  mersenneTwisterInst.randomByte()
+  mersenneTwisterInst.randomInt(uint8)
 proc random*(): float64 {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.random()
@@ -94,11 +91,3 @@ iterator randomSample*(arr: RAContainer, n: Natural): auto {.inline.} =
   ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
-
-
-proc seed*(self: var MersenneTwister) {.deprecated.} =
-  ## Seeds (randomizes) using an array of bytes provided by ``urandom``, or,
-  ## in case of failure, using the current time (with resolution of 1/256 sec).
-  ## 
-  ## *Deprecated*: Seed with ``urandom(2500)`` explicitly instead.
-  self.seedImpl()

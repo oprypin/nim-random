@@ -197,6 +197,3 @@ when is_main_module:
     for i in 0 .. <1000:
         printf("%10.8f ", state.genrand_real2())
         if i mod 5 == 4: printf("\n")
-
-
-{.deprecated: [TMTState: MTState].}
