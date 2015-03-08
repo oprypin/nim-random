@@ -55,6 +55,11 @@ proc initMersenneTwister*(seed: uint32): MersenneTwister =
 
 when defined(test):
   import unittest
+  import private/testutil
+  
+  const seeds = [
+    47845723665u32, 2536452432u32, 1u32, 0u32, 239463294u32, 2466576764u32, 12359836u32, 243573567567u32, 2452567348u32, 0xffffffffu32, 3987349243u32, 983991231u32, 234234u32, 9199139u32, 424553u32, 234642342u32, 123836u32
+  ]
   
   suite "Mersenne Twister":
     echo "Mersenne Twister:"
@@ -64,3 +69,16 @@ when defined(test):
       check([rng.randomUint32(), rng.randomUint32(), rng.randomUint32()] == [
         1067595299u32, 955945823, 477289528
       ])
+
+    test "chiSquare":
+      var rs = newSeq[float]()
+      for seed in seeds:
+        var rng = initMersenneTwister(seed)
+        proc rand(): int = rng.randomInt(100)
+        let r = chiSquare(rand, bucketCount = 100, experiments = 1000000)
+        rs.add(r)
+        # Probability less than the critical value, v = 99
+        #    0.90      0.95     0.975      0.99     0.999
+        # 117.407   123.225   128.422   134.642   148.230
+        check r < 123.225
+      check average(rs) < 117.407

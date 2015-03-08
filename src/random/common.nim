@@ -191,3 +191,45 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
     if r < n:
       result[r] = e
     inc idx
+
+when defined(test):
+  import unittest
+  import xorshift
+  
+  var dataRNG8 = [234u8, 153, 125, 0, 12, 64, 255]
+  type TestRNG8 = object
+    n: int
+  proc randomUint8(rng: var TestRNG8): uint8 =
+    result = dataRNG8[rng.n]
+    rng.n = (rng.n+1) mod dataRNG8.len
+  var testRNG8: TestRNG8
+  
+  var dataRNG32 = [31541451u32, 0, 234525625, 342475672, 245423, 0xffffffff, 50967465]
+  type TestRNG32 = object
+    n: int
+  proc randomUint32(rng: var TestRNG32): uint32 =
+    result = dataRNG32[rng.n]
+    rng.n = (rng.n+1) mod dataRNG32.len
+  var testRNG32: TestRNG32
+  
+  suite "Common":
+    echo "Common:"
+
+    test "randomInt(T) accumulation":
+      testRNG8 = TestRNG8()
+      let result = randomInt(testRNG8, uint16)
+      let expected = int(dataRNG8[0])*0x100 + int(dataRNG8[1])
+      check int(result) == expected
+    
+    test "randomInt(T) truncation":
+      testRNG32 = TestRNG32()
+      let result = randomInt(testRNG32, uint16)
+      let expected = int(dataRNG32[0]) mod 0x10000
+      check int(result) == expected
+    
+    test "randomInt(T) negation":
+      testRNG8 = TestRNG8()
+      let result = randomInt(testRNG8, int8)
+      assert dataRNG8[0] > 0x80'u8
+      let expected = int(dataRNG8[0]) - 0x100
+      check int(result) == expected

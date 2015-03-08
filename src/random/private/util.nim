@@ -21,13 +21,16 @@
 # SOFTWARE.
 
 
-import unsigned, intsets
+import unsigned, intsets, math
 
 
 proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
   ## Returns ``ceil(a / b)`` (only works on positive numbers)
   (a-1+b) div b
 
+
+proc average*[T](s: seq[T]): T =
+    sum(s) / T(s.len)
 
 iterator missingItems*[T](s: T; a, b: int): int =
   ## Yields numbers ``in a..b`` that are missing from the ordered sequence `s`
@@ -99,6 +102,13 @@ when defined(test):
 
   suite "Utilities":
     echo "Utilities:"
+    
+    test "divCeil":
+      for data in [
+        (1, 1, 1), (1, 2, 1), (1, 999999, 1), (5, 2, 3), (8, 7, 2)
+      ]:
+        let (a, b, output) = data
+        check divCeil(a, b) == output
     
     test "missingItems":
       for data in [
