@@ -97,13 +97,6 @@ proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   rng.randomInt(uint(max))
 
-
-
-proc random*(rng: var RNG): float64 =
-  ## Returns a uniformly distributed random number ``0 <= n < 1``
-  const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 values
-  return float64(rng.randomInt(MAX_PREC))/MAX_PREC
-
 proc randomInt*(rng: var RNG; min, max: int): int =
   ## Returns a uniformly distributed random integer ``min <= n < max``
   min+rng.randomInt(max-min)
@@ -117,13 +110,18 @@ proc randomBool*(rng: var RNG): bool {.inline.} =
   bool(rng.randomInt(2))
 
 
-proc random*(rng: var RNG; min, max: float): float =
-  ## Returns a uniformly distributed random number ``min <= n < max``
-  min+(max-min)*rng.random()
+proc random*(rng: var RNG): float64 =
+  ## Returns a uniformly distributed random number ``0 <= n < 1``
+  const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 values
+  return float64(rng.randomInt(MAX_PREC))/MAX_PREC
 
 proc random*(rng: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= n < max``
   max*rng.random()
+
+proc random*(rng: var RNG; min, max: float): float =
+  ## Returns a uniformly distributed random number ``min <= n < max``
+  min+(max-min)*rng.random()
 
 
 proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =

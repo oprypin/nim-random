@@ -41,16 +41,18 @@ proc checkSeed(self: var Xorshift128Plus) {.inline.} =
       "The state must be seeded so that it is not everywhere zero.")
 
 proc initXorshift128Plus*(seed: array[2, uint64]): Xorshift128Plus =
-  ## Seeds (randomizes) using 2 ``uint64``.
-  ## The state must be seeded so that it is not everywhere zero.
+  ## Seeds a new ``Xorshift128Plus`` with 2 ``uint64``.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
   result.s = seed
   result.checkSeed()
 
 makeBytesSeeding(Xorshift128Plus, uint64, "2")
 
 proc initXorshift128Plus*(seed: uint64): Xorshift128Plus =
-  ## Seeds (randomizes) using an ``uint64``.
+  ## Seeds a new ``Xorshift128Plus`` with an ``uint64``.
   ## The state must be seeded so that it is not everywhere zero.
+  
   # "If you have a 64-bit seed, we suggest to pass it twice
   # through MurmurHash3's avalanching function."
   let a = murmurhash3.next(seed)
@@ -75,8 +77,9 @@ proc checkSeed(self: var Xorshift1024Star) {.inline.} =
       "The state must be seeded so that it is not everywhere zero.")
 
 proc initXorshift1024Star*(seed: array[16, uint64]): Xorshift1024Star =
-  ## Seeds (randomizes) using 16 uint64.
-  ## The state must be seeded so that it is not everywhere zero.
+  ## Seeds a new ``Xorshift1024Star`` with 16 ``uint64``.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
   result.s = seed
   result.p = 0
   result.checkSeed()
@@ -84,8 +87,10 @@ proc initXorshift1024Star*(seed: array[16, uint64]): Xorshift1024Star =
 makeBytesSeeding(Xorshift1024Star, uint64, "16")
 
 proc initXorshift1024Star*(seed: uint64): Xorshift1024Star =
-  ## Seeds (randomizes) using an uint64.
-  ## The state must be seeded so that it is not everywhere zero.
+  ## Seeds a new ``Xorshift1024Star`` using an ``uint64``.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
+  
   # "If you have a 64-bit seed, we suggest to seed a
   # xorshift64* generator and use its output to fill s."
   var r: array[16, uint64]

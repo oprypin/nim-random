@@ -33,7 +33,8 @@ export mersenne, urandom
 
 
 var mersenneTwisterInst*: MersenneTwister
-  ## A global instance of Mersenne twister used by the alias functions.
+  ## A global instance of Mersenne twister used by the alias functions of this
+  ## module.
   ##
   ## When the module is imported, it is seeded using an array of bytes provided
   ## by ``urandom``, or, in case of failure, using the current time.
@@ -50,47 +51,37 @@ except OSError:
 
 
 proc randomInt*(T: typedesc): T {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomInt(T)
 proc randomByte*(): uint8 {.inline, deprecated.} =
-  ## Alias to MT
-  ## 
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   mersenneTwisterInst.randomInt(uint8)
-proc random*(): float64 {.inline.} =
-  ## Alias to MT
-  mersenneTwisterInst.random()
-proc random*(max: float): float {.inline.} =
-  ## Alias to MT
-  mersenneTwisterInst.random(max)
-proc random*(min, max: float): float {.inline.} =
-  ## Alias to MT
-  mersenneTwisterInst.random(min, max)
+
 proc randomInt*(max: uint): uint {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomInt(max)
 proc randomInt*(max: Positive): Natural {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomInt(max)
 proc randomInt*(min, max: int): int {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomInt(min, max)
 proc randomInt*(slice: Slice[int]): int {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomInt(slice)
 proc randomBool*(): bool {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomBool()
+
+proc random*(): float64 {.inline.} =
+  mersenneTwisterInst.random()
+proc random*(max: float): float {.inline.} =
+  mersenneTwisterInst.random(max)
+proc random*(min, max: float): float {.inline.} =
+  mersenneTwisterInst.random(min, max)
+
 proc randomChoice*(arr: RAContainer): auto {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomChoice(arr)
+
 proc shuffle*(arr: var RAContainer) {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.shuffle(arr)
+
 iterator randomSample*(arr: RAContainer, n: Natural): auto {.inline.} =
-  ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
 proc randomSample*[T](iter: iterator(): T; n: Natural): seq[T] {.inline.} =
-  ## Alias to MT
   mersenneTwisterInst.randomSample(iter, n)
