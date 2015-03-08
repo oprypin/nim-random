@@ -76,11 +76,11 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
 
 proc randomIntImpl(rng: var RNG; max: uint): uint =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
-  var mask = uint(max)
+  var mask = uint(max)-1
   # The mask will be the closest power of 2 minus one
   # It has the same number of bits as `max`, but consists only of 1-bits
-  for i in 0..5: # 1, 2, 4, 8, 16, 32
-    mask = mask or (mask shr uint(1 shl i))
+  for s in [1u, 2, 4, 8, 16, 32]:
+    mask = mask or (mask shr s)
   # uint64.high doesn't work...
   when compiles(rng.baseType.high):
     if max <= rng.baseType.high:
@@ -88,7 +88,7 @@ proc randomIntImpl(rng: var RNG; max: uint): uint =
         result = cast[uint](rng.baseRandom()) and mask
         if result < max: break
     else:
-      let neededParts = divCeil(byteSize(max), sizeof(rng.baseType))
+      let neededParts = divCeil(log2pow21(mask), sizeof(rng.baseType)*8)
       while true:
         for i in 1..neededParts:
           result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()

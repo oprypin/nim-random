@@ -52,27 +52,47 @@ type RAContainer*[T] = generic c
   # c[i] is T ???
 
 
-proc byteSizeFallback(n: uint): int =
-  ## Returns the smallest number `b` that `256^b <= n`
-  var n = n
-  while true:
-    inc result
-    n = n shr 8
-    if n == 0:
-      break
-
 when defined(gcc):
-  proc gcc_clz(n: culong): cint {.importc: "__builtin_clzl".}
-  
-  proc bitSize(n: uint): int {.inline.} =
-    sizeof(uint)*8 - gcc_clz(n)
-  
-  proc byteSize*(n: uint): int {.inline.} =
-    divCeil(bitSize(n), 8)
+  proc clz(n: culonglong): cint {.importc: "__builtin_clzll".}
 
-else:
-  proc byteSize*(n: uint): int {.inline.} =
-    byteSizeFallback(n)
+proc log2pow2Fallback(x: uint64): int {.inline.} =
+  const debruijn64 = [
+     0,  1,  2, 53,  3,  7, 54, 27,  4, 38, 41,  8, 34, 55, 48, 28,
+    62,  5, 39, 46, 44, 42, 22,  9, 24, 35, 59, 56, 49, 18, 29, 11,
+    63, 52,  6, 26, 37, 40, 33, 47, 61, 45, 43, 21, 23, 58, 17, 10,
+    51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12
+  ]
+  debruijn64[int((x * 0x022fdd63cc95386d'u64) shr 58'u64)]
+
+proc log2pow2*(x: uint64): int {.inline.} =
+  ## Returns ``log2(x)``, but `x` must be a power of 2. Also undefined for 0.
+  when compiles(clz):
+    64 - clz(x)
+  else:
+    log2pow2Fallback(x)
+
+proc log2pow21*(x: uint64): int {.inline.} =
+  ## Returns ``log2(x+1)``, but `x` must be a power of 2 minus 1.
+  if unlikely x == uint64(-1):
+    65
+  else:
+    when compiles(clz):
+      64 - clz(x+1)
+    else:
+      log2pow2(x+1)
+
+proc log2ceilFallback(x: uint64): int {.inline.} =
+  var x = x
+  for s in [1'u64, 2, 4, 8, 16, 32]:
+    x = x or (x shr s)
+  log2pow21(x)-1
+
+proc log2ceil*(x: uint64): int =
+  ## Returns ``ceil(log2(x))``. Undefined for 0.
+  when compiles(clz):
+    return 64 - clz(x)
+  else:
+    log2ceilFallback(x)
 
 
 proc bytesToWords*[T](bytes: openArray[uint8]): seq[T] =
@@ -121,14 +141,13 @@ when defined(test):
         let (s, a, b, output) = data
         assert toSeq(missingItems(s, a, b)) == output
     
-    test "byteSize":
-      for data in [
-        (0u, 1), (1u, 1), (2u, 1), (16u, 1), (255u, 1), (256u, 2),
-        (1u shl 24 - 1u, 3), (1u shl 24, 4)
+    test "log2ceil":
+      for input in [
+        1u64, 2, 15, 16, 17, 254, 255, 256, (1 shl 24)-1, 1 shl 24, uint64(-1), uint64(-2)
       ]:
-        let (input, output) = data
-        check byteSize(input) == output
-        check byteSizeFallback(input) == output
+        let output = int(ceil(log2(float(input)+1.0)))
+        check log2ceil(input) == output
+        check log2ceilFallback(input) == output
     
     test "bytesToWords":
       for data in [
