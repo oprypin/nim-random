@@ -28,6 +28,15 @@ import intsets, unsigned
 import private/util
 
 
+type RNG8 = generic var rng
+  rng.randomUint8() is uint8
+type RNG32 = generic var rng
+  rng.randomUint32() is uint32
+type RNG64 = generic var rng
+  rng.randomUint64() is uint64
+type RNG* = RNG8 or RNG32 or RNG64
+  ## Random number generator
+
 template baseType(rng): expr =
   when compiles(rng.randomUint32()): uint32
   elif compiles(rng.randomUint64()): uint64
@@ -45,90 +54,93 @@ template baseRandom(rng): expr =
     0'u32
 
 
-proc randomInt[T: SomeInteger, RNG](self: var RNG): T =
-  when sizeof(T) <= sizeof(self.baseType):
-    cast[T](self.baseRandom())
+proc randomInt[T: SomeInteger](rng: var RNG): T =
+  when sizeof(T) <= sizeof(rng.baseType):
+    cast[T](rng.baseRandom())
   else:
-    let neededParts = sizeof(T) div sizeof(self.baseType)
+    let neededParts = sizeof(T) div sizeof(rng.baseType)
     for i in 1..neededParts:
-      result = (result shl T(sizeof(self.baseType)*8)) or
-        cast[T](self.baseRandom())
+      result = (result shl T(sizeof(rng.baseType)*8)) or
+        cast[T](rng.baseRandom())
 
-proc randomInt*[RNG](self: var RNG, T: typedesc): T {.inline.} =
+proc randomInt*(rng: var RNG, T: typedesc): T {.inline.} =
   ## Returns a uniformly distributed random integer ``T.low <= n <= T.high``
-  randomInt[T](self)
+  randomInt[T](rng)
 
-proc randomByte*[RNG](self: var RNG): uint8 {.inline, deprecated.} =
+proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## Returns a uniformly distributed random integer ``0 <= n < 256``
   ## 
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
-  self.randomInt(uint8)
+  rng.randomInt(uint8)
 
 
-proc randomInt*[RNG](self: var RNG; max: uint): uint =
+proc randomInt*(rng: var RNG; max: uint): uint =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   var mask = uint(max)
   # The mask will be the closest power of 2 minus one
   # It has the same number of bits as `max`, but consists only of 1-bits
   for i in 0..5: # 1, 2, 4, 8, 16, 32
     mask = mask or (mask shr uint(1 shl i))
-  if max <= self.baseType.high:
+  if max <= rng.baseType.high:
     while true:
-      result = cast[uint](self.baseRandom()) and mask
+      result = cast[uint](rng.baseRandom()) and mask
       if result < max: break
   else:
-    let neededParts = divCeil(byteSize(max), sizeof(self.baseType))
+    let neededParts = divCeil(byteSize(max), sizeof(rng.baseType))
     while true:
       for i in 1..neededParts:
-        result = (result shl (sizeof(self.baseType)*8)) or self.baseRandom()
+        result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()
       result = result and mask
       if result < max: break
 
-proc randomInt*[RNG](self: var RNG; max: Positive): Natural {.inline.} =
+proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
-  self.randomInt(uint(max))
+  rng.randomInt(uint(max))
 
 
 
-proc random*[RNG](self: var RNG): float64 =
+proc random*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
   const MAX_PREC = 1 shl 53 # float64, excluding mantissa, has 2^53 values
-  return float64(self.randomInt(MAX_PREC))/MAX_PREC
+  return float64(rng.randomInt(MAX_PREC))/MAX_PREC
 
-proc randomInt*[RNG](self: var RNG; min, max: int): int =
+proc randomInt*(rng: var RNG; min, max: int): int =
   ## Returns a uniformly distributed random integer ``min <= n < max``
-  min+self.randomInt(max-min)
+  min+rng.randomInt(max-min)
 
-proc randomInt*[RNG](self: var RNG; slice: Slice[int]): int {.inline.} =
+proc randomInt*(rng: var RNG; slice: Slice[int]): int {.inline.} =
   ## Returns a uniformly distributed random integer ``slice.a <= n <= slice.b``
-  self.randomInt(slice.a, slice.b+1)
+  rng.randomInt(slice.a, slice.b+1)
 
-proc randomBool*[RNG](self: var RNG): bool {.inline.} =
+proc randomBool*(rng: var RNG): bool {.inline.} =
   ## Returns a random boolean
-  bool(self.randomInt(2))
+  bool(rng.randomInt(2))
 
-proc random*[RNG](self: var RNG; min, max: float): float =
+
+proc random*(rng: var RNG; min, max: float): float =
   ## Returns a uniformly distributed random number ``min <= n < max``
-  min+(max-min)*self.random()
+  min+(max-min)*rng.random()
 
-proc random*[RNG](self: var RNG; max: float): float {.inline.} =
+proc random*(rng: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= n < max``
-  max*self.random()
+  max*rng.random()
 
-proc randomChoice*[RNG, T](self: var RNG; arr: T): auto {.inline.} =
+
+proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
   ## Selects a random element (all of them have an equal chance)
   ## from a random access container and returns it
-  arr[self.randomInt(arr.low..arr.high)]
+  arr[rng.randomInt(arr.low..arr.high)]
 
-proc shuffle*[RNG, T](self: var RNG; arr: var T) =
+
+proc shuffle*(rng: var RNG; arr: var RAContainer) =
   ## Randomly shuffles elements of a random access container
   # Fisher-Yates shuffle
   for i in arr.low..arr.high:
-    let j = self.randomInt(i..arr.high)
+    let j = rng.randomInt(i..arr.high)
     swap arr[j], arr[i]
 
 
-iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
+iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   ## Simple random sample.
   ## 
   ## Yields `n` items randomly picked from a random access container `arr`,
@@ -145,7 +157,7 @@ iterator randomSample*[RNG, T](self: var RNG; arr: T, n: Natural): auto =
   var remaining = if direct: n else: arr.len-n
   var iset: IntSet = initIntSet()
   while remaining > 0:
-    let x = self.randomInt(arr.low..arr.high)
+    let x = rng.randomInt(arr.low..arr.high)
     if not containsOrIncl(iset, x):
       dec remaining
   if direct:

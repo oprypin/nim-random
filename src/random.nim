@@ -28,6 +28,7 @@
 
 import times
 import random.mersenne, random.urandom
+import random/private/util
 export mersenne, urandom
 
 
@@ -83,13 +84,13 @@ proc randomInt*(slice: Slice[int]): int {.inline.} =
 proc randomBool*(): bool {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomBool()
-proc randomChoice*[T](arr: T): auto {.inline.} =
+proc randomChoice*(arr: RAContainer): auto {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.randomChoice(arr)
-proc shuffle*[T](arr: var T) {.inline.} =
+proc shuffle*(arr: var RAContainer) {.inline.} =
   ## Alias to MT
   mersenneTwisterInst.shuffle(arr)
-iterator randomSample*[T](arr: T, n: Natural): auto {.inline.} =
+iterator randomSample*(arr: RAContainer, n: Natural): auto {.inline.} =
   ## Alias to MT
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x

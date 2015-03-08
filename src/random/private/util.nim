@@ -41,6 +41,14 @@ iterator missingItems*[T](s: T; a, b: int): int =
     yield x
 
 
+type RAContainer*[T] = generic c
+  ## Random access container
+  c.low is SomeInteger
+  c.high is SomeInteger
+  c.len is SomeInteger
+  # c[i] is T ???
+
+
 proc byteSizeFallback(n: uint): int =
   ## Returns the smallest number `b` that `256^b <= n`
   var n = n
