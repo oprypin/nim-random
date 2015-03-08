@@ -166,3 +166,19 @@ iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   else:
     for i in iset.missingItems(0, n-1):
       yield arr[i]
+
+proc randomSample*[T](self: var RNG; iter: iterator(): T; n: Natural): seq[T] =
+  ## Random sampling using reservoir sampling algorithm.
+  ## 
+  ## It will pick random `n` items from the iterator very efficiently.
+  result = newSeq[T](n)
+  var idx = 0
+  for e in iter():
+    if idx < n:
+      result[idx] = e
+    else:
+      let r = self.randomInt(idx)
+      if r < n:
+        result[r] = e
+    inc idx
+
