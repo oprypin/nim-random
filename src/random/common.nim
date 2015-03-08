@@ -74,7 +74,7 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   rng.randomInt(uint8)
 
 
-proc randomInt*(rng: var RNG; max: uint): uint =
+proc randomIntImpl(rng: var RNG; max: uint): uint =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
   var mask = uint(max)
   # The mask will be the closest power of 2 minus one
@@ -101,7 +101,7 @@ proc randomInt*(rng: var RNG; max: uint): uint =
 
 proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
-  rng.randomInt(uint(max))
+  rng.randomIntImpl(uint(max))
 
 proc randomInt*(rng: var RNG; min, max: int): int =
   ## Returns a uniformly distributed random integer ``min <= n < max``

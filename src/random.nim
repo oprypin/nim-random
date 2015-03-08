@@ -56,8 +56,6 @@ proc randomByte*(): uint8 {.inline, deprecated.} =
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   mersenneTwisterInst.randomInt(uint8)
 
-proc randomInt*(max: uint): uint {.inline.} =
-  mersenneTwisterInst.randomInt(max)
 proc randomInt*(max: Positive): Natural {.inline.} =
   mersenneTwisterInst.randomInt(max)
 proc randomInt*(min, max: int): int {.inline.} =
