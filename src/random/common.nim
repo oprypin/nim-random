@@ -51,10 +51,10 @@ template baseRandom(rng): expr =
   elif compiles(rng.randomUint8()): rng.randomUint8()
   else:
     assert false
-    0'u32
+    0u32
 
 
-proc randomInt[T: SomeInteger](rng: var RNG): T =
+proc randomIntImpl[T: SomeInteger; RNG](rng: var RNG): T =
   when sizeof(T) <= sizeof(rng.baseType):
     cast[T](rng.baseRandom())
   else:
@@ -65,7 +65,7 @@ proc randomInt[T: SomeInteger](rng: var RNG): T =
 
 proc randomInt*(rng: var RNG, T: typedesc): T {.inline.} =
   ## Returns a uniformly distributed random integer ``T.low <= n <= T.high``
-  randomInt[T](rng)
+  randomIntImpl[T, RNG](rng)
 
 proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## Returns a uniformly distributed random integer ``0 <= n < 256``
@@ -81,16 +81,22 @@ proc randomInt*(rng: var RNG; max: uint): uint =
   # It has the same number of bits as `max`, but consists only of 1-bits
   for i in 0..5: # 1, 2, 4, 8, 16, 32
     mask = mask or (mask shr uint(1 shl i))
-  if max <= rng.baseType.high:
+  # uint64.high doesn't work...
+  when compiles(rng.baseType.high):
+    if max <= rng.baseType.high:
+      while true:
+        result = cast[uint](rng.baseRandom()) and mask
+        if result < max: break
+    else:
+      let neededParts = divCeil(byteSize(max), sizeof(rng.baseType))
+      while true:
+        for i in 1..neededParts:
+          result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()
+        result = result and mask
+        if result < max: break
+  else:
     while true:
       result = cast[uint](rng.baseRandom()) and mask
-      if result < max: break
-  else:
-    let neededParts = divCeil(byteSize(max), sizeof(rng.baseType))
-    while true:
-      for i in 1..neededParts:
-        result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()
-      result = result and mask
       if result < max: break
 
 proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
