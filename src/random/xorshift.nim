@@ -115,7 +115,10 @@ when defined(test):
   import private/testutil
   
   const seeds = [
-    47845723665u64, 2536452432u64, 1u64, 239463294u64, 2466576764u64, 123230473459836u64, 243436463573567567u64, 24525673487652348u64, 0xffffffffffffffff'u64, 398734924702413u64, 98391237191231u64, 234234u64, 9199139u64, 424553u64, 234642343242u64, 123230473459836u64
+    47845723665u64, 2536452432u64, 1u64, 239463294u64, 2466576764u64,
+    123230473459836u64, 243436463573567567u64, 24525673487652348u64,
+    uint64(-1), 398734924702413u64, 98391237191231u64, 234234u64, 9199139u64,
+    424553u64, 234642343242u64, 123230473459836u64
   ]
   
   suite "Xorshift128+":
@@ -133,17 +136,14 @@ when defined(test):
       ])
     
     test "chiSquare":
-      var rs = newSeq[float]()
       for seed in seeds:
         var rng = initXorshift128Plus(seed)
         proc rand(): int = rng.randomInt(100)
         let r = chiSquare(rand, bucketCount = 100, experiments = 1000000)
-        rs.add(r)
         # Probability less than the critical value, v = 99
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 128.422
-      check average(rs) < 117.407
   
   suite "Xorshift1024*":
     echo "Xorshift1024*:"
@@ -160,14 +160,11 @@ when defined(test):
       ])
     
     test "chiSquare":
-      var rs = newSeq[float]()
       for seed in seeds:
         var rng = initXorshift1024Star(seed)
         proc rand(): int = rng.randomInt(100)
         let r = chiSquare(rand, bucketCount = 100, experiments = 1000000)
-        rs.add(r)
         # Probability less than the critical value, v = 99
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 128.422
-      check average(rs) < 117.407
