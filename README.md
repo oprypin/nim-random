@@ -37,3 +37,5 @@ rng = initMersenneTwister(urandom(2500))
 echo rng.random()
 # Possible output: 0.6097267717528587
 ```
+
+[Credits](CREDITS.md)
