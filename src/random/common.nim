@@ -130,7 +130,7 @@ proc random*(rng: var RNG; min, max: float): float {.inline.} =
   min+(max-min)*rng.random()
 
 proc randomPrecise*(rng: var RNG): float64 =
-  ## Returns a uniformly distributed random number ``0 <= n < 1``,
+  ## Returns a uniformly distributed random number ``0 <= n <= 1``,
   ## with more resolution (doesn't skip values).
   random_real.randomReal(rng.randomInt(uint64))
 

@@ -76,7 +76,7 @@ template random_real*(random64: expr): stmt {.immediate.} =
   
   var exponent = -64
   var significand: uint64
-  var shift: int
+  var shift, rshift: int
   
   # Read zeros into the exponent until we hit a one; the rest
   # will go into the significand.
@@ -97,11 +97,12 @@ template random_real*(random64: expr): stmt {.immediate.} =
   # bits of the significand.  Can't predict one way or another
   # whether there are leading zeros: there's a fifty-fifty
   # chance, if random64 is uniformly distributed.
-  shift = log2ceil(significand)
-  if shift != 64:
+  rshift = log2ceil(significand)
+  shift = 64 - rshift
+  if shift != 0:
     exponent -= shift
     significand = significand shl uint64(shift)
-    significand = significand or (random64 shr uint64(shift))
+    significand = significand or (random64 shr uint64(rshift))
 
   # Set the sticky bit, since there is almost surely another 1
   # in the bit stream.  Otherwise, we might round what looks
