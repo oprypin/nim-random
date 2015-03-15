@@ -75,7 +75,6 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
 
 
 proc randomIntImpl(rng: var RNG; max: uint): uint =
-  ## Returns a uniformly distributed random integer ``0 <= n < max``
   var mask = uint(max)-1
   # The mask will be the closest power of 2 minus one
   # It has the same number of bits as `max`, but consists only of 1-bits
@@ -201,7 +200,7 @@ when defined(test):
   import unittest
   import xorshift
   
-  var dataRNG8 = [234u8, 153, 125, 0, 12, 64, 255]
+  var dataRNG8 = [234u8, 153, 0, 0, 127, 128, 255, 255]
   type TestRNG8 = object
     n: int
   proc randomUint8(rng: var TestRNG8): uint8 =
@@ -209,7 +208,7 @@ when defined(test):
     rng.n = (rng.n+1) mod dataRNG8.len
   var testRNG8: TestRNG8
   
-  var dataRNG32 = [31541451u32, 0, 234525625, 342475672, 245423, 0xffffffff, 50967465]
+  var dataRNG32 = [31541451u32, 0, 1, 234, 342475672, 863, 0xffffffff, 50967465]
   type TestRNG32 = object
     n: int
   proc randomUint32(rng: var TestRNG32): uint32 =
@@ -217,24 +216,56 @@ when defined(test):
     rng.n = (rng.n+1) mod dataRNG32.len
   var testRNG32: TestRNG32
   
+  var dataRNG64 = [148763248732657823u64, 18446744073709551615u64, 0u64,
+    32456325635673576u64, 2456245614625u64, 32452456246u64, 3956529762u64,
+    9823674982364u64, 234253464546456u64, 14345435645646u64]
+  type TestRNG64 = object
+    n: int
+  proc randomUint64(rng: var TestRNG64): uint64 =
+    result = dataRNG64[rng.n]
+    rng.n = (rng.n+1) mod dataRNG64.len
+  var testRNG64: TestRNG64
+  
   suite "Common":
     echo "Common:"
 
     test "randomInt(T) accumulation":
       testRNG8 = TestRNG8()
-      let result = randomInt(testRNG8, uint16)
-      let expected = int(dataRNG8[0])*0x100 + int(dataRNG8[1])
-      check int(result) == expected
+      for i in 0..3:
+        let result = randomInt(testRNG8, uint16)
+        let expected = int(dataRNG8[i*2])*0x100 + int(dataRNG8[i*2+1])
+        check int(result) == expected
     
     test "randomInt(T) truncation":
       testRNG32 = TestRNG32()
-      let result = randomInt(testRNG32, uint16)
-      let expected = int(dataRNG32[0]) mod 0x10000
-      check int(result) == expected
+      for i in 0..7:
+        let result = randomInt(testRNG32, uint16)
+        let expected = int(dataRNG32[i]) mod 0x10000
+        check int(result) == expected
     
     test "randomInt(T) negation":
       testRNG8 = TestRNG8()
-      let result = randomInt(testRNG8, int8)
-      assert dataRNG8[0] > 0x80'u8
-      let expected = int(dataRNG8[0]) - 0x100
-      check int(result) == expected
+      for i in 0..7:
+        let result = randomInt(testRNG8, int8)
+        if dataRNG8[i] > 0x80u8:
+          let expected = int(dataRNG8[i]) - 0x100
+          check int(result) == expected
+
+    test "randomPrecise implementation":
+      testRNG64 = TestRNG64()
+      for bounds in [
+        (0.0080644e-00 .. 0.0080645e-00),
+        (9.5380568e-23 .. 9.5380569e-23),
+        (1.7592511e-09 .. 1.7592512e-09),
+        (5.3254248e-07 .. 5.3254249e-07),
+        (7.7766762e-07 .. 7.7766763e-07),
+        (0.9999999e-00 .. 1.0000001e-00),
+        (9.5380568e-23 .. 9.5380569e-23),
+        (1.7592511e-09 .. 1.7592512e-09),
+        (5.3254248e-07 .. 5.3254249e-07),
+        (7.7766762e-07 .. 7.7766763e-07),
+        (0.9999999e-00 .. 1.0000001e-00),
+        (9.5380568e-23 .. 9.5380569e-23),
+      ]:
+        let r = float(testRNG64.randomPrecise())
+        check bounds.a < r and r < bounds.b
