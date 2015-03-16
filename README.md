@@ -4,7 +4,7 @@
 
 ```nim
 import algorithm, sequtils
-import random
+import random, random.xorshift
 
 var a = toSeq(1..10)
 
@@ -26,16 +26,15 @@ else:
   echo "tails"
 # Possible output: heads
 
-var rng = initMersenneTwister(1337)
+var rng = initXorshift128Plus(1337)
 echo rng.randomInt(13..37)
-# Reproducible output: 36
+# Reproducible output: 27
 
 echo toSeq(rng.randomSample(a, 3))
-# Reproducible output: @[8, 9, 10]
+# Reproducible output: @[5, 9, 10]
 
-rng = initMersenneTwister(urandom(2500))
-echo rng.random()
-# Possible output: 0.6097267717528587
-```
+var rng2 = initMersenneTwister(urandom(2500))
+echo rng2.random()
+# Possible output: 0.6097267717528587```
 
 [Credits](CREDITS.md)
