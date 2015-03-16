@@ -73,30 +73,28 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   rng.randomInt(uint8)
 
+const intLimit = uint(int.high)+1u
 
 proc randomIntImpl(rng: var RNG; max: uint): uint =
-  var mask = uint(max)-1
-  # The mask will be the closest power of 2 minus one
-  # It has the same number of bits as `max`, but consists only of 1-bits
-  for s in [1u, 2, 4, 8, 16, 32]:
-    mask = mask or (mask shr s)
+  # We're assuming 0 < max <= int.high
+  let limit = intLimit - intLimit mod max
   # uint64.high doesn't work...
   when compiles(rng.baseType.high):
     if max <= rng.baseType.high:
       while true:
-        result = cast[uint](rng.baseRandom()) and mask
-        if result < max: break
+        result = cast[uint](rng.baseRandom())
+        if result < limit: break
     else:
-      let neededParts = divCeil(log2pow21(mask), sizeof(rng.baseType)*8)
+      let neededParts = divCeil(log2ceil(max), sizeof(rng.baseType)*8)
       while true:
         for i in 1..neededParts:
           result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()
-        result = result and mask
-        if result < max: break
+        if result < limit: break
   else:
     while true:
-      result = cast[uint](rng.baseRandom()) and mask
-      if result < max: break
+      result = cast[uint](rng.baseRandom())
+      if result < limit: break
+  result = result mod max
 
 proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= n < max``
