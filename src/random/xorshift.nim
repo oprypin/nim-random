@@ -90,7 +90,7 @@ proc initXorshift1024Star*(seed: array[16, uint64]): Xorshift1024Star =
   result.p = 0
   result.checkSeed()
 
-proc initXorshift1024Star(seed: array[128, uint8]): Xorshift1024Star =
+proc initXorshift1024Star*(seed: array[128, uint8]): Xorshift1024Star =
   ## Seeds a new ``Xorshift1024Star`` with an array of 128 bytes.
   ## 
   ## Raises ``ValueError`` if the seed consists of only zeros.
