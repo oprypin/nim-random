@@ -56,7 +56,8 @@ proc initXorshift128Plus*(seed: array[16, uint8]): Xorshift128Plus =
 
 proc initXorshift128Plus*(seed: uint64): Xorshift128Plus =
   ## Seeds a new ``Xorshift128Plus`` with an ``uint64``.
-  ## The state must be seeded so that it is not everywhere zero.
+  ## 
+  ## Raises ``ValueError`` if the seed consists of only zeros.
   
   # "If you have a 64-bit seed, we suggest to pass it twice
   # through MurmurHash3's avalanching function."

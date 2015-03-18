@@ -71,6 +71,8 @@ proc random*(max: float): float {.inline.} =
   mersenneTwisterInst.random(max)
 proc random*(min, max: float): float {.inline.} =
   mersenneTwisterInst.random(min, max)
+proc randomPrecise*(): float64 {.inline.} =
+  mersenneTwisterInst.randomPrecise()
 
 proc randomChoice*(arr: RAContainer): auto {.inline.} =
   mersenneTwisterInst.randomChoice(arr)
@@ -78,7 +80,7 @@ proc randomChoice*(arr: RAContainer): auto {.inline.} =
 proc shuffle*(arr: var RAContainer) {.inline.} =
   mersenneTwisterInst.shuffle(arr)
 
-iterator randomSample*(arr: RAContainer, n: Natural): auto {.inline.} =
+iterator randomSample*(arr: RAContainer; n: Natural): auto {.inline.} =
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
 proc randomSample*[T](iter: iterator(): T; n: Natural): seq[T] {.inline.} =

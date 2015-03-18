@@ -54,6 +54,8 @@ template baseRandom(rng): expr =
     0u32
 
 
+#: Random Integers
+
 proc randomIntImpl[T: SomeInteger; RNG](rng: var RNG): T =
   when sizeof(T) <= sizeof(rng.baseType):
     cast[T](rng.baseRandom())
@@ -63,7 +65,7 @@ proc randomIntImpl[T: SomeInteger; RNG](rng: var RNG): T =
       result = (result shl T(sizeof(rng.baseType)*8)) or
         cast[T](rng.baseRandom())
 
-proc randomInt*(rng: var RNG, T: typedesc): T {.inline.} =
+proc randomInt*(rng: var RNG; T: typedesc[SomeInteger]): T {.inline.} =
   ## Returns a uniformly distributed random integer ``T.low <= n <= T.high``
   randomIntImpl[T, RNG](rng)
 
@@ -113,6 +115,8 @@ proc randomBool*(rng: var RNG): bool {.inline.} =
   bool(rng.randomInt(2))
 
 
+#: Random Reals
+
 proc random*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n < 1``
   const maxPrec = 1 shl 53 # float64, excluding mantissa, has 2^53 values
@@ -129,8 +133,12 @@ proc random*(rng: var RNG; min, max: float): float {.inline.} =
 proc randomPrecise*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= n <= 1``,
   ## with more resolution (doesn't skip values).
+  ## 
+  ## Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
   random_real.randomReal(rng.randomInt(uint64))
 
+
+#: Sequence Operations
 
 proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
   ## Selects a random element (all of them have an equal chance)
@@ -139,8 +147,9 @@ proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
 
 
 proc shuffle*(rng: var RNG; arr: var RAContainer) =
-  ## Randomly shuffles elements of a random access container
-  # Fisher-Yates shuffle
+  ## Fisher-Yates shuffle.
+  ## 
+  ## Randomly shuffles elements of a random access container.
   for i in arr.low..arr.high:
     let j = rng.randomInt(i..arr.high)
     swap arr[j], arr[i]
@@ -193,6 +202,8 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
     if r < n:
       result[r] = e
     inc idx
+
+
 
 when defined(test):
   import unittest
