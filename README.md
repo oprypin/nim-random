@@ -7,6 +7,30 @@ Random number generation library for [Nim][] inspired by [Python's "random" modu
 
 ---
 
+Contents
+--------
+
+- [Example](#example)
+- [Manual](#manual)
+  - [Common Operations](#common-operations)
+    - [Random Integers](#random-integers)
+    - [Random Reals](#random-reals)
+    - [Sequence Operations](#sequence-operations)
+  - [Type Glossary](#type-glossary)
+  - [Random Number Generators](#random-number-generators)
+    - [*urandom*](#randomurandom)
+      - [`SystemRandom`](#type-systemrandom)
+    - [*mersenne*](#randommersenne)
+      - [`MersenneTwister`](#type-mersennetwister)
+    - [*xorshift*](#randomxorshift)
+      - [`Xorshift128Plus`](#type-xorshift128plus)
+      - [`Xorshift1024Star`](#type-xorshift1024star)
+    - [Custom RNGs](#custom-rngs)
+- [Generated Documentation][doc]
+- [Credits](#credits)
+
+---
+
 Example
 -------
 
@@ -164,7 +188,7 @@ Raises `ValueError` if there are less than `n` items in `iter`.
 
 ---
 
-#### Type Glossary
+### Type Glossary
 
 ##### `RNG`
 
@@ -333,7 +357,7 @@ Other than this, you should make `init...` procs to create and seed your RNG. It
 
 ---
 
-### [Generated Documentation](http://blaxpirit.github.io/nim-random/)
+## [Generated Documentation][doc]
 
 ---
 
@@ -357,6 +381,8 @@ Thanks to:
 - Taylor R. Campbell for [`random_real`][b3]
 
 
+
+[doc]: http://blaxpirit.github.io/nim-random/
 
 [1]: https://docs.python.org/3/library/random.html
 
