@@ -151,6 +151,10 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 128.422
+    
+    test "zero seed":
+      expect ValueError:
+        discard initXorshift128Plus(0)
   
   suite "Xorshift1024*":
     echo "Xorshift1024*:"
@@ -175,3 +179,7 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 128.422
+    
+    test "zero seed":
+      expect ValueError:
+        discard initXorshift1024Star(0)

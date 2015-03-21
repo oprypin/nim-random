@@ -174,12 +174,12 @@ iterator randomSample*(rng: var RNG; range: Slice[int]; n: Natural): int =
     let x = rng.randomInt(range)
     if not containsOrIncl(iset, x):
       dec remaining
-  #if direct:
-  for i in iset.items():
-    yield i
-  #else:
-    #for i in missingItems(iset, range):
-      #yield i
+  if direct:
+    for i in iset.items():
+      yield i
+  else:
+    for i in missingItems(iset, range):
+      yield i
 
 iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   ## Simple random sample.
@@ -217,7 +217,7 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
 
 
 when defined(test):
-  import unittest
+  import unittest, sequtils
   import xorshift
   
   var dataRNG8 = [234u8, 153, 0, 0, 127, 128, 255, 255]
@@ -289,3 +289,21 @@ when defined(test):
       ]:
         let r = float(testRNG64.randomPrecise())
         check bounds.a < r and r < bounds.b
+    
+    test "randomSample simple":
+      var rng = initXorshift128Plus(123)
+      expect ValueError:
+        for x in rng.randomSample(7..7, 2):
+          discard
+      # check is bugged
+      assert toSeq(rng.randomSample(7..20, 0)) == @[]
+
+      for seed in xorshift.seeds:
+        rng = initXorshift128Plus(seed)
+        for i in 1..100:
+          var a = rng.randomInt(1..2000)
+          var b = rng.randomInt(1..2000)
+          if a > b: swap a, b
+          var n = rng.randomInt(0 .. b-a+1)
+          var s = toSeq(rng.randomSample(a..b, n))
+          check s.len == n
