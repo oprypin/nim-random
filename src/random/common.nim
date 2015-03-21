@@ -155,32 +155,43 @@ proc shuffle*(rng: var RNG; arr: var RAContainer) =
     swap arr[j], arr[i]
 
 
+iterator randomSample*(rng: var RNG; range: Slice[int]; n: Natural): int =
+  ## Simple random sample.
+  ## 
+  ## Yields `n` random integers ``range.a <= x <= range.b`` in ascending order.
+  ## Each number has an equal chance to be picked and can be picked only once.
+  ## 
+  ## Raises ``ValueError`` if there are less than `n` items in `range`.
+  let count = range.b - range.a + 1
+  if n > count:
+    raise newException(ValueError, "Sample can't be larger than population")
+  let direct = (n <= (count div 2)+10)
+  # "direct" means we will be filling the set with items to include
+  # "not direct" means filling it with items to exclude
+  var remaining = if direct: n else: count-n
+  var iset = initIntSet()
+  while remaining > 0:
+    let x = rng.randomInt(range)
+    if not containsOrIncl(iset, x):
+      dec remaining
+  #if direct:
+  for i in iset.items():
+    yield i
+  #else:
+    #for i in missingItems(iset, range):
+      #yield i
+
 iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   ## Simple random sample.
   ## 
   ## Yields `n` items randomly picked from a random access container `arr`,
   ## in the relative order they were in it. Each item has an equal chance to be
-  ## picked and can be picked only once. Repeating items are allowed in `arr`,
+  ## picked and can be picked only once. Duplicate items are allowed in `arr`,
   ## and they will not be treated in any special way.
   ## 
   ## Raises ``ValueError`` if there are less than `n` items in `arr`.
-  if n > arr.len:
-    raise newException(ValueError, "Sample can't be larger than population")
-  let direct = (n <= (arr.len div 2)+10)
-  # "direct" means we will be filling the set with items to include
-  # "not direct" means filling it with items to exclude
-  var remaining = if direct: n else: arr.len-n
-  var iset: IntSet = initIntSet()
-  while remaining > 0:
-    let x = rng.randomInt(arr.low..arr.high)
-    if not containsOrIncl(iset, x):
-      dec remaining
-  if direct:
-    for i in iset.items():
-      yield arr[i]
-  else:
-    for i in iset.missingItems(0, n-1):
-      yield arr[i]
+  for i in rng.randomSample(arr.low..arr.high, n):
+    yield arr[i]
 
 proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
   ## Random sample using reservoir sampling algorithm.

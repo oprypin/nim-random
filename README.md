@@ -161,6 +161,17 @@ Fisher-Yates shuffle.
 Randomly shuffles elements of a random access container.
 
 ```nim
+iterator randomSample(range: Slice[int]; n: Natural): int
+```
+
+Simple random sample.
+
+Yields `n` random integers `range.a <= x <= range.b` in ascending order.
+Each number has an equal chance to be picked and can be picked only once.
+
+Raises `ValueError` if there are less than `n` items in `range`.
+
+```nim
 iterator randomSample(arr: RAContainer; n: Natural): auto
 ```
 

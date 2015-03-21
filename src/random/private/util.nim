@@ -29,15 +29,15 @@ proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
   (a-1+b) div b
 
 
-iterator missingItems*[T](s: T; a, b: int): int =
-  ## Yields numbers ``in a..b`` that are missing from the ordered sequence `s`
-  var cur = a
+iterator missingItems*[T](s: T; range: Slice[int]): int =
+  ## Yields numbers ``in range.a .. range.b`` that are missing from the ordered sequence `s`
+  var cur = range.a
   for el in items(s):
     while cur < el:
       yield cur
       inc cur
     inc cur
-  for x in cur..b:
+  for x in cur .. range.b:
     yield x
 
 

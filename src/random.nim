@@ -80,6 +80,9 @@ proc randomChoice*(arr: RAContainer): auto {.inline.} =
 proc shuffle*(arr: var RAContainer) {.inline.} =
   mersenneTwisterInst.shuffle(arr)
 
+iterator randomSample*(range: Slice[int]; n: Natural): int {.inline.} =
+  for x in mersenneTwisterInst.randomSample(range, n):
+    yield x
 iterator randomSample*(arr: RAContainer; n: Natural): auto {.inline.} =
   for x in mersenneTwisterInst.randomSample(arr, n):
     yield x
