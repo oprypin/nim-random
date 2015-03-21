@@ -85,13 +85,13 @@ template urandomImpl(): stmt {.immediate.} =
 proc urandom*(size: Natural): seq[uint8] =
   ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
   ## the operating system's cryptographic source
-  ##
+  ## 
   ## POSIX: Reads and returns `size` bytes from the file ``/dev/urandom``.
-  ##
+  ## 
   ## Windows: Returns `size` bytes obtained by calling ``CryptGenRandom``.
   ## Initialization is done before the first call with
   ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
-  ##
+  ## 
   ## Raises ``OSError`` on failure.
   newSeq(result, size)
   urandomImpl()
@@ -105,6 +105,9 @@ proc urandom*(size: (static[Natural]){lit}): array[size, uint8] =
 type SystemRandom* = object
   ## Random number generator based on bytes provided by
   ## the operating system's cryptographic source (see ``urandom``)
+  ## 
+  ## - Period: none
+  ## - State: none (but bytes are obtained in 128-byte chunks)
   bytesIt: iterator (self: var SystemRandom): uint8 {.closure.}
 
 iterator sysRandomBytes(self: var SystemRandom): uint8 {.closure.} =

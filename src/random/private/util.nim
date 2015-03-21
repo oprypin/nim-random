@@ -29,9 +29,6 @@ proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
   (a-1+b) div b
 
 
-proc average*[T](s: seq[T]): T =
-    sum(s) / T(s.len)
-
 iterator missingItems*[T](s: T; a, b: int): int =
   ## Yields numbers ``in a..b`` that are missing from the ordered sequence `s`
   var cur = a
@@ -44,7 +41,7 @@ iterator missingItems*[T](s: T; a, b: int): int =
     yield x
 
 
-type RAContainer*[T] = generic c
+type RAContainer* = generic c
   ## Random access container
   c.low is SomeInteger
   c.high is SomeInteger
@@ -62,7 +59,7 @@ proc log2pow2Fallback(x: uint64): int {.inline.} =
     63, 52,  6, 26, 37, 40, 33, 47, 61, 45, 43, 21, 23, 58, 17, 10,
     51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12
   ]
-  debruijn64[int((x * 0x022fdd63cc95386d'u64) shr 58'u64)]
+  debruijn64[int((x * 0x022fdd63cc95386d'u64) shr 58u64)]
 
 proc log2pow2*(x: uint64): int {.inline.} =
   ## Returns ``log2(x)``, but `x` must be a power of 2. Also undefined for 0.
@@ -76,19 +73,16 @@ proc log2pow21*(x: uint64): int {.inline.} =
   if unlikely x == uint64(-1):
     65
   else:
-    when compiles(clz):
-      64 - clz(x+1)
-    else:
-      log2pow2(x+1)
+    log2pow2(x+1)
 
-proc log2ceilFallback(x: uint64): int {.inline.} =
+proc bitSizeFallback(x: uint64): int {.inline.} =
   var x = x
-  for s in [1'u64, 2, 4, 8, 16, 32]:
+  for s in [1u64, 2, 4, 8, 16, 32]:
     x = x or (x shr s)
   log2pow21(x)-1
 
-proc log2ceil*(x: uint64): int =
-  ## Returns ``ceil(log2(x))``. Undefined for 0.
+proc bitSize*(x: uint64): int =
+  ## Returns ``floor(log2(x))+1``. Undefined for 0.
   when compiles(clz):
     return 64 - clz(x)
   else:
@@ -139,15 +133,16 @@ when defined(test):
       ]:
         # check is bugged
         let (s, a, b, output) = data
-        assert toSeq(missingItems(s, a, b)) == output
+        assert toSeq(missingItems(s, a..b)) == output
     
-    test "log2ceil":
+    test "bitSize":
       for input in [
-        1u64, 2, 15, 16, 17, 254, 255, 256, (1 shl 24)-1, 1 shl 24, uint64(-1), uint64(-2)
+        1u64, 2, 15, 16, 17, 254, 255, 256,
+        (1 shl 24)-1, 1 shl 24, uint64(-1), uint64(-2)
       ]:
         let output = int(ceil(log2(float(input)+1.0)))
-        check log2ceil(input) == output
-        check log2ceilFallback(input) == output
+        check bitSize(input) == output
+        check bitSizeFallback(input) == output
     
     test "bytesToWords":
       for data in [

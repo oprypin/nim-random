@@ -35,10 +35,10 @@ export mersenne, urandom
 var mersenneTwisterInst*: MersenneTwister
   ## A global instance of Mersenne twister used by the alias functions of this
   ## module.
-  ##
+  ## 
   ## When the module is imported, it is seeded using an array of bytes provided
   ## by ``urandom``, or, in case of failure, using the current time.
-  ##
+  ## 
   ## Due to this silent fallback and the fact that any other code can use this
   ## global instance (and there is no thread safety), it is not recommended to
   ## use it (through the functions in this module or otherwise) if you have any

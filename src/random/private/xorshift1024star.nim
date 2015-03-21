@@ -41,4 +41,4 @@ proc next*(s: var Xorshift1024StarState): uint64 =
   s1 = s1 xor (s1 shr 11) # b
   s0 = s0 xor (s0 shr 30) # c
   s.s[s.p] = s0 xor s1
-  return s.s[s.p] * 1181783497276652981'u64
+  return s.s[s.p] * 1181783497276652981u64

@@ -30,6 +30,9 @@ export common
 type MersenneTwister* = MTState
   ## Mersenne Twister (MT19937). Based on
   ## http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
+  ## 
+  ## - Period: 2^19937
+  ## - State: 2496 bytes + int
 
 proc randomUint32*(self: var MersenneTwister): uint32 {.inline.} =
   self.genrandInt32()
@@ -57,7 +60,7 @@ when defined(test):
   import unittest
   import private/testutil
   
-  const seeds = [
+  const seeds* = [
     345632254u32, 253642432, 1, 0, 239463294, 246956764, 12359836,
     367473423, 1452567348, 0xffffffff, 397349243, 983991231, 234234,
     9199139, 424553, 234642342, 123836

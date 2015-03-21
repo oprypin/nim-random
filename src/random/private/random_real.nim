@@ -44,7 +44,7 @@
 
 
 import math, unsigned
-from util import log2ceil
+from util import bitSize
 
 proc ldexp(x: float64; exp: cint): float64
   {.importc: "ldexp", header: "<math.h>".}
@@ -66,7 +66,7 @@ template random_real_53*(random64: expr): stmt {.immediate.} =
   ## little under 2^62 floating-point values in [0, 1], but only 2^53
   ## possible outputs here.
   
-  return float64(random64 and ((1'u64 shl 53) - 1)) * ldexp(1.0, -53)
+  return float64(random64 and ((1u64 shl 53) - 1)) * ldexp(1.0, -53)
 
 
 template random_real*(random64: expr): stmt {.immediate.} =
@@ -76,7 +76,7 @@ template random_real*(random64: expr): stmt {.immediate.} =
   
   var exponent = -64
   var significand: uint64
-  var shift, rshift: int
+  var rshift: int
   
   # Read zeros into the exponent until we hit a one; the rest
   # will go into the significand.
@@ -97,11 +97,10 @@ template random_real*(random64: expr): stmt {.immediate.} =
   # bits of the significand.  Can't predict one way or another
   # whether there are leading zeros: there's a fifty-fifty
   # chance, if random64 is uniformly distributed.
-  rshift = log2ceil(significand)
-  shift = 64 - rshift
-  if shift != 0:
-    exponent -= shift
-    significand = significand shl uint64(shift)
+  rshift = bitSize(significand)
+  if rshift != 64:
+    exponent -= (64 - rshift)
+    significand = significand shl uint64(64 - rshift)
     significand = significand or (random64 shr uint64(rshift))
 
   # Set the sticky bit, since there is almost surely another 1

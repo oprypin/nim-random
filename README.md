@@ -88,25 +88,25 @@ You can also do `import random` and get access to these exact procedures without
 proc randomInt(T: typedesc[SomeInteger]): T
 ```
 
-Returns a uniformly distributed random integer `T.low <= n <= T.high`
+Returns a uniformly distributed random integer `T.low <= x <= T.high`
 
 ```nim
 proc randomInt(max: Positive): Natural
 ```
 
-Returns a uniformly distributed random integer `0 <= n < max`
+Returns a uniformly distributed random integer `0 <= x < max`
 
 ```nim
 proc randomInt(min, max: int): int
 ```
 
-Returns a uniformly distributed random integer `min <= n < max`
+Returns a uniformly distributed random integer `min <= x < max`
 
 ```nim
-proc randomInt(slice: Slice[int]): int
+proc randomInt(range: Slice[int]): int
 ```
 
-Returns a uniformly distributed random integer `slice.a <= n <= slice.b`
+Returns a uniformly distributed random integer `range.a <= x <= range.b`
 
 ```nim
 proc randomBool(): bool
@@ -120,25 +120,25 @@ Returns a random boolean
 proc random(): float64
 ```
 
-Returns a uniformly distributed random number `0 <= n < 1`
+Returns a uniformly distributed random number `0 <= x < 1`
 
 ```nim
 proc random(max: float): float
 ```
 
-Returns a uniformly distributed random number `0 <= n < max`
+Returns a uniformly distributed random number `0 <= x < max`
 
 ```nim
 proc random(min, max: float): float
 ```
 
-Returns a uniformly distributed random number `min <= n < max`
+Returns a uniformly distributed random number `min <= x < max`
 
 ```nim
 proc randomPrecise(): float64
 ```
 
-Returns a uniformly distributed random number `0 <= n <= 1`,
+Returns a uniformly distributed random number `0 <= x <= 1`,
 with more resolution (doesn't skip values).
 
 Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
@@ -168,7 +168,7 @@ Simple random sample.
 
 Yields `n` items randomly picked from a random access container `arr`,
 in the relative order they were in it. Each item has an equal chance to be
-picked and can be picked only once. Repeating items are allowed in `arr`,
+picked and can be picked only once. Duplicate items are allowed in `arr`,
 and they will not be treated in any special way.
 
 Raises `ValueError` if there are less than `n` items in `arr`.
@@ -243,6 +243,9 @@ Raises `OSError` on failure.
 Random number generator based on bytes provided by
 the operating system's cryptographic source (see `urandom`)
 
+- Period: none
+- State: none (but bytes are obtained in 128-byte chunks)
+
 ```nim
 proc initSystemRandom(): SystemRandom
 ```
@@ -255,6 +258,9 @@ Initializes and returns a new `SystemRandom`
 
 Mersenne Twister (MT19937). Based on
 http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
+
+- Period: 2<sup>19937</sup>
+- State: 2496 bytes + int
 
 ```nim
 proc initMersenneTwister(seed: openArray[uint32]): MersenneTwister
@@ -278,8 +284,11 @@ Seeds a new `MersenneTwister` with an `uint32`
 
 ##### type Xorshift128Plus
 
-xorshift128+
-based on http://xorshift.di.unimi.it/
+xorshift128+.
+Based on http://xorshift.di.unimi.it/
+
+- Period: 2<sup>128</sup> - 1
+- State: 128 bytes
 
 ```nim
 proc initXorshift128Plus(seed: array[2, uint64]): Xorshift128Plus
@@ -307,8 +316,11 @@ Raises `ValueError` if the seed consists of only zeros.
 
 ##### type Xorshift1024Star
 
-xorshift1024*
-based on http://xorshift.di.unimi.it/
+xorshift1024*.
+Based on http://xorshift.di.unimi.it/
+
+- Period: 2<sup>1024</sup> - 1
+- State: 1024 bytes + int
 
 ```nim
 proc initXorshift1024Star(seed: array[16, uint64]): Xorshift1024Star
@@ -354,6 +366,8 @@ This should return a uniformly distributed random number.
 You may also override any of the [common operations](#common-operations) for your RNG; `random()` would be the first candidate for this.
 
 Other than this, you should make `init...` procs to create and seed your RNG. It is important to be able to seed with an array of bytes, for convenience of use with [`urandom`](#randomurandom). Look in the source code to see how *random/private/util*`.bytesToWords` and `bytesToWordsN` are used to quickly create byte-array seeding based on some other seeding proc.
+
+Don't forget to import+export *random.common*.
 
 ---
 

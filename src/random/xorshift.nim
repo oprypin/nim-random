@@ -29,8 +29,11 @@ export common
 
 
 type Xorshift128Plus* = Xorshift128PlusState
-  ## xorshift128+
-  ## based on http://xorshift.di.unimi.it/
+  ## xorshift128+.
+  ## Based on http://xorshift.di.unimi.it/
+  ## 
+  ## - Period: 2^128 - 1
+  ## - State: 128 bytes
 
 proc randomUint64*(self: var Xorshift128Plus): uint64 {.inline.} =
   xorshift128plus.next(self)
@@ -68,8 +71,11 @@ proc initXorshift128Plus*(seed: uint64): Xorshift128Plus =
 
 
 type Xorshift1024Star* = Xorshift1024StarState
-  ## xorshift1024*
-  ## based on http://xorshift.di.unimi.it/
+  ## xorshift1024*.
+  ## Based on http://xorshift.di.unimi.it/
+  ## 
+  ## - Period: 2^1024 - 1
+  ## - State: 1024 bytes + int
 
 proc randomUint64*(self: var Xorshift1024Star): uint64 {.inline.} =
   xorshift1024star.next(self)
@@ -115,7 +121,7 @@ when defined(test):
   import unittest, math
   import private/testutil
   
-  const seeds = [
+  const seeds* = [
     47845723665u64, 2536452432u64, 1u64, 239463294u64, 2466576764u64,
     123230473459836u64, 243436463573567567u64, 24525673487652348u64,
     uint64(-1), 398734924702413u64, 98391237191231u64, 234234u64, 9199139u64,

@@ -38,6 +38,6 @@ proc next*(s: var Xorshift128PlusState): uint64 =
   var s1 = s.s[0]
   let s0 = s.s[1]
   s.s[0] = s0
-  s1 = s1 xor (s1 shl 23'u64) # a
+  s1 = s1 xor (s1 shl 23u64) # a
   s.s[1] = s1 xor s0 xor (s1 shr 17) xor (s0 shr 26) # b, c
   return s.s[1] + s0
