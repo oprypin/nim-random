@@ -26,7 +26,7 @@
 ## alias procedures that use this instance.
 
 
-import times
+import times, macros, strutils
 import random.mersenne, random.urandom
 import random/private/util
 export mersenne, urandom
@@ -49,42 +49,56 @@ try:
 except OSError:
   mersenneTwisterInst = initMersenneTwister(uint32(uint(epochTime()*256)))
 
+{.warning[Deprecated]: off.}
 
-proc randomInt*(T: typedesc): T {.inline.} =
-  mersenneTwisterInst.randomInt(T)
-proc randomByte*(): uint8 {.inline, deprecated.} =
-  ## *Deprecated*: Use ``randomInt(uint8)`` instead.
-  mersenneTwisterInst.randomInt(uint8)
 
-proc randomInt*(max: Positive): Natural {.inline.} =
-  mersenneTwisterInst.randomInt(max)
-proc randomInt*(min, max: int): int {.inline.} =
-  mersenneTwisterInst.randomInt(min, max)
-proc randomInt*(slice: Slice[int]): int {.inline.} =
-  mersenneTwisterInst.randomInt(slice)
-proc randomBool*(): bool {.inline.} =
-  mersenneTwisterInst.randomBool()
+# Create all the alias functions based on common.nim.
+# For example:
+#     proc shuffle*(rng: var RNG; arr: var RAContainer)
+# Becomes:
+#     proc shuffle*(arr: var RAContainer) {.inline.} =
+#       mersenneTwisterInst.shuffle(arr)
 
-proc random*(): float64 {.inline.} =
-  mersenneTwisterInst.random()
-proc random*(max: float): float {.inline.} =
-  mersenneTwisterInst.random(max)
-proc random*(min, max: float): float {.inline.} =
-  mersenneTwisterInst.random(min, max)
-proc randomPrecise*(): float64 {.inline.} =
-  mersenneTwisterInst.randomPrecise()
+macro makeAliases(): stmt {.immediate.} =
+  let body = parseStmt(staticRead("random/common.nim"))
+  result = newStmtList()
+  
+  for top in body.children:
+    if top.kind notin {nnkProcDef, nnkIteratorDef}:
+      continue # we only want procs and iterators
+    if top.name.kind != nnkPostfix:
+      continue # ignore non-public
+    
+    top[3].del(1) # delete first formal argument
+    
+    var pragma = newNimNode(nnkPragma).add(newIdentNode("inline"))
+    if "deprecated" in $top[4].toStrLit():
+      pragma.add(newIdentNode("deprecated"))
+    top[4] = pragma
 
-proc randomChoice*(arr: RAContainer): auto {.inline.} =
-  mersenneTwisterInst.randomChoice(arr)
+    var args = newSeq[NimNode]() # collect arg names
+    var first = true
+    for arglist in top[3].children:
+      if not first: # ignore first node (the return type)
+        for i in 0 .. <arglist.len-2: # ignore two last nodes (type)
+          args.add arglist[i]
+      first = false
+    
+    # mersenneTwisterInst.proc(args)
+    var body = newCall(
+      newDotExpr(newIdentNode("mersenneTwisterInst"), top.name[1]),
+      args
+    )
+    if top.kind == nnkIteratorDef:
+      # wrap it in
+      # for x in [...]: yield x
+      body = newNimNode(nnkForStmt).add(
+        newIdentNode("x"), body,
+        newStmtList(newNimNode(nnkYieldStmt).add(newIdentNode("x")))
+      )
+    
+    top[6] = newStmtList(body)
+    
+    result.add top
 
-proc shuffle*(arr: var RAContainer) {.inline.} =
-  mersenneTwisterInst.shuffle(arr)
-
-iterator randomSample*(range: Slice[int]; n: Natural): int {.inline.} =
-  for x in mersenneTwisterInst.randomSample(range, n):
-    yield x
-iterator randomSample*(arr: RAContainer; n: Natural): auto {.inline.} =
-  for x in mersenneTwisterInst.randomSample(arr, n):
-    yield x
-proc randomSample*[T](iter: iterator(): T; n: Natural): seq[T] {.inline.} =
-  mersenneTwisterInst.randomSample(iter, n)
+makeAliases()
