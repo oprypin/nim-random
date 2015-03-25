@@ -190,17 +190,18 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
   ## 
   ## Raises ``ValueError`` if there are less than `n` items in `iter`.
   result = newSeq[T](n)
+  if n == 0:
+    return
   for r in result.mitems:
+    r = iter()
     if iter.finished:
       raise newException(ValueError, "Sample can't be larger than population")
-    r = iter()
-  var idx = result.len
+  var idx = n
   for e in iter():
-    let r = rng.randomInt(idx)
+    let r = rng.randomInt(0..idx)
     if r < n:
       result[r] = e
     inc idx
-
 
 
 when defined(test):
