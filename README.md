@@ -156,15 +156,11 @@ from a random access container and returns it
 proc shuffle(arr: var RAContainer)
 ```
 
-Fisher-Yates shuffle.
-
 Randomly shuffles elements of a random access container.
 
 ```nim
 iterator randomSample(range: Slice[int]; n: Natural): int
 ```
-
-Simple random sample.
 
 Yields `n` random integers `range.a <= x <= range.b` in ascending order.
 Each number has an equal chance to be picked and can be picked only once.
@@ -174,8 +170,6 @@ Raises `ValueError` if there are less than `n` items in `range`.
 ```nim
 iterator randomSample(arr: RAContainer; n: Natural): auto
 ```
-
-Simple random sample.
 
 Yields `n` items randomly picked from a random access container `arr`,
 in the relative order they were in it. Each item has an equal chance to be
@@ -299,7 +293,7 @@ xorshift128+.
 Based on http://xorshift.di.unimi.it/
 
 - Period: 2<sup>128</sup> - 1
-- State: 128 bytes
+- State: 16 bytes
 
 ```nim
 proc initXorshift128Plus(seed: array[2, uint64]): Xorshift128Plus
@@ -331,7 +325,7 @@ xorshift1024*.
 Based on http://xorshift.di.unimi.it/
 
 - Period: 2<sup>1024</sup> - 1
-- State: 1024 bytes + int
+- State: 128 bytes + int
 
 ```nim
 proc initXorshift1024Star(seed: array[16, uint64]): Xorshift1024Star

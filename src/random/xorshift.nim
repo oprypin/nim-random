@@ -33,7 +33,7 @@ type Xorshift128Plus* = Xorshift128PlusState
   ## Based on http://xorshift.di.unimi.it/
   ## 
   ## - Period: 2^128 - 1
-  ## - State: 128 bytes
+  ## - State: 16 bytes
 
 proc randomUint64*(self: var Xorshift128Plus): uint64 {.inline.} =
   xorshift128plus.next(self)
@@ -75,7 +75,7 @@ type Xorshift1024Star* = Xorshift1024StarState
   ## Based on http://xorshift.di.unimi.it/
   ## 
   ## - Period: 2^1024 - 1
-  ## - State: 1024 bytes + int
+  ## - State: 128 bytes + int
 
 proc randomUint64*(self: var Xorshift1024Star): uint64 {.inline.} =
   xorshift1024star.next(self)

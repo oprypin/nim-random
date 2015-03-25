@@ -147,9 +147,8 @@ proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
 
 
 proc shuffle*(rng: var RNG; arr: var RAContainer) =
-  ## Fisher-Yates shuffle.
-  ## 
   ## Randomly shuffles elements of a random access container.
+  # Fisher-Yates shuffle
   for i in arr.low..arr.high:
     let j = rng.randomInt(i..arr.high)
     swap arr[j], arr[i]
@@ -182,8 +181,6 @@ iterator randomSample*(rng: var RNG; range: Slice[int]; n: Natural): int =
       yield i
 
 iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
-  ## Simple random sample.
-  ## 
   ## Yields `n` items randomly picked from a random access container `arr`,
   ## in the relative order they were in it. Each item has an equal chance to be
   ## picked and can be picked only once. Duplicate items are allowed in `arr`,
@@ -290,13 +287,14 @@ when defined(test):
         let r = float(testRNG64.randomPrecise())
         check bounds.a < r and r < bounds.b
     
-    test "randomSample simple":
+    test "randomSample basic":
       var rng = initXorshift128Plus(123)
       expect ValueError:
         for x in rng.randomSample(7..7, 2):
           discard
-      # check is bugged
-      assert toSeq(rng.randomSample(7..20, 0)) == @[]
+
+      let z = toSeq(rng.randomSample(7..20, 0))
+      check z == newSeq[int]()
 
       for seed in xorshift.seeds:
         rng = initXorshift128Plus(seed)
@@ -307,3 +305,4 @@ when defined(test):
           var n = rng.randomInt(0 .. b-a+1)
           var s = toSeq(rng.randomSample(a..b, n))
           check s.len == n
+          check s.deduplicate().len == n
