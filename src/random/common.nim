@@ -234,9 +234,13 @@ when defined(test):
     rng.n = (rng.n+1) mod dataRNG64.len
   var testRNG64: TestRNG64
   
+  proc clItems[T](s: seq[T]): auto =
+    (iterator(): T =
+      for x in s: yield x)
+  
   suite "Common":
     echo "Common:"
-
+    
     test "randomInt(T) accumulation":
       testRNG8 = TestRNG8()
       for i in 0..3:
@@ -258,7 +262,17 @@ when defined(test):
         if dataRNG8[i] > 0x80u8:
           let expected = int(dataRNG8[i]) - 0x100
           check int(result) == expected
-
+    
+    test "random chiSquare":
+      for seed in xorshift.seeds:
+        var rng = initXorshift128Plus(seed)
+        proc rand(): float = rng.random()
+        let r = chiSquare(rand, bucketCount = 100, experiments = 100000)
+        # Probability less than the critical value, v = 99
+        #    0.90      0.95     0.975      0.99     0.999
+        # 117.407   123.225   128.422   134.642   148.230
+        check r < 128.422
+    
     test "randomPrecise implementation":
       testRNG64 = TestRNG64()
       for bounds in [
@@ -278,26 +292,49 @@ when defined(test):
         let r = float(testRNG64.randomPrecise())
         check bounds.a < r and r < bounds.b
     
-    test "randomSample basic":
+    test "randomPrecise chiSquare":
+      for seed in xorshift.seeds:
+        var rng = initXorshift128Plus(seed)
+        proc rand(): float = rng.randomPrecise()
+        let r = chiSquare(rand, bucketCount = 100, experiments = 100000)
+        # Probability less than the critical value, v = 99
+        #    0.90      0.95     0.975      0.99     0.999
+        # 117.407   123.225   128.422   134.642   148.230
+        check r < 134.642
+    
+    test "shuffle chiSquare":
+      for seed in xorshift.seeds:
+        var rng = initXorshift128Plus(seed)
+        proc rand(): seq[int] =
+          result = toSeq(1..4)
+          rng.shuffle(result)
+        # 4! = 24
+        let r = chiSquare(rand, bucketCount = 24, experiments = 100000)
+        # Probability less than the critical value, v = 23
+        #    0.90      0.95     0.975      0.99     0.999
+        #  32.007    35.172    38.076    41.638    49.728
+        check r < 38.076
+    
+    test "randomSample":
       var rng = initXorshift128Plus(123)
       expect ValueError:
         for x in rng.randomSample(7..7, 2):
           discard
-
+      
       let z = toSeq(rng.randomSample(7..20, 0))
       check z == newSeq[int]()
-
+      
       for seed in xorshift.seeds:
         rng = initXorshift128Plus(seed)
         for i in 1..100:
           var a = rng.randomInt(1..2000)
           var b = rng.randomInt(1..2000)
           if a > b: swap a, b
-          var n = rng.randomInt(0 .. b-a+1)
-          var s = toSeq(rng.randomSample(a..b, n))
+          let n = rng.randomInt(0 .. b-a+1)
+          let s = toSeq(rng.randomSample(a..b, n))
           check s.len == n
           check s.deduplicate().len == n
-
+    
     test "randomSample chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
@@ -308,3 +345,36 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         #  73.279    77.931    82.117    87.166    98.324
         check r < 82.117
+    
+    test "randomSample reservoir":
+      var rng = initXorshift128Plus(123)
+      expect ValueError:
+        for x in rng.randomSample(@[7].clItems, 2):
+          discard
+      
+      let z = rng.randomSample(@[7, 8, 9].clItems, 0)
+      check z == newSeq[int]()
+      
+      for seed in xorshift.seeds:
+        rng = initXorshift128Plus(seed)
+        for i in 1..100:
+          var a = rng.randomInt(1..2000)
+          var b = rng.randomInt(1..2000)
+          if a > b: swap a, b
+          let n = rng.randomInt(0 .. b-a+1)
+          let s = rng.randomSample(toSeq(a..b).clItems, n)
+          check s.len == n
+          check s.deduplicate().len == n
+    
+    test "randomSample reservoir chiSquare":
+      for seed in xorshift.seeds:
+        var rng = initXorshift128Plus(seed)
+        proc rand(): set[1..8] =
+          for e in rng.randomSample(toSeq(1..8).clItems, 3):
+            result.incl e
+        # C(8, 3) = 56
+        let r = chiSquare(rand, bucketCount = 56, experiments = 100000)
+        # Probability less than the critical value, v = 55
+        #    0.90      0.95     0.975      0.99     0.999
+        #  68.796    73.311    77.380    82.292    93.168
+        check r < 77.380

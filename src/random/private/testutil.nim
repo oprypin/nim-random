@@ -35,6 +35,17 @@ proc chiSquare*(rand: proc(): int; bucketCount, experiments: int): float =
     let d = float(n) - mean
     result += d*d / mean
 
+proc chiSquare*(rand: proc(): float; bucketCount, experiments: int): float =
+  var buckets = newSeq[int](bucketCount)
+  let mean = experiments / bucketCount
+  
+  for i in 1..experiments:
+    buckets[int(rand() * float(bucketCount))] += 1
+  
+  for n in buckets:
+    let d = float(n) - mean
+    result += d*d / mean
+
 proc chiSquare*[T](rand: proc(): T; bucketCount, experiments: int): float =
   var buckets = initTable[T, int]()
   
