@@ -155,35 +155,25 @@ proc shuffle*(rng: var RNG; arr: var RAContainer) =
 
 
 iterator randomSample*(rng: var RNG; range: Slice[int]; n: Natural): int =
-  ## Simple random sample.
-  ## 
-  ## Yields `n` random integers ``range.a <= x <= range.b`` in ascending order.
+  ## Yields `n` random integers ``range.a <= x <= range.b`` in random order.
   ## Each number has an equal chance to be picked and can be picked only once.
   ## 
   ## Raises ``ValueError`` if there are less than `n` items in `range`.
-  let count = range.b - range.a + 1
-  if n > count:
+  if n > range.b - range.a + 1:
     raise newException(ValueError, "Sample can't be larger than population")
-  let direct = (n <= (count div 2)+10)
-  # "direct" means we will be filling the set with items to include
-  # "not direct" means filling it with items to exclude
-  var remaining = if direct: n else: count-n
+  # Simple random sample
   var iset = initIntSet()
+  var remaining = n
   while remaining > 0:
     let x = rng.randomInt(range)
     if not containsOrIncl(iset, x):
+      yield x
       dec remaining
-  if direct:
-    for i in iset.items():
-      yield i
-  else:
-    for i in missingItems(iset, range):
-      yield i
 
 iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   ## Yields `n` items randomly picked from a random access container `arr`,
-  ## in the relative order they were in it. Each item has an equal chance to be
-  ## picked and can be picked only once. Duplicate items are allowed in `arr`,
+  ## in random order. Each item has an equal chance to be picked
+  ## and can be picked only once. Duplicate items are allowed in `arr`,
   ## and they will not be treated in any special way.
   ## 
   ## Raises ``ValueError`` if there are less than `n` items in `arr`.

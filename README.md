@@ -63,7 +63,7 @@ echo rng.randomInt(13..37)
 # Reproducible output: 27
 
 echo toSeq(rng.randomSample(a, 3))
-# Reproducible output: @[5, 9, 10]
+# Reproducible output: @[9, 10, 5]
 
 var rng2 = initMersenneTwister(urandom(2500))
 echo rng2.random()
@@ -162,7 +162,7 @@ Randomly shuffles elements of a random access container.
 iterator randomSample(range: Slice[int]; n: Natural): int
 ```
 
-Yields `n` random integers `range.a <= x <= range.b` in ascending order.
+Yields `n` random integers `range.a <= x <= range.b` in random order.
 Each number has an equal chance to be picked and can be picked only once.
 
 Raises `ValueError` if there are less than `n` items in `range`.
@@ -172,8 +172,8 @@ iterator randomSample(arr: RAContainer; n: Natural): auto
 ```
 
 Yields `n` items randomly picked from a random access container `arr`,
-in the relative order they were in it. Each item has an equal chance to be
-picked and can be picked only once. Duplicate items are allowed in `arr`,
+in random order. Each item has an equal chance to be picked
+and can be picked only once. Duplicate items are allowed in `arr`,
 and they will not be treated in any special way.
 
 Raises `ValueError` if there are less than `n` items in `arr`.
