@@ -204,8 +204,8 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
 
 
 when defined(test):
-  import unittest, sequtils
-  import xorshift
+  import unittest, sequtils, tables
+  import xorshift, private/testutil
   
   var dataRNG8 = [234u8, 153, 0, 0, 127, 128, 255, 255]
   type TestRNG8 = object
@@ -296,3 +296,14 @@ when defined(test):
           var s = toSeq(rng.randomSample(a..b, n))
           check s.len == n
           check s.deduplicate().len == n
+
+    test "randomSample chiSquare":
+      for seed in xorshift.seeds:
+        var rng = initXorshift128Plus(seed)
+        proc rand(): seq[int] = toSeq(rng.randomSample(1..5, 3))
+        # A(5, 3) = 60
+        let r = chiSquare(rand, bucketCount = 60, experiments = 100000)
+        # Probability less than the critical value, v = 59
+        #    0.90      0.95     0.975      0.99     0.999
+        #  73.279    77.931    82.117    87.166    98.324
+        check r < 82.117

@@ -391,7 +391,7 @@ Thanks to:
 
 - [Varriount][] for helping wrap `CryptGenRandom`
 - [flaviut][] for [chi-square testing][a1], [CircleCI example][a2], various comments and pointers
-- Jehan for various comments and pointers
+- Jehan for [random sample testing][a3], various comments and pointers
 - [Niklas B.][] for [fast implementation of log2 (`bitSize`)][a4]
 - [OderWat][] for [reservoir sampling][a5]
 - [Araq][], [def-][], and the rest of the [Nim][] community for answering numerous questions
@@ -407,7 +407,7 @@ Thanks to:
 
 [a1]: https://github.com/flaviut/furry-happiness/blob/master/test/cappedRandom.nim
 [a2]: http://flaviut.github.io/2015/02/08/circleci-nim/
-[a3]: http://forum.nim-lang.org/t/533#2886
+[a3]: https://gist.github.com/rbehrends/98ebf2cd893d203fb38e
 [a4]: http://stackoverflow.com/questions/21888140/de-bruijn-algorithm-binary-digit-count-64bits-c-sharp/21888542#21888542
 [a5]: https://github.com/BlaXpirit/nim-random/commit/ba4dc9a836ab74aec5ece12852953d29d0d6ced2
 
