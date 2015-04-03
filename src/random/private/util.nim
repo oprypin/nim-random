@@ -29,7 +29,7 @@ proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
   (a-1+b) div b
 
 
-type RAContainer* = generic c
+type RAContainer* = concept c
   ## Random access container
   c.low is SomeInteger
   c.high is SomeInteger

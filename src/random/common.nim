@@ -28,11 +28,11 @@ import intsets, unsigned
 import private/util, private/random_real
 
 
-type RNG8 = generic var rng
+type RNG8 = concept var rng
   rng.randomUint8() is uint8
-type RNG32 = generic var rng
+type RNG32 = concept var rng
   rng.randomUint32() is uint32
-type RNG64 = generic var rng
+type RNG64 = concept var rng
   rng.randomUint64() is uint64
 type RNG* = RNG8 or RNG32 or RNG64
   ## Random number generator

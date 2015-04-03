@@ -213,7 +213,7 @@ Pass any integer type as an argument.
 
 ##### `RAContainer`
 
-Random access container typeclass. Should support `len`, `low`, `high`, `[]`. Examples: `array`, `seq`.
+Random access container concept. Should support `len`, `low`, `high`, `[]`. Examples: `array`, `seq`.
 
 ---
 
