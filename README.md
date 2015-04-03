@@ -88,25 +88,25 @@ You can also do `import random` and get access to these exact procedures without
 proc randomInt(T: typedesc[SomeInteger]): T
 ```
 
-Returns a uniformly distributed random integer `T.low <= x <= T.high`
+Returns a uniformly distributed random integer `T.low ≤ x ≤ T.high`
 
 ```nim
 proc randomInt(max: Positive): Natural
 ```
 
-Returns a uniformly distributed random integer `0 <= x < max`
+Returns a uniformly distributed random integer `0 ≤ x < max`
 
 ```nim
 proc randomInt(min, max: int): int
 ```
 
-Returns a uniformly distributed random integer `min <= x < max`
+Returns a uniformly distributed random integer `min ≤ x < max`
 
 ```nim
 proc randomInt(interval: Slice[int]): int
 ```
 
-Returns a uniformly distributed random integer `interval.a <= x <= interval.b`
+Returns a uniformly distributed random integer `interval.a ≤ x ≤ interval.b`
 
 ```nim
 proc randomBool(): bool
@@ -120,25 +120,25 @@ Returns a random boolean
 proc random(): float64
 ```
 
-Returns a uniformly distributed random number `0 <= x < 1`
+Returns a uniformly distributed random number `0 ≤ x < 1`
 
 ```nim
 proc random(max: float): float
 ```
 
-Returns a uniformly distributed random number `0 <= x < max`
+Returns a uniformly distributed random number `0 ≤ x < max`
 
 ```nim
 proc random(min, max: float): float
 ```
 
-Returns a uniformly distributed random number `min <= x < max`
+Returns a uniformly distributed random number `min ≤ x < max`
 
 ```nim
 proc randomPrecise(): float64
 ```
 
-Returns a uniformly distributed random number `0 <= x <= 1`,
+Returns a uniformly distributed random number `0 ≤ x ≤ 1`,
 with more resolution (doesn't skip values).
 
 Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
@@ -162,7 +162,7 @@ Randomly shuffles elements of a random access container.
 iterator randomSample(interval: Slice[int]; n: Natural): int
 ```
 
-Yields `n` random integers `interval.a <= x <= interval.b` in random order.
+Yields `n` random integers `interval.a ≤ x ≤ interval.b` in random order.
 Each number has an equal chance to be picked and can be picked only once.
 
 Raises `ValueError` if there are less than `n` items in `interval`.
@@ -205,7 +205,7 @@ Pass any integer type as an argument.
 
 ##### `Positive`, `Natural`
 
-`int > 0`, `int >= 0`
+`int > 0`, `int ≥ 0`
 
 ##### `Slice[int]`
 
@@ -232,7 +232,7 @@ None of the operations are thread-safe, so if you want to use random number gene
 proc urandom(size: Natural): seq[uint8]
 ```
 
-Returns a `seq` of random integers `0 <= n < 256` provided by
+Returns a `seq` of random integers `0 ≤ n < 256` provided by
 the operating system's cryptographic source
 
 POSIX: Reads and returns `size` bytes from the file `/dev/urandom`.
@@ -264,7 +264,7 @@ Initializes and returns a new `SystemRandom`
 Mersenne Twister (MT19937). Based on
 http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
 
-- Period: 2<sup>19937</sup>
+- Period: 2<sup>19937</sup> - 1
 - State: 2496 bytes + int
 
 ```nim
@@ -370,7 +370,7 @@ This should return a uniformly distributed random number.
 
 You may also override any of the [common operations](#common-operations) for your RNG; `random()` would be the first candidate for this.
 
-Other than this, you should make `init...` procs to create and seed your RNG. It is important to be able to seed with an array of bytes, for convenience of use with [`urandom`](#randomurandom). Look in the source code to see how *random/private/util*`.bytesToWords` and `bytesToWordsN` are used to quickly create byte-array seeding based on some other seeding proc.
+Other than this, you should make `init...` procs to create and seed your RNG. It is important to be able to seed with an array of bytes, for convenience of use with [`urandom`](#randomurandom). Look in the source code to see how *random/private/util*.`bytesToWords` and `bytesToWordsN` are used to quickly create byte-array seeding based on some other seeding proc.
 
 Don't forget to import+export *random.common*.
 

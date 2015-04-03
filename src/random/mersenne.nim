@@ -31,7 +31,7 @@ type MersenneTwister* = MTState
   ## Mersenne Twister (MT19937). Based on
   ## http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
   ## 
-  ## - Period: 2^19937
+  ## - Period: 2^19937 - 1
   ## - State: 2496 bytes + int
 
 proc randomUint32*(self: var MersenneTwister): uint32 {.inline.} =
