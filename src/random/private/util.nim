@@ -74,7 +74,7 @@ proc bitSize*(x: uint64): int =
   when compiles(clz):
     return 64 - clz(x)
   else:
-    log2ceilFallback(x)
+    bitSizeFallback(x)
 
 
 proc bytesToWords*[T](bytes: openArray[uint8]): seq[T] =
