@@ -106,9 +106,9 @@ proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
   ## Returns a uniformly distributed random integer ``min <= x < max``
   min + rng.randomInt(max - min)
 
-proc randomInt*(rng: var RNG; range: Slice[int]): int {.inline.} =
-  ## Returns a uniformly distributed random integer ``range.a <= x <= range.b``
-  range.a + rng.randomInt(range.b - range.a + 1)
+proc randomInt*(rng: var RNG; interval: Slice[int]): int {.inline.} =
+  ## Returns a uniformly distributed random integer ``interval.a <= x <= interval.b``
+  interval.a + rng.randomInt(interval.b - interval.a + 1)
 
 proc randomBool*(rng: var RNG): bool {.inline.} =
   ## Returns a random boolean
@@ -154,18 +154,18 @@ proc shuffle*(rng: var RNG; arr: var RAContainer) =
     swap arr[j], arr[i]
 
 
-iterator randomSample*(rng: var RNG; range: Slice[int]; n: Natural): int =
-  ## Yields `n` random integers ``range.a <= x <= range.b`` in random order.
+iterator randomSample*(rng: var RNG; interval: Slice[int]; n: Natural): int =
+  ## Yields `n` random integers ``interval.a <= x <= interval.b`` in random order.
   ## Each number has an equal chance to be picked and can be picked only once.
   ## 
-  ## Raises ``ValueError`` if there are less than `n` items in `range`.
-  if n > range.b - range.a + 1:
+  ## Raises ``ValueError`` if there are less than `n` items in `interval`.
+  if n > interval.b - interval.a + 1:
     raise newException(ValueError, "Sample can't be larger than population")
   # Simple random sample
   var iset = initIntSet()
   var remaining = n
   while remaining > 0:
-    let x = rng.randomInt(range)
+    let x = rng.randomInt(interval)
     if not containsOrIncl(iset, x):
       yield x
       dec remaining

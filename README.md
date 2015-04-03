@@ -103,10 +103,10 @@ proc randomInt(min, max: int): int
 Returns a uniformly distributed random integer `min <= x < max`
 
 ```nim
-proc randomInt(range: Slice[int]): int
+proc randomInt(interval: Slice[int]): int
 ```
 
-Returns a uniformly distributed random integer `range.a <= x <= range.b`
+Returns a uniformly distributed random integer `interval.a <= x <= interval.b`
 
 ```nim
 proc randomBool(): bool
@@ -159,13 +159,13 @@ proc shuffle(arr: var RAContainer)
 Randomly shuffles elements of a random access container.
 
 ```nim
-iterator randomSample(range: Slice[int]; n: Natural): int
+iterator randomSample(interval: Slice[int]; n: Natural): int
 ```
 
-Yields `n` random integers `range.a <= x <= range.b` in random order.
+Yields `n` random integers `interval.a <= x <= interval.b` in random order.
 Each number has an equal chance to be picked and can be picked only once.
 
-Raises `ValueError` if there are less than `n` items in `range`.
+Raises `ValueError` if there are less than `n` items in `interval`.
 
 ```nim
 iterator randomSample(arr: RAContainer; n: Natural): auto
