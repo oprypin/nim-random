@@ -96,7 +96,7 @@ proc urandom*(size: Natural): seq[uint8] =
   newSeq(result, size)
   urandomImpl()
 
-proc urandom*(size: (static[Natural]){lit}): array[size, uint8] =
+proc urandom*(size: (static[Natural]){`const`}): array[size, uint8] =
   ## Returns an ``array`` of random integers ``0 <= n < 256`` provided by
   ## the operating system's cryptographic source.
   urandomImpl()
