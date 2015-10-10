@@ -216,7 +216,7 @@ when defined(test):
     rng.n = (rng.n+1) mod dataRNG8.len
   var testRNG8: TestRNG8
   
-  var dataRNG32 = [31541451u32, 0, 1, 234, 342475672, 863, 0xffffffff, 50967465]
+  var dataRNG32 = [31541451u32, 0, 1, 234, 342475672, 863, 0xffffffffu32, 50967465]
   type TestRNG32 = object
     n: int
   proc randomUint32(rng: var TestRNG32): uint32 =
