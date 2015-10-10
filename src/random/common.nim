@@ -75,7 +75,7 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   rng.randomInt(uint8)
 
-const intLimit = uint(int.high)+1u
+let intLimit = uint(int.high)+1u
 
 proc randomIntImpl(rng: var RNG; max: uint): uint =
   # We're assuming 0 < max <= int.high
