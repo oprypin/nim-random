@@ -52,14 +52,14 @@ proc log2pow2Fallback(x: uint64): int {.inline.} =
 proc log2pow2*(x: uint64): int {.inline.} =
   ## Returns ``log2(x)``, but `x` must be a power of 2. Also undefined for 0.
   when compiles(clz):
-    64 - clz(x)
+    63 - clz(x)
   else:
     log2pow2Fallback(x)
 
 proc log2pow21*(x: uint64): int {.inline.} =
   ## Returns ``log2(x+1)``, but `x` must be a power of 2 minus 1.
   if unlikely x == uint64(-1):
-    65
+    64
   else:
     log2pow2(x+1)
 
@@ -67,7 +67,7 @@ proc bitSizeFallback(x: uint64): int {.inline.} =
   var x = x
   for s in [1u64, 2, 4, 8, 16, 32]:
     x = x or (x shr s)
-  log2pow21(x)-1
+  log2pow21(x)
 
 proc bitSize*(x: uint64): int =
   ## Returns ``floor(log2(x))+1``. Undefined for 0.
@@ -112,6 +112,12 @@ when defined(test):
         let (a, b, output) = data
         check divCeil(a, b) == output
     
+    test "log2pow2":
+      for output in 0..31:
+        let input = uint64(2^output)
+        check log2pow2(input) == output
+        check log2pow2Fallback(input) == output
+
     test "bitSize":
       for input in [
         1u64, 2, 15, 16, 17, 254, 255, 256,
