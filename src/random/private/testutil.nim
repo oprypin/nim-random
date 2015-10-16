@@ -48,11 +48,11 @@ proc chiSquare*(rand: proc(): float; bucketCount, experiments: int): float =
 
 proc chiSquare*[T](rand: proc(): T; bucketCount, experiments: int): float =
   var buckets = initTable[T, int]()
-  
+
   for i in 1..experiments:
     let r = rand()
-    buckets[r] = buckets[r] + 1
-  
+    buckets.mgetOrPut(r, 1) += 1
+
   assert bucketCount == buckets.len
   let mean = experiments / bucketCount
 
