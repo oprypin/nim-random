@@ -77,10 +77,10 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
 
 proc randomIntImpl(rng: var RNG; max: uint): uint =
   # We're assuming 0 < max <= int.high
-  let limit = (uint(int.high) + 1u) div max * max
-  # uint64.high doesn't work...
-  when compiles(rng.baseType.high):
-    if max <= rng.baseType.high:
+  let limit = (uint(high(int)) + 1u) div max * max
+  # high(uint64) doesn't work...
+  when compiles(high(rng.baseType)):
+    if max <= high(rng.baseType):
       while true:
         result = cast[uint](rng.baseRandom())
         if result < limit: break
