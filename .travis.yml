@@ -1,8 +1,11 @@
 language: c
+env:
+  - nim_branch=master
+  - nim_branch=devel
+compiler:
+  - gcc
+  - clang
 matrix:
-  include:
-    - env: nim_branch=master
-    - env: nim_branch=devel
   allow_failures:
     - env: nim_branch=devel
   fast_finish: true
@@ -30,7 +33,7 @@ install:
 before_script:
   - export PATH="nim-$nim_branch/bin:${PATH:+:$PATH}"
 script:
-  - nim compile --verbosity:0 --run test/test
+  - nim compile --cc:$CC --verbosity:0 --run test/test
 cache:
   directories:
     - nim-master
