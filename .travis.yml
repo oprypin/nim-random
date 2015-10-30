@@ -31,7 +31,7 @@ install:
     fi
     cd ..
 before_script:
-  - export PATH="nim-$nim_branch/bin:${PATH:+:$PATH}"
+  - export PATH="nim-$nim_branch/bin${PATH:+:$PATH}"
 script:
   - nim compile --cc:$CC --verbosity:0 --run test/test
 cache:
