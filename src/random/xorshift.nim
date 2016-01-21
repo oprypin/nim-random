@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 
-import unsigned
 import common, private/util
 import private/xorshift128plus, private/xorshift1024star
 import private/murmurhash3, private/xorshift64star

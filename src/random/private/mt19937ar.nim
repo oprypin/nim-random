@@ -51,9 +51,6 @@ email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 """
 
 
-import unsigned
-
-
 # Period parameters
 const N = 624
 const M = 397

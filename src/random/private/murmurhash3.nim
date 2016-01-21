@@ -37,9 +37,6 @@ seeds.
 """
 
 
-import unsigned
-
-
 # The state must be seeded with a nonzero value.
 proc next*(x: uint64): uint64 =
   var x = x xor (x shr 33)

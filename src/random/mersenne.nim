@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 
-import unsigned
 import common, private/util
 import private/mt19937ar
 export common

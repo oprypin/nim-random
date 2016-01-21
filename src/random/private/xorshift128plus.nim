@@ -28,9 +28,6 @@ avalanching function.
 """
 
 
-import unsigned
-
-
 type Xorshift128PlusState* = object
   s*: array[2, uint64]
 

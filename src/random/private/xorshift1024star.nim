@@ -26,9 +26,6 @@ output to fill s.
 """
 
 
-import unsigned
-
-
 type Xorshift1024StarState* = object
   s*: array[16, uint64]
   p*: int

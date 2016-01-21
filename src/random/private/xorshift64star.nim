@@ -23,9 +23,6 @@ xorshift1024* (for speed and very long period) generator.
 """
 
 
-import unsigned
-
-
 type Xorshift64StarState* = object
   x*: uint64 # The state must be seeded with a nonzero value.
 

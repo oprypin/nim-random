@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import unsigned, intsets, math
+import intsets, math
 
 
 proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
