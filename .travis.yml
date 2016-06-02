@@ -1,14 +1,15 @@
 language: c
-env:
-  - nim_branch=master
-  - nim_branch=devel
-compiler:
-  - gcc
-  - clang
+compiler: gcc
 matrix:
+  include:
+    - env: nim_branch=devel
+    - env: arch=32
+    - compiler: clang
   allow_failures:
     - env: nim_branch=devel
   fast_finish: true
+before_install:
+  - export nim_branch="${nim_branch-master}"
 install:
   - |
     if [ ! -x nim-$nim_branch/bin/nim ]; then
@@ -31,13 +32,18 @@ install:
     fi
     cd ..
 before_script:
-  - export PATH="nim-$nim_branch/bin${PATH:+:$PATH}"
+  - |
+    export PATH="nim-$nim_branch/bin${PATH:+:$PATH}"
+    if [ "$arch" = 32 ]; then
+        export nim_flags="--cpu:i386 --passC:-m32 --passL:-m32"
+    fi
 script:
-  - nim compile --cc:$CC --verbosity:0 --run test/test
+  - nim compile --cc:$CC $nim_flags --verbosity:0 --run test/test
 cache:
   directories:
     - nim-master
     - nim-devel
-branches:
-  except:
-    - gh-pages
+addons:
+  apt:
+    packages:
+      - gcc-multilib
