@@ -75,14 +75,14 @@ proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   rng.randomInt(uint8)
 
-proc randomIntImpl(rng: var RNG; max: uint): uint =
-  # We're assuming 0 < max <= int.high
-  let limit = (uint(high(int)) + 1u) div max * max
+proc randomIntImpl(rng: var RNG; max: uint64): uint64 =
+  # We're assuming 0 < max <= int64.high
+  let limit = (1u64 shl 63) div max * max
   # high(uint64) doesn't work...
   when compiles(high(rng.baseType)):
     if max <= high(rng.baseType):
       while true:
-        result = cast[uint](rng.baseRandom())
+        result = cast[uint64](rng.baseRandom())
         if result < limit: break
     else:
       let neededParts = divCeil(bitSize(max), sizeof(rng.baseType)*8)
@@ -92,13 +92,13 @@ proc randomIntImpl(rng: var RNG; max: uint): uint =
         if result < limit: break
   else:
     while true:
-      result = cast[uint](rng.baseRandom())
+      result = cast[uint64](rng.baseRandom())
       if result < limit: break
   result = result mod max
 
 proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
   ## Returns a uniformly distributed random integer ``0 <= x < max``
-  rng.randomIntImpl(uint(max))
+  rng.randomIntImpl(uint64(max))
 
 proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
   ## Returns a uniformly distributed random integer ``min <= x < max``
@@ -117,8 +117,8 @@ proc randomBool*(rng: var RNG): bool {.inline.} =
 
 proc random*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= x < 1``
-  const maxPrec = 1 shl 53 # float64, excluding mantissa, has 2^53 values
-  float64(rng.randomInt(maxPrec))/maxPrec
+  const maxPrec = 1u64 shl 53 # float64, excluding mantissa, has 2^53 values
+  float64(rng.randomIntImpl(maxPrec))/float64(maxPrec)
 
 proc random*(rng: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= x < max``
@@ -243,15 +243,15 @@ when defined(test):
       testRNG8 = TestRNG8()
       for i in 0..3:
         let result = randomInt(testRNG8, uint16)
-        let expected = int(dataRNG8[i*2])*0x100 + int(dataRNG8[i*2+1])
-        check int(result) == expected
+        let expected = uint16(dataRNG8[i*2])*0x100u16 + uint16(dataRNG8[i*2+1])
+        check result == expected
     
     test "randomInt(T) truncation":
       testRNG32 = TestRNG32()
       for i in 0..7:
         let result = randomInt(testRNG32, uint16)
-        let expected = int(dataRNG32[i]) mod 0x10000
-        check int(result) == expected
+        let expected = dataRNG32[i] mod 0x10000u32
+        check uint32(result) == expected
     
     test "randomInt(T) negation":
       testRNG8 = TestRNG8()

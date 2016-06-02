@@ -114,7 +114,7 @@ when defined(test):
     
     test "log2pow2":
       for output in 0..31:
-        let input = uint64(2^output)
+        let input = 1u64 shl uint64(output)
         check log2pow2(input) == output
         check log2pow2Fallback(input) == output
 
