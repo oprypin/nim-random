@@ -75,12 +75,15 @@ template urandomImpl(): stmt {.immediate.} =
     if not file.open("/dev/urandom"):
       raise newException(OSError, "/dev/urandom is not available")
 
-    var index = 0
-    while index < size:
-      let bytesRead = file.readBuffer(addr result[index], size-index)
-      if bytesRead <= 0:
-        raise newException(OSError, "Can't read enough bytes from /dev/urandom")
-      index += bytesRead
+    try:
+      var index = 0
+      while index < size:
+        let bytesRead = file.readBuffer(addr result[index], size-index)
+        if bytesRead <= 0:
+          raise newException(OSError, "Can't read enough bytes from /dev/urandom")
+        index += bytesRead
+    finally:
+      file.close()
 
 proc urandom*(size: Natural): seq[uint8] =
   ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
