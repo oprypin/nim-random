@@ -1,8 +1,8 @@
 # Code in this module is based on:
 # http://xorshift.di.unimi.it/xorshift128plus.c
-# 
+#
 # It was ported to Nim in 2015 by Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # The following are the verbatim comments from the original code:
 
 discard """

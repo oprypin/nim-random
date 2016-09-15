@@ -1,17 +1,17 @@
 # Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # This file is part of nim-random.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,7 +34,7 @@ when defined(windows):
   var CRYPT_VERIFYCONTEXT {.importc, header: "<windows.h>".}: DWORD
 
   {.push, stdcall, dynlib: "Advapi32.dll".}
-  
+
   when useWinUnicode:
     proc CryptAcquireContext(
       phProv: ptr HCRYPTPROV, pszContainer: WideCString,
@@ -49,7 +49,7 @@ when defined(windows):
   proc CryptGenRandom(
     hProv: HCRYPTPROV, dwLen: DWORD, pbBuffer: pointer
   ): WinBool {.importc: "CryptGenRandom".}
-  
+
   {.pop.}
 
   var cryptProv: HCRYPTPROV = 0
@@ -65,16 +65,16 @@ template urandomImpl(): stmt {.immediate.} =
   when defined(windows):
     if cryptProv == 0:
       urandomInit()
-    
+
     let success = CryptGenRandom(cryptProv, DWORD(size), addr result[0])
     if success == 0:
       raise newException(OSError, "Call to CryptGenRandom failed")
-  
+
   else:
     var file: File
     if not file.open("/dev/urandom"):
       raise newException(OSError, "/dev/urandom is not available")
-    
+
     var index = 0
     while index < size:
       let bytesRead = file.readBuffer(addr result[index], size-index)
@@ -85,13 +85,13 @@ template urandomImpl(): stmt {.immediate.} =
 proc urandom*(size: Natural): seq[uint8] =
   ## Returns a ``seq`` of random integers ``0 <= n < 256`` provided by
   ## the operating system's cryptographic source
-  ## 
+  ##
   ## POSIX: Reads and returns `size` bytes from the file ``/dev/urandom``.
-  ## 
+  ##
   ## Windows: Returns `size` bytes obtained by calling ``CryptGenRandom``.
   ## Initialization is done before the first call with
   ## ``CryptAcquireContext(..., PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)``.
-  ## 
+  ##
   ## Raises ``OSError`` on failure.
   newSeq(result, size)
   urandomImpl()
@@ -105,7 +105,7 @@ proc urandom*(size: (static[Natural]){`const`}): array[size, uint8] =
 type SystemRandom* = object
   ## Random number generator based on bytes provided by
   ## the operating system's cryptographic source (see ``urandom``)
-  ## 
+  ##
   ## - Period: none
   ## - State: none (but bytes are obtained in 128-byte chunks)
   bytesIt: iterator (self: var SystemRandom): uint8 {.closure.}

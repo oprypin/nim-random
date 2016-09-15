@@ -1,17 +1,17 @@
 # Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # This file is part of nim-random.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ export common
 type MersenneTwister* = MTState
   ## Mersenne Twister (MT19937). Based on
   ## http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
-  ## 
+  ##
   ## - Period: 2^19937 - 1
   ## - State: 2496 bytes + int
 
@@ -58,16 +58,16 @@ proc initMersenneTwister*(seed: uint32): MersenneTwister =
 when defined(test):
   import unittest
   import private/testutil
-  
+
   const seeds* = [
     345632254u32, 253642432, 1, 0, 239463294, 246956764, 12359836,
     367473423, 1452567348, 0xffffffffu32, 397349243, 983991231, 234234,
     9199139, 424553, 234642342, 123836
   ]
-  
+
   suite "Mersenne Twister":
     echo "Mersenne Twister:"
-    
+
     test "implementation":
       var rng = initMersenneTwister([0x123u32, 0x234, 0x345, 0x456])
       check([rng.randomUint32(), rng.randomUint32(), rng.randomUint32()] == [

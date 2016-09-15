@@ -1,13 +1,13 @@
 # Code in this module is based on:
 # http://mumble.net/~campbell/2014/04/28/random_real.c
-# 
+#
 # It was ported to Nim in 2015 by Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # The following are the verbatim comments from the original code:
 
 # Copyright (c) 2014 Taylor R. Campbell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -16,7 +16,7 @@
 # 2. Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in the
 #    documentation and/or other materials provided with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,10 +33,10 @@
 # Uniform random floats: How to generate a double-precision
 # floating-point numbers in [0, 1] uniformly at random given a uniform
 # random source of bits.
-# 
+#
 # See <http://mumble.net/~campbell/2014/04/28/uniform-random-float>
 # for explanation.
-# 
+#
 # Updated 2015-02-22 to replace ldexp(x, <constant>) by x * ldexp(1,
 # <constant>), since glibc and NetBSD libm both have slow software
 # bit-twiddling implementations of ldexp, but GCC can constant-fold
@@ -55,7 +55,7 @@ template random_real_64*(random64: expr): stmt {.immediate.} =
   ## at random, convert it to double, and divide it by 2^64.  Values in
   ## [2^-11, 1] are overrepresented, small exponents have low precision,
   ## and exponents below -64 are not possible.
-  
+
   return float64(random64) * ldexp(1.0, -64)
 
 
@@ -65,7 +65,7 @@ template random_real_53*(random64: expr): stmt {.immediate.} =
   ## possible outputs are not represented: 2^-54, 1, &c.  There are a
   ## little under 2^62 floating-point values in [0, 1], but only 2^53
   ## possible outputs here.
-  
+
   return float64(random64 and ((1u64 shl 53) - 1)) * ldexp(1.0, -53)
 
 
@@ -73,11 +73,11 @@ template random_real*(random64: expr): stmt {.immediate.} =
   ## random_real: Generate a stream of bits uniformly at random and
   ## interpret it as the fractional part of the binary expansion of a
   ## number in [0, 1], 0.00001010011111010100...; then round it.
-  
+
   var exponent = -64
   var significand: uint64
   var rshift: int
-  
+
   # Read zeros into the exponent until we hit a one; the rest
   # will go into the significand.
   while (significand = random64; unlikely significand == 0):

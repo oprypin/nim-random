@@ -1,8 +1,8 @@
 # Code in this module is based on:
 # http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
-# 
+#
 # It was ported to Nim in 2014 by Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # The following are the verbatim comments from the original code:
 
 discard """
@@ -80,7 +80,7 @@ proc init_genrand*(s: var MTState; seed: uint32) =
         # In the previous versions, MSBs of the seed affect
         # only MSBs of the array mt[].
         # 2002/01/09 modified by Makoto Matsumoto
-        
+
         inc s.mti
 
 proc init_by_array*(s: var MTState; init_key: openArray[uint32]) =
@@ -91,7 +91,7 @@ proc init_by_array*(s: var MTState; init_key: openArray[uint32]) =
     s.init_genrand(19650218u32)
     var i = 1
     var j = 0
-    
+
     for k in countdown(if N > key_length: N else: key_length, 1):
         s.mt[i] =
             (s.mt[i] xor ((s.mt[i-1] xor (s.mt[i-1] shr 30)) * 1664525u32)) +
@@ -103,7 +103,7 @@ proc init_by_array*(s: var MTState; init_key: openArray[uint32]) =
             i = 1
         if j >= key_length:
             j = 0
-    
+
     for k in countdown(N-1, 1):
         s.mt[i] =
             (s.mt[i] xor ((s.mt[i-1] xor (s.mt[i-1] shr 30)) * 1566083941u32)) -
@@ -112,7 +112,7 @@ proc init_by_array*(s: var MTState; init_key: openArray[uint32]) =
         if i >= N:
             s.mt[0] = s.mt[N-1]
             i = 1
-    
+
     s.mt[0] = 0x80000000'u32  # MSB is 1; assuring non-zero initial array
 
 proc genrand_int32*(s: var MTState): uint32 =
@@ -120,7 +120,7 @@ proc genrand_int32*(s: var MTState): uint32 =
     var y: uint32
     let mag01 = [0u32, MATRIX_A]
     # mag01[x] = x*MATRIX_A  for x=0,1
-    
+
     if s.mti >= N: # generate N words at one time
         if s.mti == N+1:
             s.init_genrand(5489u32) # a default initial seed is used
@@ -128,11 +128,11 @@ proc genrand_int32*(s: var MTState): uint32 =
         for kk in 0 .. <N-M:
             y = (s.mt[kk] and UPPER_MASK) or (s.mt[kk+1] and LOWER_MASK)
             s.mt[kk] = s.mt[kk+M] xor (y shr 1) xor mag01[int(y and 1u32)]
-        
+
         for kk in N-M .. <N-1:
             y = (s.mt[kk] and UPPER_MASK) or (s.mt[kk+1] and LOWER_MASK)
             s.mt[kk] = s.mt[kk+(M-N)] xor (y shr 1) xor mag01[int(y and 1u32)]
-        
+
         y = (s.mt[N-1] and UPPER_MASK) or (s.mt[0] and LOWER_MASK)
         s.mt[N-1] = s.mt[M-1] xor (y shr 1) xor mag01[int(y and 1u32)]
 
@@ -140,13 +140,13 @@ proc genrand_int32*(s: var MTState): uint32 =
 
     y = s.mt[s.mti]
     inc s.mti
-    
+
     # Tempering
     y = y xor (y shr 11)
     y = y xor (y shl 7) and 0x9D2C5680'u32
     y = y xor (y shl 15) and 0xEFC60000'u32
     y = y xor (y shr 18)
-    
+
     return y
 
 proc genrand_int31*(s: var MTState): int32 =
@@ -182,14 +182,14 @@ when is_main_module:
         {.varargs, importc: "printf", header: "<stdio.h>".}
 
     var state = init_MTState()
-    
+
     state.init_by_array(@[0x123'u32, 0x234, 0x345, 0x456])
-    
+
     printf("1000 outputs of genrand_int32()\n")
     for i in 0 .. <1000:
         printf("%10lu ", state.genrand_int32())
         if i mod 5 == 4: printf("\n")
-    
+
     printf("\n1000 outputs of genrand_real2()\n")
     for i in 0 .. <1000:
         printf("%10.8f ", state.genrand_real2())

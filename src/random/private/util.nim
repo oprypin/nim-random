@@ -1,17 +1,17 @@
 # Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # This file is part of nim-random.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -104,14 +104,14 @@ when defined(test):
 
   suite "Utilities":
     echo "Utilities:"
-    
+
     test "divCeil":
       for data in [
         (1, 1, 1), (1, 2, 1), (1, 999999, 1), (5, 2, 3), (8, 7, 2)
       ]:
         let (a, b, output) = data
         check divCeil(a, b) == output
-    
+
     test "log2pow2":
       for output in 0..31:
         let input = 1u64 shl uint64(output)
@@ -126,7 +126,7 @@ when defined(test):
         let output = int(ceil(log2(float(input)+1.0)))
         check bitSize(input) == output
         check bitSizeFallback(input) == output
-    
+
     test "bytesToWords":
       for data in [
         (@[0u8, 0, 0, 0, 0, 0, 0, 0], @[0u64]),
@@ -136,7 +136,7 @@ when defined(test):
         let (input, output) = data
         let result = bytesToWords[uint64](input)
         check result == output
-    
+
     test "bytesToWordsN":
       for data in [
         ([0u8, 0, 0, 0, 0, 0, 0, 0], [0u32, 0u32]),

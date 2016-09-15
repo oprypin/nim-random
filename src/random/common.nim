@@ -1,17 +1,17 @@
 # Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
-# 
+#
 # This file is part of nim-random.
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -71,7 +71,7 @@ proc randomInt*(rng: var RNG; T: typedesc[SomeInteger]): T {.inline.} =
 
 proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## Returns a uniformly distributed random integer ``0 <= x < 256``
-  ## 
+  ##
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   rng.randomInt(uint8)
 
@@ -131,7 +131,7 @@ proc random*(rng: var RNG; min, max: float): float {.inline.} =
 proc randomPrecise*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= x <= 1``,
   ## with more resolution (doesn't skip values).
-  ## 
+  ##
   ## Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
   random_real.randomReal(rng.randomInt(uint64))
 
@@ -155,7 +155,7 @@ proc shuffle*(rng: var RNG; arr: var RAContainer) =
 iterator randomSample*(rng: var RNG; interval: Slice[int]; n: Natural): int =
   ## Yields `n` random integers ``interval.a <= x <= interval.b`` in random order.
   ## Each number has an equal chance to be picked and can be picked only once.
-  ## 
+  ##
   ## Raises ``ValueError`` if there are less than `n` items in `interval`.
   if n > interval.b - interval.a + 1:
     raise newException(ValueError, "Sample can't be larger than population")
@@ -173,19 +173,19 @@ iterator randomSample*(rng: var RNG; arr: RAContainer; n: Natural): auto =
   ## in random order. Each item has an equal chance to be picked
   ## and can be picked only once. Duplicate items are allowed in `arr`,
   ## and they will not be treated in any special way.
-  ## 
+  ##
   ## Raises ``ValueError`` if there are less than `n` items in `arr`.
   for i in rng.randomSample(arr.low..arr.high, n):
     yield arr[i]
 
 proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
   ## Random sample using reservoir sampling algorithm.
-  ## 
+  ##
   ## Returns a sequence of `n` items randomly picked from an iterator `iter`,
   ## in no particular order. Each item has an equal chance to be picked and can
   ## be picked only once. Repeating items are allowed in `iter`, and they will
   ## not be treated in any special way.
-  ## 
+  ##
   ## Raises ``ValueError`` if there are less than `n` items in `iter`.
   result = newSeq[T](n)
   if n == 0:
@@ -205,7 +205,7 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
 when defined(test):
   import unittest, sequtils, tables
   import xorshift, private/testutil
-  
+
   var dataRNG8 = [234u8, 153, 0, 0, 127, 128, 255, 255]
   type TestRNG8 = object
     n: int
@@ -213,7 +213,7 @@ when defined(test):
     result = dataRNG8[rng.n]
     rng.n = (rng.n+1) mod dataRNG8.len
   var testRNG8: TestRNG8
-  
+
   var dataRNG32 = [31541451u32, 0, 1, 234, 342475672, 863, 0xffffffffu32, 50967465]
   type TestRNG32 = object
     n: int
@@ -221,7 +221,7 @@ when defined(test):
     result = dataRNG32[rng.n]
     rng.n = (rng.n+1) mod dataRNG32.len
   var testRNG32: TestRNG32
-  
+
   var dataRNG64 = [148763248732657823u64, 18446744073709551615u64, 0u64,
     32456325635673576u64, 2456245614625u64, 32452456246u64, 3956529762u64,
     9823674982364u64, 234253464546456u64, 14345435645646u64]
@@ -231,28 +231,28 @@ when defined(test):
     result = dataRNG64[rng.n]
     rng.n = (rng.n+1) mod dataRNG64.len
   var testRNG64: TestRNG64
-  
+
   proc clItems[T](s: seq[T]): auto =
     (iterator(): T =
       for x in s: yield x)
-  
+
   suite "Common":
     echo "Common:"
-    
+
     test "randomInt(T) accumulation":
       testRNG8 = TestRNG8()
       for i in 0..3:
         let result = randomInt(testRNG8, uint16)
         let expected = uint16(dataRNG8[i*2])*0x100u16 + uint16(dataRNG8[i*2+1])
         check result == expected
-    
+
     test "randomInt(T) truncation":
       testRNG32 = TestRNG32()
       for i in 0..7:
         let result = randomInt(testRNG32, uint16)
         let expected = dataRNG32[i] mod 0x10000u32
         check uint32(result) == expected
-    
+
     test "randomInt(T) negation":
       testRNG8 = TestRNG8()
       for i in 0..7:
@@ -260,7 +260,7 @@ when defined(test):
         if dataRNG8[i] > 0x80u8:
           let expected = int(dataRNG8[i]) - 0x100
           check int(result) == expected
-    
+
     test "random chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
@@ -270,7 +270,7 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 128.422
-    
+
     test "randomPrecise implementation":
       testRNG64 = TestRNG64()
       for bounds in [
@@ -289,7 +289,7 @@ when defined(test):
       ]:
         let r = float(testRNG64.randomPrecise())
         check bounds.a < r and r < bounds.b
-    
+
     test "randomPrecise chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
@@ -299,7 +299,7 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
         check r < 134.642
-    
+
     test "shuffle chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
@@ -312,16 +312,16 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         #  32.007    35.172    38.076    41.638    49.728
         check r < 38.076
-    
+
     test "randomSample":
       var rng = initXorshift128Plus(123)
       expect ValueError:
         for x in rng.randomSample(7..7, 2):
           discard
-      
+
       let z = toSeq(rng.randomSample(7..20, 0))
       check z == newSeq[int]()
-      
+
       for seed in xorshift.seeds:
         rng = initXorshift128Plus(seed)
         for i in 1..100:
@@ -332,7 +332,7 @@ when defined(test):
           let s = toSeq(rng.randomSample(a..b, n))
           check s.len == n
           check s.deduplicate().len == n
-    
+
     test "randomSample chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
@@ -343,16 +343,16 @@ when defined(test):
         #    0.90      0.95     0.975      0.99     0.999
         #  73.279    77.931    82.117    87.166    98.324
         check r < 82.117
-    
+
     test "randomSample reservoir":
       var rng = initXorshift128Plus(123)
       expect ValueError:
         for x in rng.randomSample(@[7].clItems, 2):
           discard
-      
+
       let z = rng.randomSample(@[7, 8, 9].clItems, 0)
       check z == newSeq[int]()
-      
+
       for seed in xorshift.seeds:
         rng = initXorshift128Plus(seed)
         for i in 1..100:
@@ -363,7 +363,7 @@ when defined(test):
           let s = rng.randomSample(toSeq(a..b).clItems, n)
           check s.len == n
           check s.deduplicate().len == n
-    
+
     test "randomSample reservoir chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
