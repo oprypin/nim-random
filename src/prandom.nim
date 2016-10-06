@@ -21,14 +21,14 @@
 # SOFTWARE.
 
 
-## This module is just a convenience import. It exports `random.mersenne` and
-## `random.urandom` and defines a global instance of Mersenne twister with
+## This module is just a convenience import. It exports `prandom.mersenne` and
+## `prandom.urandom` and defines a global instance of Mersenne twister with
 ## alias procedures that use this instance.
 
 
 import times, macros, strutils
-import random.mersenne, random.urandom
-import random/private/util
+import prandom.mersenne, prandom.urandom
+import prandom/private/util
 export mersenne, urandom
 
 
@@ -60,7 +60,7 @@ except OSError:
 #       mersenneTwisterInst.shuffle(arr)
 
 macro makeAliases(): stmt {.immediate.} =
-  let body = parseStmt(staticRead("random/common.nim"))
+  let body = parseStmt(staticRead("prandom/common.nim"))
   result = newStmtList()
 
   for top in body.children:

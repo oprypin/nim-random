@@ -1,3 +1,3 @@
-import random.mersenne
-import random.xorshift
-import random/private/util
+import prandom.mersenne
+import prandom.xorshift
+import prandom/private/util

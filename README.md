@@ -36,7 +36,7 @@ Example
 
 ```nim
 import algorithm, sequtils
-import random, random.xorshift
+import prandom, prandom.xorshift
 
 var a = toSeq(1..10)
 
@@ -77,9 +77,9 @@ Manual
 
 ### Common Operations
 
-The following procedures work for [every](#random-number-generators) random number generator (`import random.*`). The first argument is skipped here; it is always `var RNG`, so you would write, for example, `rng.shuffle(arr)`.
+The following procedures work for [every](#random-number-generators) random number generator (`import prandom.*`). The first argument is skipped here; it is always `var RNG`, so you would write, for example, `rng.shuffle(arr)`.
 
-You can also do `import random` and get access to these exact procedures without the first argument. They use a global instance of [Mersenne twister](#randommersenne), which is seeded using an array of bytes provided by [`urandom`](#randomurandom), or, in case of failure, the current time. Due to this silent fallback and the fact that any other code can use this global instance (and there is no thread safety), it is not recommended to do this if you have any concerns for security.
+You can also do `import prandom` and get access to these exact procedures without the first argument. They use a global instance of [Mersenne twister](#randommersenne), which is seeded using an array of bytes provided by [`urandom`](#randomurandom), or, in case of failure, the current time. Due to this silent fallback and the fact that any other code can use this global instance (and there is no thread safety), it is not recommended to do this if you have any concerns for security.
 
 
 #### Random Integers
@@ -221,12 +221,12 @@ Random access container concept. Should support `len`, `low`, `high`, `[]`. Exam
 
 Pseudo random number generators are objects that have some state associated with them. You can create as many independent RNG objects as you like. If you use the same seed, you will always get the same sequence of numbers.
 
-If you need to generate important things such as passwords, use [*random.urandom*](#randomurandom) or `SystemRandom`, but for typical usage it is much better to only use `urandom` to seed a pseudo-random number generator, as shown at the bottom of the [example](#example).
+If you need to generate important things such as passwords, use [*prandom.urandom*](#randomurandom) or `SystemRandom`, but for typical usage it is much better to only use `urandom` to seed a pseudo-random number generator, as shown at the bottom of the [example](#example).
 
 None of the operations are thread-safe, so if you want to use random number generation in multiple threads, just make a different RNG object in each thread.
 
 
-#### *random.urandom*
+#### *prandom.urandom*
 
 ```nim
 proc urandom(size: Natural): seq[uint8]
@@ -257,7 +257,7 @@ proc initSystemRandom(): SystemRandom
 
 Initializes and returns a new `SystemRandom`
 
-#### *random.mersenne*
+#### *prandom.mersenne*
 
 ##### type MersenneTwister
 
@@ -285,7 +285,7 @@ proc initMersenneTwister(seed: uint32): MersenneTwister
 
 Seeds a new `MersenneTwister` with an `uint32`
 
-#### *random.xorshift*
+#### *prandom.xorshift*
 
 ##### type Xorshift128Plus
 
@@ -370,9 +370,9 @@ This should return a uniformly distributed random number.
 
 You may also override any of the [common operations](#common-operations) for your RNG; `random()` would be the first candidate for this.
 
-Other than this, you should make `init...` procs to create and seed your RNG. It is important to be able to seed with an array of bytes, for convenience of use with [`urandom`](#randomurandom). Look in the source code to see how *random/private/util*.`bytesToWords` and `bytesToWordsN` are used to quickly create byte-array seeding based on some other seeding proc.
+Other than this, you should make `init...` procs to create and seed your RNG. It is important to be able to seed with an array of bytes, for convenience of use with [`urandom`](#randomurandom). Look in the source code to see how *prandom/private/util*.`bytesToWords` and `bytesToWordsN` are used to quickly create byte-array seeding based on some other seeding proc.
 
-Don't forget to import+export *random.common*.
+Don't forget to import+export *prandom.common*.
 
 ---
 

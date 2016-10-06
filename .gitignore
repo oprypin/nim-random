@@ -8,7 +8,7 @@
 !README
 !LICENSE
 !/src/
-!/src/random/
-!/src/random/private/
+!/src/prandom/
+!/src/prandom/private/
 !/test/
 !/.travis.yml
