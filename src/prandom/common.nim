@@ -320,9 +320,10 @@ when defined(test):
       testRNG8 = TestRNG8()
       for i in 0..7:
         let result = randomInt(testRNG8, int8)
-        if dataRNG8[i] > 0x80u8:
-          let expected = int(dataRNG8[i]) - 0x100
-          check int(result) == expected
+        var expected = int(dataRNG8[i])
+        if dataRNG8[i] >= 0x80u8:
+          expected -= 0x100
+        check int(result) == expected
 
     test "randomInt(max) accumulation":
       testRNG8 = TestRNG8()
