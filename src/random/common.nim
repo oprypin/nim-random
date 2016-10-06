@@ -374,7 +374,7 @@ when defined(test):
         # Probability less than the critical value, v = 23
         #    0.90      0.95     0.975      0.99     0.999
         #  32.007    35.172    38.076    41.638    49.728
-        check r < 38.076
+        check r < 41.638
 
     test "randomSample":
       var rng = initXorshift128Plus(123)
@@ -405,7 +405,7 @@ when defined(test):
         # Probability less than the critical value, v = 59
         #    0.90      0.95     0.975      0.99     0.999
         #  73.279    77.931    82.117    87.166    98.324
-        check r < 82.117
+        check r < 87.166
 
     test "randomSample reservoir":
       var rng = initXorshift128Plus(123)
@@ -438,4 +438,4 @@ when defined(test):
         # Probability less than the critical value, v = 55
         #    0.90      0.95     0.975      0.99     0.999
         #  68.796    73.311    77.380    82.292    93.168
-        check r < 77.380
+        check r < 82.292

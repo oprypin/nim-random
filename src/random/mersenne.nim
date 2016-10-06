@@ -82,4 +82,4 @@ when defined(test):
         # Probability less than the critical value, v = 99
         #    0.90      0.95     0.975      0.99     0.999
         # 117.407   123.225   128.422   134.642   148.230
-        check r < 123.225
+        check r < 128.422
