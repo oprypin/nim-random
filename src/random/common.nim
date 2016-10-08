@@ -163,12 +163,6 @@ proc randomInt*[T: SomeInteger](rng: var RNG; max: T): T =
       if rand < limit or limit == 0:
         return rand mod max
 
-proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
-  ## Returns a uniformly distributed random integer ``0 <= x < 256``
-  ##
-  ## *Deprecated*: Use ``randomInt(uint8)`` instead.
-  rng.randomInt(uint8)
-
 proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
   ## Returns a uniformly distributed random integer ``min <= x < max``
   min + rng.randomInt(max - min)
