@@ -328,8 +328,6 @@ when defined(test):
       for x in s: yield x)
 
   suite "Common":
-    echo "Common:"
-
     test "randomInt(T) accumulation":
       testRNG8 = TestRNG8()
       for i in 0..3:

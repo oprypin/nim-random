@@ -109,8 +109,6 @@ when defined(test):
   import unittest, sequtils
 
   suite "Utilities":
-    echo "Utilities:"
-
     test "log2pow2":
       for output in 0..31:
         let input = 1u64 shl uint64(output)

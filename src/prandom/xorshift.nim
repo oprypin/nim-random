@@ -128,8 +128,6 @@ when defined(test):
   ]
 
   suite "Xorshift128+":
-    echo "Xorshift128+:"
-
     test "implementation":
       var rng = initXorshift128Plus([1234524356u64, 47845723665u64])
       check([rng.randomUint64(), rng.randomUint64(), rng.randomUint64()] == [
@@ -156,8 +154,6 @@ when defined(test):
         discard initXorshift128Plus(0)
 
   suite "Xorshift1024*":
-    echo "Xorshift1024*:"
-
     test "implementation":
       var rng = initXorshift1024Star([4873361256124563431u64, 468594272265151u64,
         24562895618746132u64, 13135123616214u64, 446469974321u64,

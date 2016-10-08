@@ -66,8 +66,6 @@ when defined(test):
   ]
 
   suite "Mersenne Twister":
-    echo "Mersenne Twister:"
-
     test "implementation":
       var rng = initMersenneTwister([0x123u32, 0x234, 0x345, 0x456])
       check([rng.randomUint32(), rng.randomUint32(), rng.randomUint32()] == [
