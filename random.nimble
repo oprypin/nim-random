@@ -6,4 +6,4 @@ description: "Pseudo-random number generation library inspired by Python"
 license: "MIT"
 srcDir: "src"
 [Deps]
-requires: "nim >= 0.12.0"
+requires: "nim >= 0.14.0"

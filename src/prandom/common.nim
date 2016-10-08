@@ -37,7 +37,7 @@ type RNG64 = concept var rng
 type RNG* = RNG8 or RNG32 or RNG64
   ## Random number generator
 
-template baseType(rng): expr =
+template baseType(rng): untyped =
   when compiles(rng.randomUint32()): uint32
   elif compiles(rng.randomUint64()): uint64
   elif compiles(rng.randomUint8()): uint8
@@ -45,7 +45,7 @@ template baseType(rng): expr =
     assert false
     uint32
 
-template baseRandom(rng): expr =
+template baseRandom(rng): untyped =
   when compiles(rng.randomUint32()): rng.randomUint32()
   elif compiles(rng.randomUint64()): rng.randomUint64()
   elif compiles(rng.randomUint8()): rng.randomUint8()
@@ -224,7 +224,7 @@ proc randomPrecise*(rng: var RNG): float64 =
   ## with more resolution (doesn't skip values).
   ##
   ## Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
-  random_real.randomReal(rng.randomInt(uint64))
+  randomReal(rng.randomInt(uint64))
 
 
 #: Sequence Operations
