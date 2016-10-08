@@ -54,6 +54,24 @@ template baseRandom(rng): expr =
     0u32
 
 
+template low(T: typedesc[SomeInteger]): untyped =
+  when T is uint64:
+    0'u64
+  elif T is int64:
+    -0x8000000000000000'i64
+  else:
+    system.low(T)
+
+template high(T: typedesc[SomeInteger]): untyped =
+  when T is uint64:
+    0xffffffffffffffff'u64
+  elif T is int64:
+    0x7fffffffffffffff'i64
+  else:
+    system.high(T)
+
+
+
 #: Random Integers
 
 proc randomIntImpl[T: SomeInteger; RNG](rng: var RNG): T =
@@ -68,13 +86,7 @@ proc randomInt*(rng: var RNG; T: typedesc[SomeInteger]): T {.inline.} =
   ## Returns a uniformly distributed random integer ``T.low <= x <= T.high``
   randomIntImpl[T, RNG](rng)
 
-template high(T: typedesc[SomeInteger]): untyped =
-  when T is uint64:
-    0xffffffffffffffff'u64
-  elif T is int64:
-    0x7fffffffffffffff'i64
-  else:
-    system.high(T)
+{.push overflowChecks: off.}
 
 proc randomInt*[T: SomeInteger](rng: var RNG; max: T): T =
   ## Returns a uniformly distributed random integer ``0 <= x < max``
@@ -163,13 +175,29 @@ proc randomInt*[T: SomeInteger](rng: var RNG; max: T): T =
       if rand < limit or limit == 0:
         return rand mod max
 
-proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
+proc randomInt*[T: SomeInteger](rng: var RNG; min, max: T): T =
   ## Returns a uniformly distributed random integer ``min <= x < max``
-  min + rng.randomInt(max - min)
+  if max <= min:
+    raise newException(ValueError, "randomInt interval must non be empty")
 
-proc randomInt*(rng: var RNG; interval: Slice[int]): int {.inline.} =
+  min + cast[T](rng.randomInt(toUnsigned(max - min)))
+  # Overflows may happen at two points here, but it's OK.
+
+proc randomInt*[T: SomeInteger](rng: var RNG; interval: Slice[T]): T =
   ## Returns a uniformly distributed random integer ``interval.a <= x <= interval.b``
-  interval.a + rng.randomInt(interval.b - interval.a + 1)
+  if interval.b < interval.a:
+    raise newException(ValueError, "randomInt interval must not be empty")
+
+  if interval.a == low(T) and interval.b == high(T):
+    # The interval spans all the possible integer values, so `max` would overflow ``high(T)``,
+    # making it 0. Instead, we can call the simpler alternative function that explicitly spans all
+    # the possible values of `T`.
+    return rng.randomInt(T)
+
+  interval.a + cast[T](rng.randomInt(toUnsigned(interval.b - interval.a + 1)))
+  # Overflows may happen at two points here, but it's OK.
+
+{.pop.}
 
 proc randomBool*(rng: var RNG): bool {.inline.} =
   ## Returns a random boolean
@@ -339,6 +367,24 @@ when defined(test):
       check randomInt(testRNG32, 1) == 0
       check randomInt(testRNG32, 10) == 0
       check randomInt(testRNG32, 2) == 1
+
+    test "randomInt(interval)":
+      testRNG64 = TestRNG64()
+      for i in 0..<dataRNG64.len:
+        check randomInt(testRNG64, low(int64)..high(int64)) ==
+          cast[int64](dataRNG64[i])
+
+      testRNG32 = TestRNG32()
+
+      template test(interval) =
+        let r = common.randomInt(testRNG32, interval)
+        check interval.a <= r and r <= interval.b
+
+      test(0u8 .. 255u8)
+      test(-5 .. 5)
+      test(low(int64) .. 7i64)
+      test(-7i64 .. high(int64))
+      test(0u64 .. 0u64)
 
     test "random chiSquare":
       for seed in xorshift.seeds:

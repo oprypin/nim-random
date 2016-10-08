@@ -94,6 +94,17 @@ proc bytesToWordsN*[T, R](bytes: openArray[uint8]): R =
       result[i] = result[i] or (data shl T(8*j))
 
 
+template toUnsigned*[T: SomeInteger](x: T): SomeInteger =
+  when sizeof(T) == 8:
+    cast[uint8](x)
+  elif sizeof(T) == 16:
+    cast[uint16](x)
+  elif sizeof(T) == 32:
+    cast[uint32](x)
+  else:
+    cast[uint64](x)
+
+
 when defined(test):
   import unittest, sequtils
 
