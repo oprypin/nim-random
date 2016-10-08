@@ -63,7 +63,7 @@ echo rng.randomInt(13..37)
 # Reproducible output: 27
 
 echo toSeq(rng.randomSample(a, 3))
-# Reproducible output: @[9, 10, 5]
+# Reproducible output: @[9, 10, 1]
 
 var rng2 = initMersenneTwister(urandom(2500))
 echo rng2.random()

@@ -24,11 +24,6 @@
 import intsets, math
 
 
-proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
-  ## Returns ``ceil(a / b)`` (only works on positive numbers)
-  (a-1+b) div b
-
-
 type RAContainer* = concept c
   ## Random access container
   c.low is SomeInteger
@@ -104,13 +99,6 @@ when defined(test):
 
   suite "Utilities":
     echo "Utilities:"
-
-    test "divCeil":
-      for data in [
-        (1, 1, 1), (1, 2, 1), (1, 999999, 1), (5, 2, 3), (8, 7, 2)
-      ]:
-        let (a, b, output) = data
-        check divCeil(a, b) == output
 
     test "log2pow2":
       for output in 0..31:

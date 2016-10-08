@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2015 Oleh Prypin <blaxpirit@gmail.com>
+# Copyright (C) 2014-2016 Oleh Prypin <blaxpirit@gmail.com>
 #
 # This file is part of nim-random.
 #
@@ -57,48 +57,117 @@ template baseRandom(rng): expr =
 #: Random Integers
 
 proc randomIntImpl[T: SomeInteger; RNG](rng: var RNG): T =
-  when sizeof(T) <= sizeof(rng.baseType):
-    cast[T](rng.baseRandom())
-  else:
-    let neededParts = sizeof(T) div sizeof(rng.baseType)
-    for i in 1..neededParts:
-      result = (result shl T(sizeof(rng.baseType)*8)) or
-        cast[T](rng.baseRandom())
+  let neededParts = sizeof(T) div sizeof(rng.baseType)
+
+  # Build up the number combining multiple outputs from the RNG. See comments below.
+  result = cast[T](rng.baseRandom)
+  for i in 2..neededParts:
+    result = (result shl (sizeof(rng.baseType)*8)) or cast[T](rng.baseRandom())
 
 proc randomInt*(rng: var RNG; T: typedesc[SomeInteger]): T {.inline.} =
   ## Returns a uniformly distributed random integer ``T.low <= x <= T.high``
   randomIntImpl[T, RNG](rng)
+
+template high(T: typedesc[SomeInteger]): untyped =
+  when T is uint64:
+    0xffffffffffffffff'u64
+  elif T is int64:
+    0x7fffffffffffffff'i64
+  else:
+    system.high(T)
+
+proc randomInt*[T: SomeInteger](rng: var RNG; max: T): T =
+  ## Returns a uniformly distributed random integer ``0 <= x < max``
+  if max <= 0:
+    raise newException(ValueError, "randomInt bound must be > 0")
+
+  # The basic ideas of the algorithm are best illustrated with examples.
+  #
+  # Let's say we have a random number generator that gives uniformly distributed random numbers
+  # between 0 and 15. We need to get a uniformly distributed random number between 0 and 5
+  # (`max` = 6). The typical mistake made in this case is to just use ``rand() mod 6``, but it is
+  # clear that some results will appear more often than others. So, the surefire approach is to make
+  # the RNG spit out numbers until it gives one inside our desired range. That is really wasteful
+  # though. So the approach taken here is to discard only a small range of the possible generated
+  # numbers, and use the modulo operation on the "valid" ones, like this (where X means "discard and
+  # try again"):
+  #
+  # Generated number:  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+  #           Result:  0  1  2  3  4  5  0  1  2  3  4  5  X  X  X  X
+  #
+  # 12 is the `limit` here - the highest number divisible by `max` while still being within bounds
+  # of what the RNG can produce.
+  #
+  # On the other side of the spectrum is the problem of generating a random number in a higher range
+  # than what the RNG can produce. Let's say we have the same mentioned RNG, but we need a uniformly
+  # distributed random number between 0 and 255. All that needs to be done is to generate two random
+  # numbers between 0 and 15, and combine their bits (i.e. ``rand()*16 + rand()``).
+  #
+  # Using a combination of these tricks, any RNG can be turned into any RNG, however, there are
+  # several difficult parts about this. The code below uses as few calls to the underlying RNG as
+  # possible, meaning that (with the above example) with `max` being 257, it would call the RNG 3
+  # times. (Of course, it doesn't actually deal with RNGs that produce numbers 0 to 15, only with
+  # the `uint8`, `uint32` and `uint64` ranges.
+  #
+  # Another problem is how to actually compute the `limit`. The obvious way to do it, which is
+  # ``(RAND_MAX + 1) div max * max``, fails because `RAND_MAX` is usually already the highest number
+  # that an integer type can hold. And even the `limit` itself will often be ``RAND_MAX + 1``,
+  # meaning that we don't have to discard anything. The ways to deal with this are described below.
+
+  if cast[uint64](max - 1) <= cast[uint64](high(rng.baseType)):
+    # One number from the RNG will be enough.
+    # All the computations will (almost) fit into `rng.baseType`.
+
+    # Relies on integer overflow + wraparound to find the highest number divisible by `max`.
+    let limit = cast[rng.baseType](0) -
+      (cast[rng.baseType](0) - cast[rng.baseType](max)) mod cast[rng.baseType](max)
+    # `limit` might be 0, which means it would've been ``high(rng.baseType) + 1``, but didn't fit
+    # into the integer type.
+
+    while true:
+      let rand = rng.baseRandom()
+
+      # For a uniform distribution we may need to throw away some numbers
+      if rand < limit or limit == 0:
+        return cast[T](rand mod cast[rng.baseType](max))
+
+  else:
+    # We need to find out how many random numbers need to be combined to be able to generate a
+    # random number of this magnitude. All the computations will be based on `T` as the larger type.
+
+    # ``randMax - 1`` is the maximal number we can get from combining `neededParts` random numbers.
+    # Compute `randMax` as ``pow(high(rng.baseType) + 1, neededParts)``.
+    # If `randMax` becomes 0, that means it has reached ``high(T) + 1``.
+    var randMax = T(1) shl (sizeof(rng.baseType)*8)
+    var neededParts = 1
+    while randMax < max and randMax > T(0):
+      randMax = randMax shl (sizeof(rng.baseType)*8)
+      neededParts += 1
+
+    let limit =
+      if randMax > T(0):
+        # `randMax` didn't overflow, so we can calculate the `limit` the straightforward way.
+        randMax div max * max
+      else:
+        # `randMax` is ``high(T) + 1``, need the same wraparound trick. `limit` might become 0,
+        # which means it would've been ``high(T) + 1``, but didn't fit into the integer type.
+        T(0) - (T(0) - max) mod max
+
+    while true:
+      # Build up the number combining multiple outputs from the RNG.
+      var rand = cast[T](rng.baseRandom())
+      for i in 2..neededParts:
+        rand = (rand shl (sizeof(rng.baseType)*8)) or cast[T](rng.baseRandom())
+
+      # For a uniform distribution we may need to throw away some numbers.
+      if rand < limit or limit == 0:
+        return rand mod max
 
 proc randomByte*(rng: var RNG): uint8 {.inline, deprecated.} =
   ## Returns a uniformly distributed random integer ``0 <= x < 256``
   ##
   ## *Deprecated*: Use ``randomInt(uint8)`` instead.
   rng.randomInt(uint8)
-
-proc randomIntImpl(rng: var RNG; max: uint64): uint64 =
-  # We're assuming 0 < max <= int64.high
-  let limit = (1u64 shl 63) div max * max
-  # high(uint64) doesn't work...
-  when compiles(high(rng.baseType)):
-    if max <= high(rng.baseType):
-      while true:
-        result = cast[uint64](rng.baseRandom())
-        if result < limit: break
-    else:
-      let neededParts = divCeil(bitSize(max), sizeof(rng.baseType)*8)
-      while true:
-        for i in 1..neededParts:
-          result = (result shl (sizeof(rng.baseType)*8)) or rng.baseRandom()
-        if result < limit: break
-  else:
-    while true:
-      result = cast[uint64](rng.baseRandom())
-      if result < limit: break
-  result = result mod max
-
-proc randomInt*(rng: var RNG; max: Positive): Natural {.inline.} =
-  ## Returns a uniformly distributed random integer ``0 <= x < max``
-  rng.randomIntImpl(uint64(max))
 
 proc randomInt*(rng: var RNG; min, max: int): int {.inline.} =
   ## Returns a uniformly distributed random integer ``min <= x < max``
@@ -118,7 +187,7 @@ proc randomBool*(rng: var RNG): bool {.inline.} =
 proc random*(rng: var RNG): float64 =
   ## Returns a uniformly distributed random number ``0 <= x < 1``
   const maxPrec = 1u64 shl 53 # float64, excluding mantissa, has 2^53 values
-  float64(rng.randomIntImpl(maxPrec))/float64(maxPrec)
+  float64(rng.randomInt(maxPrec))/float64(maxPrec)
 
 proc random*(rng: var RNG; max: float): float {.inline.} =
   ## Returns a uniformly distributed random number ``0 <= x < max``
