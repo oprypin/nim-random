@@ -324,6 +324,21 @@ when defined(test):
           let expected = int(dataRNG8[i]) - 0x100
           check int(result) == expected
 
+    test "randomInt(max) accumulation":
+      testRNG8 = TestRNG8()
+      check randomInt(testRNG8, 65536) == 60057 # 234*0x100 + 153
+      check randomInt(testRNG8, 60000) == 0     # 0*0x100 + 0
+      check randomInt(testRNG8, 30000) == 2640  # (127*0x100 + 128) mod 30000
+      check randomInt(testRNG8, 65535) == 60057 # 255*0x100 + 255 [skip]-> 234*0x100 + 153
+      testRNG8 = TestRNG8()
+      check randomInt(testRNG8, 65537) == 38934 # (234*0x10000 + 153*0x100 + 0) mod 65537
+
+    test "randomInt(max) truncation":
+      testRNG32 = TestRNG32()
+      check randomInt(testRNG32, 1) == 0
+      check randomInt(testRNG32, 10) == 0
+      check randomInt(testRNG32, 2) == 1
+
     test "random chiSquare":
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
