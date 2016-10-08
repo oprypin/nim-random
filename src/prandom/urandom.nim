@@ -126,3 +126,19 @@ proc randomUint8*(self: var SystemRandom): uint8 {.inline.} =
 proc initSystemRandom*(): SystemRandom =
   ## Initializes and returns a new ``SystemRandom``
   result.bytesIt = sysRandomBytes
+
+
+when defined(test):
+  import unittest
+
+  suite "SystemRandom":
+    test "urandom":
+      check urandom(5).len == 5
+
+      let n = 999 + 1
+      check urandom(n).len == n
+
+    test "basic usage":
+      var rng = initSystemRandom()
+      let rand = rng.random()
+      check 0 <= rand and rand < 1
