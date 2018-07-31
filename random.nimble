@@ -1,6 +1,6 @@
 [Package]
 name: "random"
-version: "0.5.3"
+version: "0.5.4"
 author: "Oleh Prypin"
 description: "Pseudo-random number generation library inspired by Python"
 license: "MIT"

@@ -82,8 +82,8 @@ proc bytesToWords*[T](bytes: openArray[uint8]): seq[T] =
   # Turn an array of uint8 into an array of T:
   let n = (bytes.high div size)+1 # n bytes is ceil(n/k) k-bit numbers
   result = newSeq[T](n)
-  for i in 0 .. <n:
-    for j in 0 .. <size:
+  for i in 0 ..< n:
+    for j in 0 ..< size:
       let index = i*size+j
       let data: T =
         if index < bytes.len: bytes[index]
@@ -94,7 +94,7 @@ proc bytesToWordsN*[T, R](bytes: openArray[uint8]): R =
   const size = sizeof(T)
   # Turn an array of uint8 into an array of T:
   for i in 0 .. result.high:
-    for j in 0 .. <size:
+    for j in 0 ..< size:
       let data: T = bytes[i*size+j]
       result[i] = result[i] or (data shl T(8*j))
 

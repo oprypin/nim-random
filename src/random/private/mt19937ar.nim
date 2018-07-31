@@ -125,11 +125,11 @@ proc genrand_int32*(s: var MTState): uint32 =
         if s.mti == N+1:
             s.init_genrand(5489u32) # a default initial seed is used
 
-        for kk in 0 .. <N-M:
+        for kk in 0 ..< N-M:
             y = (s.mt[kk] and UPPER_MASK) or (s.mt[kk+1] and LOWER_MASK)
             s.mt[kk] = s.mt[kk+M] xor (y shr 1) xor mag01[int(y and 1u32)]
 
-        for kk in N-M .. <N-1:
+        for kk in N-M ..< N-1:
             y = (s.mt[kk] and UPPER_MASK) or (s.mt[kk+1] and LOWER_MASK)
             s.mt[kk] = s.mt[kk+(M-N)] xor (y shr 1) xor mag01[int(y and 1u32)]
 

@@ -50,7 +50,7 @@ proc ldexp(x: float64; exp: cint): float64
   {.importc: "ldexp", header: "<math.h>".}
 
 
-template random_real_64*(random64: expr): stmt {.immediate.} =
+template random_real_64*(random64: untyped): untyped =
   ## random_real_64: Pick an integer in {0, 1, ..., 2^64 - 1} uniformly
   ## at random, convert it to double, and divide it by 2^64.  Values in
   ## [2^-11, 1] are overrepresented, small exponents have low precision,
@@ -59,7 +59,7 @@ template random_real_64*(random64: expr): stmt {.immediate.} =
   return float64(random64) * ldexp(1.0, -64)
 
 
-template random_real_53*(random64: expr): stmt {.immediate.} =
+template random_real_53*(random64: untyped): untyped =
   ## random_real_53: Pick an integer in {0, 1, ..., 2^53 - 1} uniformly
   ## at random, convert it to double, and divide it by 2^53.  Many
   ## possible outputs are not represented: 2^-54, 1, &c.  There are a
@@ -69,7 +69,7 @@ template random_real_53*(random64: expr): stmt {.immediate.} =
   return float64(random64 and ((1u64 shl 53) - 1)) * ldexp(1.0, -53)
 
 
-template random_real*(random64: expr): stmt {.immediate.} =
+template random_real*(random64: untyped): untyped =
   ## random_real: Generate a stream of bits uniformly at random and
   ## interpret it as the fractional part of the binary expansion of a
   ## number in [0, 1], 0.00001010011111010100...; then round it.
