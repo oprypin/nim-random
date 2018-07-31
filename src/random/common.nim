@@ -37,7 +37,7 @@ type RNG64 = concept var rng
 type RNG* = RNG8 or RNG32 or RNG64
   ## Random number generator
 
-template baseType(rng): expr =
+template baseType(rng): untyped =
   when compiles(rng.randomUint32()): uint32
   elif compiles(rng.randomUint64()): uint64
   elif compiles(rng.randomUint8()): uint8
@@ -45,7 +45,7 @@ template baseType(rng): expr =
     assert false
     uint32
 
-template baseRandom(rng): expr =
+template baseRandom(rng): untyped =
   when compiles(rng.randomUint32()): rng.randomUint32()
   elif compiles(rng.randomUint64()): rng.randomUint64()
   elif compiles(rng.randomUint8()): rng.randomUint8()
@@ -133,7 +133,7 @@ proc randomPrecise*(rng: var RNG): float64 =
   ## with more resolution (doesn't skip values).
   ##
   ## Based on http://mumble.net/~campbell/2014/04/28/uniform-random-float
-  random_real.randomReal(rng.randomInt(uint64))
+  randomReal(rng.randomInt(uint64))
 
 
 #: Sequence Operations
@@ -144,11 +144,11 @@ proc randomChoice*(rng: var RNG; arr: RAContainer): auto {.inline.} =
   arr[rng.randomInt(arr.low..arr.high)]
 
 
-proc shuffle*(rng: var RNG; arr: var RAContainer) =
+proc shuffle*[T: RAContainer](rng: var RNG; arr: var T) =
   ## Randomly shuffles elements of a random access container.
   # Fisher-Yates shuffle
-  for i in arr.low..arr.high:
-    let j = rng.randomInt(i..arr.high)
+  for i in arr.low .. arr.high:
+    let j = rng.randomInt(i .. arr.high)
     swap arr[j], arr[i]
 
 
@@ -194,9 +194,9 @@ proc randomSample*[T](rng: var RNG; iter: iterator(): T; n: Natural): seq[T] =
     r = iter()
     if iter.finished:
       raise newException(ValueError, "Sample can't be larger than population")
-  var idx = n
+  var idx = int(n)
   for e in iter():
-    let r = rng.randomInt(0..idx)
+    let r = rng.randomInt(0 .. idx)
     if r < n:
       result[r] = e
     inc idx
@@ -304,7 +304,7 @@ when defined(test):
       for seed in xorshift.seeds:
         var rng = initXorshift128Plus(seed)
         proc rand(): seq[int] =
-          result = toSeq(1..4)
+          result = toSeq(1 .. 4)
           rng.shuffle(result)
         # 4! = 24
         let r = chiSquare(rand, bucketCount = 24, experiments = 100000)
