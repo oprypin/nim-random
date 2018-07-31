@@ -2,9 +2,10 @@ language: c
 compiler: gcc
 matrix:
   include:
-    - env: nim_branch=devel
+    - {}
     - env: arch=32
     - compiler: clang
+    - env: nim_branch=devel
   allow_failures:
     - env: nim_branch=devel
   fast_finish: true
@@ -15,7 +16,7 @@ install:
     if [ ! -x nim-$nim_branch/bin/nim ]; then
       git clone -b $nim_branch --depth 1 git://github.com/nim-lang/nim nim-$nim_branch/
       cd nim-$nim_branch
-      git clone -b $nim_branch --depth 1 git://github.com/nim-lang/csources csources/
+      git clone --depth 1 git://github.com/nim-lang/csources csources/
       cd csources
       sh build.sh
       cd ..
