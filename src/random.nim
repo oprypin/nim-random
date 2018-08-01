@@ -59,7 +59,7 @@ except OSError:
 #     proc shuffle*(arr: var RAContainer) {.inline.} =
 #       mersenneTwisterInst.shuffle(arr)
 
-macro makeAliases(): stmt {.immediate.} =
+macro makeAliases(): untyped =
   let body = parseStmt(staticRead("random/common.nim"))
   result = newStmtList()
 

@@ -61,7 +61,7 @@ when defined(windows):
     if success == 0:
       raise newException(OSError, "Call to CryptAcquireContext failed")
 
-template urandomImpl(): stmt {.immediate.} =
+template urandomImpl(): untyped =
   when defined(windows):
     if cryptProv == 0:
       urandomInit()
