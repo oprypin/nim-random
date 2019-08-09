@@ -5,44 +5,50 @@ matrix:
     - {}
     - env: arch=32
     - compiler: clang
-    - env: nim_branch=devel
+    - env: nim_channel=devel
   allow_failures:
-    - env: nim_branch=devel
+    - env: nim_channel=devel
   fast_finish: true
 before_install:
-  - export nim_branch="${nim_branch-master}"
+  - nim_channel="${nim_channel-stable}"
+  - |
+    if [ "$nim_channel" = stable ]; then
+      nim_branch="v$(curl https://nim-lang.org/channels/stable)"
+    else
+      nim_branch="$nim_channel"
+    fi
 install:
   - |
-    if [ ! -x nim-$nim_branch/bin/nim ]; then
-      git clone -b $nim_branch --depth 1 git://github.com/nim-lang/nim nim-$nim_branch/
-      cd nim-$nim_branch
-      git clone --depth 1 git://github.com/nim-lang/csources csources/
-      cd csources
+    if [ ! -x "nim-$nim_channel/bin/nim" ]; then
+      git clone -b $nim_branch https://github.com/nim-lang/nim "nim-$nim_channel/"
+      pushd "nim-$nim_channel"
+      git clone --depth 1 https://github.com/nim-lang/csources csources/
+      pushd csources
       sh build.sh
-      cd ..
+      popd
       rm -rf csources
       bin/nim c koch
       ./koch boot -d:release
     else
-      cd nim-$nim_branch
-      git fetch origin
-      if ! git merge FETCH_HEAD | grep "Already up-to-date"; then
+      pushd "nim-$nim_channel"
+      git fetch origin "$nim_branch"
+      if ! git merge FETCH_HEAD | grep "Already up.to.date"; then
         bin/nim c koch
         ./koch boot -d:release
       fi
     fi
-    cd ..
+    popd
 before_script:
   - |
-    export PATH="nim-$nim_branch/bin${PATH:+:$PATH}"
+    export PATH="nim-$nim_channel/bin${PATH:+:$PATH}"
     if [ "$arch" = 32 ]; then
-        export nim_flags="--cpu:i386 --passC:-m32 --passL:-m32"
+        nim_flags="--cpu:i386 --passC:-m32 --passL:-m32"
     fi
 script:
   - nim compile --cc:$CC $nim_flags --verbosity:0 --run test/test
 cache:
   directories:
-    - nim-master
+    - nim-stable
     - nim-devel
 addons:
   apt:
