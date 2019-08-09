@@ -3,7 +3,7 @@ nim-random
 
 Random number generation library for [Nim][] inspired by [Python's "random" module][1]
 
-[![Build Status](https://api.travis-ci.org/BlaXpirit/nim-random.svg?branch=master)](https://travis-ci.org/BlaXpirit/nim-random)
+[![Build Status](https://api.travis-ci.org/oprypin/nim-random.svg?branch=master)](https://travis-ci.org/oprypin/nim-random)
 
 ---
 
@@ -383,7 +383,7 @@ Don't forget to import+export *random.common*.
 Credits
 -------
 
-This library was made by [Oleh Prypin][BlaXpirit].
+This library was made by [Oleh Prypin][oprypin].
 
 It was inspired by [Python][]'s [random][1] library and takes some ideas from it.
 
@@ -401,7 +401,7 @@ Thanks to:
 
 
 
-[doc]: http://blaxpirit.github.io/nim-random/
+[doc]: http://oprypin.github.io/nim-random/
 
 [1]: https://docs.python.org/3/library/random.html
 
@@ -409,13 +409,13 @@ Thanks to:
 [a2]: http://flaviut.github.io/2015/02/08/circleci-nim/
 [a3]: https://gist.github.com/rbehrends/98ebf2cd893d203fb38e
 [a4]: http://stackoverflow.com/questions/21888140/de-bruijn-algorithm-binary-digit-count-64bits-c-sharp/21888542#21888542
-[a5]: https://github.com/BlaXpirit/nim-random/commit/ba4dc9a836ab74aec5ece12852953d29d0d6ced2
+[a5]: https://github.com/oprypin/nim-random/commit/ba4dc9a836ab74aec5ece12852953d29d0d6ced2
 
 [b1]: http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
 [b2]: http://xorshift.di.unimi.it/
 [b3]: http://mumble.net/~campbell/2014/04/28/random_real.c
 
-[BlaXpirit]: https://github.com/BlaXpirit
+[oprypin]: https://github.com/oprypin
 [Varriount]: https://github.com/Varriount
 [flaviut]: https://github.com/flaviut
 [Niklas B.]: http://stackoverflow.com/users/916657/niklas-b
