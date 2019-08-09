@@ -117,7 +117,7 @@ proc initXorshift1024Star*(seed: uint64): Xorshift1024Star =
 
 
 when defined(test):
-  import unittest, math
+  import unittest
   import private/testutil
 
   const seeds* = [

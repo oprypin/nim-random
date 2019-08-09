@@ -43,7 +43,6 @@
 # the latter.
 
 
-import math
 from util import bitSize
 
 proc ldexp(x: float64; exp: cint): float64

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 
-import intsets, math
+import math
 
 
 proc divCeil*(a, b: SomeInteger): SomeInteger {.inline.} =
@@ -100,7 +100,7 @@ proc bytesToWordsN*[T, R](bytes: openArray[uint8]): R =
 
 
 when defined(test):
-  import unittest, sequtils
+  import unittest
 
   suite "Utilities":
     echo "Utilities:"
