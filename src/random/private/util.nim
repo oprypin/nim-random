@@ -58,7 +58,7 @@ proc log2pow2*(x: uint64): int {.inline.} =
 
 proc log2pow21*(x: uint64): int {.inline.} =
   ## Returns ``log2(x+1)``, but `x` must be a power of 2 minus 1.
-  if unlikely x == uint64(-1):
+  if unlikely x == (not 0'u64):
     64
   else:
     log2pow2(x+1)
@@ -121,7 +121,7 @@ when defined(test):
     test "bitSize":
       for input in [
         1u64, 2, 15, 16, 17, 254, 255, 256,
-        (1 shl 24)-1, 1 shl 24, uint64(-1), uint64(-2)
+        (1 shl 24)-1, 1 shl 24, (not 0'u64), (not 1'u64)
       ]:
         let output = int(ceil(log2(float(input)+1.0)))
         check bitSize(input) == output
