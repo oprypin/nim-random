@@ -1,5 +1,5 @@
 packageName   = "random"
-version       = "0.5.5"
+version       = "0.5.6"
 author        = "Oleh Prypin"
 description   = "Pseudo-random number generation library inspired by Python"
 license       = "MIT"
