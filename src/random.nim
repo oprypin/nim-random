@@ -80,7 +80,7 @@ macro makeAliases(): untyped =
     var first = true
     for arglist in top[3].children:
       if not first: # ignore first node (the return type)
-        for i in 0 .. <arglist.len-2: # ignore two last nodes (type)
+        for i in 0 ..< arglist.len-2: # ignore two last nodes (type)
           args.add arglist[i]
       first = false
 
