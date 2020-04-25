@@ -186,11 +186,11 @@ when is_main_module:
     state.init_by_array(@[0x123'u32, 0x234, 0x345, 0x456])
 
     printf("1000 outputs of genrand_int32()\n")
-    for i in 0 .. <1000:
+    for i in 0 ..< 1000:
         printf("%10lu ", state.genrand_int32())
         if i mod 5 == 4: printf("\n")
 
     printf("\n1000 outputs of genrand_real2()\n")
-    for i in 0 .. <1000:
+    for i in 0 ..< 1000:
         printf("%10.8f ", state.genrand_real2())
         if i mod 5 == 4: printf("\n")
