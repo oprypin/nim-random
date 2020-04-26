@@ -27,7 +27,7 @@
 
 
 import times, macros, strutils
-import random.mersenne, random.urandom
+import random/mersenne, random/urandom
 import random/private/util
 export mersenne, urandom
 
