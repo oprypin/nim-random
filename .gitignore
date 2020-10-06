@@ -11,4 +11,6 @@
 !/src/random/
 !/src/random/private/
 !/test/
-!/.travis.yml
+!/.github/
+!/.github/workflows/
+!/.github/workflows/*.yml
