@@ -3,8 +3,6 @@ nim-random
 
 Random number generation library for [Nim][] inspired by [Python's "random" module][1]
 
-[![Build Status](https://api.travis-ci.org/oprypin/nim-random.svg?branch=master)](https://travis-ci.org/oprypin/nim-random)
-
 ---
 
 Contents
