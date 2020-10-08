@@ -32,4 +32,6 @@ jobs:
         run: nim compile ${{matrix.nim-flags}} --run test/test
       - name: Check formatting
         if: runner.os == 'Linux'
-        run: nimpretty --indent:2 **/*.nim && git diff --exit-code
+        run: |
+          find . -name '*.nim' -exec nimpretty --indent:2 {} \;
+          git diff --exit-code
