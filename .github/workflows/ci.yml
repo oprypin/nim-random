@@ -22,9 +22,9 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Nim
-        uses: jiro4989/setup-nim-action@5bbc93d889ba575ed95cde254faa197193690456
+        uses: jiro4989/setup-nim-action@23b5809a314afab9cacb55285d88ece6a35e38dc
       - name: Install cross-compiler
         if: contains(matrix.nim-flags, 'i386')
         run: sudo apt-get update && sudo apt-get -y install gcc-multilib
